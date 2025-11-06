@@ -572,7 +572,7 @@ def painel_usuario():
 
     if isinstance(conn, sqlite3.Connection):
         query = f"""
-            SELECT id, data, fonte, tabela, nome_cliente, cpf,
+            SELECT id, data, fonte, senha_digitada, tabela, nome_cliente, cpf,
                    valor_equivalente, valor_original, observacao, telefone
             FROM propostas
             WHERE consultor = {ph} AND date(data) BETWEEN {ph} AND {ph}
@@ -580,7 +580,7 @@ def painel_usuario():
         """
     else:
         query = f"""
-            SELECT id, data, fonte, tabela, nome_cliente, cpf,
+            SELECT id, data, fonte, senha_digitada, tabela, nome_cliente, cpf,
                    valor_equivalente, valor_original, observacao, telefone
             FROM propostas
             WHERE consultor = {ph}
@@ -604,8 +604,8 @@ def painel_usuario():
         except Exception:
             propostas.append(p)
 
-    total_eq = sum([(p[6] or 0) for p in propostas])
-    total_or = sum([(p[7] or 0) for p in propostas])
+    total_eq = sum([float(p[7] or 0) for p in propostas])
+    total_or = sum([float(p[8] or 0) for p in propostas])
 
     conn.close()
 
@@ -786,48 +786,62 @@ def editar_proposta(id):
     if "user" not in session:
         return redirect(url_for("login"))
 
-    conn = get_conn()
-    cur = conn.cursor()
-
-    ph = "?" if isinstance(conn, sqlite3.Connection) else "%s"
-
-    cur.execute(f"""
-        SELECT id, data, fonte, tabela, nome_cliente, cpf, valor_equivalente,
-               valor_original, observacao, telefone
-        FROM propostas
-        WHERE id = {ph}
-    """, (id,))
-    proposta = cur.fetchone()
-
-    if not proposta:
-        conn.close()
-        return "Proposta não encontrada", 404
-
-    if request.method == "POST":
-        fonte = request.form.get("fonte")
-        tabela = request.form.get("tabela")
-        nome_cliente = request.form.get("nome_cliente")
-        cpf = request.form.get("cpf")
-        valor_equivalente = request.form.get("valor_equivalente") or 0
-        valor_original = request.form.get("valor_original") or 0
-        observacao = request.form.get("observacao")
-        telefone = request.form.get("telefone")
+    try:
+        conn = get_conn()
+        cur = conn.cursor()
+        ph = "?" if isinstance(conn, sqlite3.Connection) else "%s"
 
         cur.execute(f"""
-            UPDATE propostas SET 
-                fonte = {ph}, tabela = {ph}, nome_cliente = {ph}, cpf = {ph},
-                valor_equivalente = {ph}, valor_original = {ph},
-                observacao = {ph}, telefone = {ph}
+            SELECT id, data, fonte, senha_digitada, tabela, nome_cliente, cpf,
+                   valor_equivalente, valor_original, observacao, telefone
+            FROM propostas
             WHERE id = {ph}
-        """, (fonte, tabela, nome_cliente, cpf, valor_equivalente,
-              valor_original, observacao, telefone, id))
+        """, (id,))
+        proposta = cur.fetchone()
 
-        conn.commit()
+        if not proposta:
+            conn.close()
+            return "Proposta não encontrada", 404
+
+        if request.method == "POST":
+            fonte = request.form.get("fonte")
+            senha_digitada = request.form.get("senha_digitada")
+            tabela = request.form.get("tabela")
+            nome_cliente = request.form.get("nome_cliente")
+            cpf = request.form.get("cpf")
+            valor_equivalente = request.form.get("valor_equivalente") or 0
+            valor_original = request.form.get("valor_original") or 0
+            observacao = request.form.get("observacao")
+            telefone = request.form.get("telefone")
+
+            cur.execute(f"""
+                UPDATE propostas SET 
+                    fonte = {ph},
+                    senha_digitada = {ph},
+                    tabela = {ph},
+                    nome_cliente = {ph},
+                    cpf = {ph},
+                    valor_equivalente = {ph},
+                    valor_original = {ph},
+                    observacao = {ph},
+                    telefone = {ph}
+                WHERE id = {ph}
+            """, (fonte, senha_digitada, tabela, nome_cliente, cpf,
+                  valor_equivalente, valor_original, observacao, telefone, id))
+
+            conn.commit()
+            conn.close()
+            flash("Proposta atualizada com sucesso!", "success")
+            return redirect(url_for("painel_usuario"))
+
         conn.close()
-        return redirect(url_for("painel_usuario"))
+        return render_template("editar_proposta.html", proposta=proposta)
 
-    conn.close()
-    return render_template("editar_proposta.html", proposta=proposta)
+    except Exception as e:
+        print("Erro ao editar proposta:", e)
+        if conn:
+            conn.close()
+        return f"Ocorreu um erro ao editar a proposta: {e}", 500
 
 if __name__ == "__main__":
     app.run(debug=True)

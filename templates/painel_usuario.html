@@ -76,6 +76,14 @@
 
           <th>
             <div class="th-top">
+              <span>Senha</span>
+              <span class="seta" onclick="ordenarTabela(3)">⇅</span>
+            </div>
+            <input type="text" class="filtro">
+          </th>
+
+          <th>
+            <div class="th-top">
               <span>Tabela</span>
               <span class="seta" onclick="ordenarTabela(3)">⇅</span>
             </div>
@@ -137,14 +145,15 @@
         {% for p in propostas %}
         <tr>
           <td>{{ p[1].strftime("%Y-%m-%d") if p[1] else "" }}</td>
-          <td>{{ p[2] }}</td>
-          <td>{{ p[3] }}</td>
-          <td>{{ p[4] }}</td>
-          <td>{{ p[5] }}</td>
-          <td>R$ {{ "{:,.2f}".format(p[6] or 0) }}</td>
-          <td>R$ {{ "{:,.2f}".format(p[7] or 0) }}</td>
-          <td>{{ p[8] }}</td>
-          <td>{{ p[9] }}</td>
+          <td>{{ p[2] or "" }}</td>
+          <td>{{ p[3] or "" }}</td>
+          <td>{{ p[4] or "" }}</td>
+          <td>{{ p[5] or "" }}</td>
+          <td>{{ p[6] or "" }}</td>
+          <td>R$ {{ "{:,.2f}".format(p[7] | float or 0) }}</td>
+          <td>R$ {{ "{:,.2f}".format(p[8] | float or 0) }}</td>
+          <td>{{ p[9] or "" }}</td>
+          <td>{{ p[10] or "" }}</td>
           <td class="acoes">
             <a href="{{ url_for('editar_proposta', id=p[0]) }}">
               <i class="material-icons editar">edit</i>
@@ -156,10 +165,12 @@
         </tr>
         {% else %}
         <tr>
-          <td colspan="10">Nenhuma proposta encontrada.</td>
+          <td colspan="11" style="text-align:center;">Nenhuma proposta encontrada.</td>
         </tr>
         {% endfor %}
       </tbody>
+
+
     </table>
 
     <div class="paginacao-tabela">
