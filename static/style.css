@@ -1,7 +1,7 @@
 :root {
   --gradiente-inicio: #e6f1f1;
   --gradiente-fim: #ffffff;
-  --cor-texto: #004d04;
+  --cor-texto: #007006;
   --bg-container: rgba(255, 255, 255, 0.12);
   --bg-input: rgba(255, 255, 255, 0.15);
 }
@@ -1091,6 +1091,7 @@ h1.titulo-tomorrow {
   padding: 25px;
   border-radius: 14px;
   box-shadow: 0 8px 40px rgba(0, 0, 0, 0.35);
+  color: var(--cor-texto);
 }
 
 .tabela-tv {
@@ -1098,6 +1099,7 @@ h1.titulo-tomorrow {
   border-collapse: collapse;
   font-size: 18px;
   text-align: center;
+  color: var(--cor-texto);
 }
 
 .tabela-tv thead tr {
