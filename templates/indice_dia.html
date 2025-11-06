@@ -3,44 +3,155 @@
 {% block title %}Índice do Dia{% endblock %}
 
 {% block content %}
+<style>
+    .painel-tv {
+        width: 95%;
+        margin: auto;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 15px;
+        box-shadow: 0 8px 35px rgba(0, 0, 0, 0.25);
+        padding: 30px;
+    }
 
-<h1 class="titulo-tomorrow" style="margin-bottom: 25px;">Índice do Dia</h1>
+    .tabelas-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+        gap: 35px;
+        justify-content: center;
+        align-items: flex-start;
+    }
+
+    table.tabela-tv {
+        border-collapse: collapse;
+        width: 100%;
+        background: rgba(255, 255, 255, 0.12);
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+    }
+
+    .tabela-tv thead {
+        background: linear-gradient(90deg, #009a2a, #00c73c);
+        color: var(--cor-texto);
+        font-weight: bold;
+        font-size: 16px;
+    }
+
+    .tabela-tv th{
+        padding: 12px 14px;
+        text-align: center;
+        color: white;
+        font-size: 20px;
+    }  
+    
+    .tabela-tv td {
+        padding: 12px 14px;
+        text-align: center;
+        color: var(--cor-texto);
+        font-size: 18px;
+    }
+
+    .tabela-tv tbody tr:nth-child(even) {
+        background: rgba(255, 255, 255, 0.08);
+    }
+
+    .tabela-tv tbody tr:nth-child(odd) {
+        background: rgba(255, 255, 255, 0.15);
+    }
+
+    .tabela-tv td.valor {
+        color: var(--cor-texto);
+        font-weight: 700;
+    }
+
+    .tabela-tv tfoot th {
+        background: linear-gradient(90deg, #009a2a, #00c73c);
+        color: var(--cor-texto);
+        text-transform: uppercase;
+        font-size: 15px;
+        font-weight: bold;
+    }
+
+    h1 {
+        text-align: center;
+        font-weight: 700;
+        font-size: 32px;
+        color: var(--cor-texto);
+        margin-bottom: 25px;
+    }
+
+    .tabela-total {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 15px;
+        text-align: center;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.15);
+    }
+
+    .tabela-total th {
+        background: linear-gradient(90deg, #007a33, #00b84d);
+        color: #fff;
+        font-size: 22px;
+        font-weight: 700;
+        padding: 13px 0;
+        letter-spacing: 1px;
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+        text-transform: uppercase;
+    }
+</style>
 
 <div class="painel-tv">
-    <table class="tabela-tv">
-        <thead>
-            <tr>
-                <th>#</th>
-                <th>Consultor</th>
-                <th>Valor Equivalente</th>
-                <th>Valor Original</th>
-                <th>Falta</th>
-            </tr>
-        </thead>
-
-        <tbody>
-            {% for linha in ranking %}
-            <tr>
-                <td>
-                    {% if loop.index == 1 %}🥇{% elif loop.index == 2 %}🥈{% elif loop.index == 3 %}🥉{% else %}{{ loop.index }}{% endif %}
-                </td>
-                <td>{{ linha[0] }}</td>
-                <td>R$ {{ "{:,.2f}".format(linha[1]) }}</td>
-                <td>R$ {{ "{:,.2f}".format(linha[2]) }}</td>
-                <td>R$ {{ "{:,.2f}".format(linha[4]) }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-
-        <tfoot>
-            <tr>
-                <th colspan="2">TOTAL DO DIA</th>
-                <th>R$ {{ "{:,.2f}".format(total_eq) }}</th>
-                <th>R$ {{ "{:,.2f}".format(total_or) }}</th>
-                <th></th>
-            </tr>
-        </tfoot>
+    <table class="tabela-total">
+        <tr>
+            <th>TOTAL DO DIA — R$ {{ "{:,.2f}".format(total_eq or 0) }}</th>
+        </tr>
     </table>
-</div>
+    <div class="tabelas-container">
+        <table class="tabela-tv">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Consultor</th>
+                    <th>Valor Equivalente</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for i in range(0, ranking|length, 2) %}
+                {% set r = ranking[i] %}
+                <tr>
+                    <td>
+                        {% if i == 0 %}🥇{% elif i == 2 %}🥉{% else %}#{{ i+1 }}{% endif %}
+                    </td>
+                    <td>{{ r[0] }}</td>
+                    <td class="valor">R$ {{ "{:,.2f}".format(r[1] or 0) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
 
+        <table class="tabela-tv">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Consultor</th>
+                    <th>Valor Equivalente</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for i in range(1, ranking|length, 2) %}
+                {% set r = ranking[i] %}
+                <tr>
+                    <td>
+                        {% if i == 1 %}🥈{% else %}#{{ i+1 }}{% endif %}
+                    </td>
+                    <td>{{ r[0] }}</td>
+                    <td class="valor">R$ {{ "{:,.2f}".format(r[1] or 0) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
 {% endblock %}

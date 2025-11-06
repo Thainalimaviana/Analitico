@@ -1083,50 +1083,6 @@ h1.titulo-tomorrow {
   background: rgba(255, 255, 255, 0.35);
 }
 
-.painel-tv {
-  width: 95%;
-  margin: auto;
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(12px);
-  padding: 25px;
-  border-radius: 14px;
-  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.35);
-  color: var(--cor-texto);
-}
-
-.tabela-tv {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 18px;
-  text-align: center;
-  color: var(--cor-texto);
-}
-
-.tabela-tv thead tr {
-  background: linear-gradient(90deg, #00A63C, #00972e);
-  color: white;
-  font-weight: bold;
-}
-
-.tabela-tv th,
-.tabela-tv td {
-  padding: 6px 8px;
-}
-
-.tabela-tv tbody tr:nth-child(even) {
-  background: rgba(255, 255, 255, 0.08);
-}
-
-.tabela-tv tbody tr:nth-child(odd) {
-  background: rgba(255, 255, 255, 0.18);
-}
-
-.tabela-tv tfoot tr {
-  background: linear-gradient(90deg, #00A63C, #00972e);
-  color: white;
-  font-weight: bold;
-}
-
 @media screen and (min-height: 600px) {
   .tabela-tv {
     font-size: 15px;

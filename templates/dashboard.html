@@ -115,10 +115,10 @@
     new Chart(document.getElementById('graficoComparativo'), {
         type: 'doughnut',
         data: {
-            labels: ['Valor Equivalente', 'Valor Original'],
+            labels: ['Valor Equivalente', 'Falta para Meta'],
             datasets: [{
-                data: [{{ total_eq| float }}, {{ total_or| float }}],
-        backgroundColor: ['#00c853', '#0091ea'],
+                data: [{{ total_eq }}, {{ falta_meta }}],
+        backgroundColor: ['#00c853', '#424242'],
         borderWidth: 0
     }]
   },

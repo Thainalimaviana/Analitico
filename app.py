@@ -520,8 +520,6 @@ def editar_meta():
     flash("Meta global atualizada com sucesso!", "success")
     return redirect(url_for("painel_admin"))
 
-
-
 from dateutil.relativedelta import relativedelta
 
 @app.route("/painel_usuario", methods=["GET"])
@@ -591,18 +589,49 @@ def painel_usuario():
         """
 
     cur.execute(query, (consultor_filtro, inicio, fim))
-    propostas = cur.fetchall()
+    propostas_raw = cur.fetchall()
+
+    propostas = []
+    for p in propostas_raw:
+        try:
+            data_val = p[1]
+            if isinstance(data_val, str):
+                try:
+                    data_val = datetime.strptime(data_val.split(".")[0], "%Y-%m-%d %H:%M:%S")
+                except:
+                    data_val = datetime.strptime(data_val, "%Y-%m-%d")
+            propostas.append((p[0], data_val, *p[2:]))
+        except Exception:
+            propostas.append(p)
 
     total_eq = sum([(p[6] or 0) for p in propostas])
     total_or = sum([(p[7] or 0) for p in propostas])
 
     conn.close()
-    mes_titulo = datetime.strptime(inicio, "%Y-%m-%d").strftime("%B/%Y")
 
-    return render_template("painel_usuario.html", usuario_logado=usuario_logado,
-        propostas=propostas, total_eq=total_eq, total_or=total_or,
-        consultores=consultores, consultor_filtro=consultor_filtro,
-        role=role, inicio=inicio, fim=fim, mes=mes, mes_titulo=mes_titulo, hoje=hoje)
+    try:
+        if isinstance(inicio, str):
+            mes_titulo = datetime.strptime(inicio, "%Y-%m-%d").strftime("%B/%Y")
+        else:
+            mes_titulo = inicio.strftime("%B/%Y")
+    except Exception:
+        mes_titulo = datetime.now().strftime("%B/%Y")
+
+    return render_template(
+        "painel_usuario.html",
+        usuario_logado=usuario_logado,
+        propostas=propostas,
+        total_eq=total_eq,
+        total_or=total_or,
+        consultores=consultores,
+        consultor_filtro=consultor_filtro,
+        role=role,
+        inicio=inicio,
+        fim=fim,
+        mes=mes,
+        mes_titulo=mes_titulo,
+        hoje=hoje
+    )
 
 @app.route("/editar_meta_individual", methods=["POST"])
 def editar_meta_individual():
