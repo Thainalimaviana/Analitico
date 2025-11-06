@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<h1 class="titulo-tomorrow">Painel Geral de Produção</h1>
+
+<div class="filtro-dashboard">
+    <form method="GET" class="form-filtro">
+        <div class="botoes-filtro">
+            <button name="periodo" value="mes_atual" class="btn-filtro">Mês Atual</button>
+            <button name="periodo" value="ultimo_mes" class="btn-filtro">Último Mês</button>
+            <button name="periodo" value="ultima_semana" class="btn-filtro">Última Semana</button>
+            <button name="periodo" value="hoje" class="btn-filtro">Hoje</button>
+            <button name="periodo" value="tudo" class="btn-filtro">Tudo</button>
+        </div>
+
+        <div class="seletor-datas">
+            <label>Ou selecione intervalo:</label>
+
+            <div class="input-data">
+                <input type="date" name="inicio">
+            </div>
+
+            <span>até</span>
+
+            <div class="input-data">
+                <input type="date" name="fim">
+            </div>
+
+            <button type="submit" class="btn-filtrar">Filtrar</button>
+        </div>
+    </form>
+</div>
+
+<div class="cards-dashboard">
+    <div class="card verde">
+        <h3>Valor Equivalente</h3>
+        <p class="valor">R$ {{ "{:,.2f}".format(total_eq or 0) }}</p>
+    </div>
+
+    <div class="card azul">
+        <h3>Valor Original</h3>
+        <p class="valor">R$ {{ "{:,.2f}".format(total_or or 0) }}</p>
+    </div>
+
+    <div class="card amarelo">
+        <h3>Propostas Subidas</h3>
+        <p class="valor">{{ total_propostas }}</p>
+    </div>
+
+    <div class="card cinza">
+        <h3>Falta para Meta</h3>
+        <p class="valor">R$ {{ "{:,.2f}".format(falta_meta or 0) }}</p>
+    </div>
+</div>
+
+<div class="container-graficos">
+
+    <div class="grafico-rosquinha">
+        <h3>Comparativo de Produção</h3>
+        <div class="canvas-wrapper">
+            <canvas id="graficoComparativo"></canvas>
+        </div>
+    </div>
+
+    <div class="grafico-ranking">
+        <h3>Top 3 Consultores do Mês</h3>
+
+        <div class="podium">
+            {% set ouro = ranking[0] if ranking|length > 0 else None %}
+            {% set prata = ranking[1] if ranking|length > 1 else None %}
+            {% set bronze = ranking[2] if ranking|length > 2 else None %}
+
+            {% if prata %}
+            <div class="coluna prata">
+                <div class="medalha">🥈</div>
+                <div class="barra prata-bar">
+                    <span class="valor">{{ "{:,.0f}".format(prata[1]) }}</span>
+                </div>
+                <p class="nome">{{ prata[0] }}</p>
+            </div>
+            {% endif %}
+
+            {% if ouro %}
+            <div class="coluna ouro">
+                <div class="medalha">🥇</div>
+                <div class="barra ouro-bar">
+                    <span class="valor">{{ "{:,.0f}".format(ouro[1]) }}</span>
+                </div>
+                <p class="nome">{{ ouro[0] }}</p>
+            </div>
+            {% endif %}
+
+            {% if bronze %}
+            <div class="coluna bronze">
+                <div class="medalha">🥉</div>
+                <div class="barra bronze-bar">
+                    <span class="valor">{{ "{:,.0f}".format(bronze[1]) }}</span>
+                </div>
+                <p class="nome">{{ bronze[0] }}</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    const legendaCor = document.body.classList.contains("dark-mode") ? "#fff" : "#222";
+
+    new Chart(document.getElementById('graficoComparativo'), {
+        type: 'doughnut',
+        data: {
+            labels: ['Valor Equivalente', 'Valor Original'],
+            datasets: [{
+                data: [{{ total_eq| float }}, {{ total_or| float }}],
+        backgroundColor: ['#00c853', '#0091ea'],
+        borderWidth: 0
+    }]
+  },
+        options: {
+        cutout: '70%',
+        plugins: { legend: { position: 'bottom', labels: { color: legendaCor } } },
+        maintainAspectRatio: false,
+        responsive: true
+    }
+});
+
+    const nomes = {{ ranking| map(attribute = 0) | list | tojson }};
+    const valores = {{ ranking| map(attribute = 1) | list | tojson }};
+
+    new Chart(document.getElementById('graficoRanking'), {
+        type: 'bar',
+        data: {
+            labels: nomes,
+            datasets: [{
+                data: valores,
+                backgroundColor: ['#FFD700', '#C0C0C0', '#CD7F32'],
+                borderRadius: 12
+            }]
+        },
+        options: {
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { beginAtZero: true, ticks: { color: legendaCor } },
+                x: { ticks: { color: legendaCor } }
+            },
+            maintainAspectRatio: false,
+            responsive: true
+        }
+    });
+</script>
+
+{% endblock %}

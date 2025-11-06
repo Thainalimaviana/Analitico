@@ -1,0 +1,254 @@
+{% extends "base.html" %}
+{% block title %}Painel do Usuário{% endblock %}
+
+{% block content %}
+<div class="painel-usuario">
+  <div class="topo-painel">
+    <h1>Painel {{ usuario_logado }}</h1>
+  </div>
+
+  <form method="GET" id="form-filtros" class="form-filtro">
+    <input type="hidden" name="periodo" value="">
+
+    <div class="filtros-painel">
+
+      {% if role == 'admin' %}
+      <select name="consultor" class="select-consultor">
+        {% for c in consultores %}
+        <option value="{{ c }}" {% if consultor_filtro==c %}selected{% endif %}>{{ c }}</option>
+        {% endfor %}
+      </select>
+      {% endif %}
+
+      <input type="date" name="data_ini" value="{{ inicio if periodo != 'tudo' else hoje }}" class="input-data">
+      <span style="font-weight:600">até</span>
+      <input type="date" name="data_fim" value="{{ fim if periodo != 'tudo' else hoje }}" class="input-data">
+
+      <button type="submit" class="btn-filtrar">Filtrar</button>
+
+      <button type="button" class="btn-filtro" onclick="selecionarPeriodo('mes_atual')">Mês Atual</button>
+      <button type="button" class="btn-filtro" onclick="selecionarPeriodo('ultimo_mes')">Último Mês</button>
+      <button type="button" class="btn-filtro" onclick="selecionarPeriodo('ultima_semana')">Última Semana</button>
+      <button type="button" class="btn-filtro" onclick="selecionarPeriodo('hoje')">Hoje</button>
+      <button type="button" class="btn-filtro" onclick="selecionarPeriodo('tudo')">Tudo</button>
+
+    </div>
+  </form>
+
+  <div class="cards-dashboard">
+    <div class="card verde">
+      <h3>Valor Equivalente</h3>
+      <p class="valor">R$ {{ "{:,.2f}".format(total_eq or 0) }}</p>
+    </div>
+
+    <div class="card azul">
+      <h3>Valor Original</h3>
+      <p class="valor">R$ {{ "{:,.2f}".format(total_or or 0) }}</p>
+    </div>
+
+    <div class="card amarelo">
+      <h3>Total de Propostas</h3>
+      <p class="valor">{{ propostas|length }}</p>
+    </div>
+  </div>
+
+  <div class="tabela-usuario">
+    <table>
+      <thead>
+        <tr>
+
+          <th>
+            <div class="th-top">
+              <span>Data</span>
+              <span class="seta" onclick="ordenarTabela(1)">⇅</span>
+            </div>
+            <input type="text" class="filtro">
+          </th>
+
+          <th>
+            <div class="th-top">
+              <span>Fonte</span>
+              <span class="seta" onclick="ordenarTabela(2)">⇅</span>
+            </div>
+            <input type="text" class="filtro">
+          </th>
+
+          <th>
+            <div class="th-top">
+              <span>Tabela</span>
+              <span class="seta" onclick="ordenarTabela(3)">⇅</span>
+            </div>
+            <input type="text" class="filtro">
+          </th>
+
+          <th>
+            <div class="th-top">
+              <span>Nome Cliente</span>
+              <span class="seta" onclick="ordenarTabela(4)">⇅</span>
+            </div>
+            <input type="text" class="filtro">
+          </th>
+
+          <th>
+            <div class="th-top">
+              <span>CPF</span>
+              <span class="seta" onclick="ordenarTabela(5)">⇅</span>
+            </div>
+            <input type="text" class="filtro">
+          </th>
+
+          <th>
+            <div class="th-top">
+              <span>Equivalente</span>
+              <span class="seta" onclick="ordenarTabela(6)">⇅</span>
+            </div>
+          </th>
+
+          <th>
+            <div class="th-top">
+              <span>Original</span>
+              <span class="seta" onclick="ordenarTabela(7)">⇅</span>
+            </div>
+          </th>
+
+          <th>
+            <div class="th-top">
+              <span>Observação</span>
+              <span class="seta" onclick="ordenarTabela(8)">⇅</span>
+            </div>
+            <input type="text" class="filtro">
+          </th>
+
+          <th>
+            <div class="th-top">
+              <span>Telefone</span>
+              <span class="seta" onclick="ordenarTabela(9)">⇅</span>
+            </div>
+            <input type="text" class="filtro">
+          </th>
+
+          <th>Ações</th>
+
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for p in propostas %}
+        <tr>
+          <td>{{ p[1][:10] }}</td>
+          <td>{{ p[2] }}</td>
+          <td>{{ p[3] }}</td>
+          <td>{{ p[4] }}</td>
+          <td>{{ p[5] }}</td>
+          <td>R$ {{ "{:,.2f}".format(p[6] or 0) }}</td>
+          <td>R$ {{ "{:,.2f}".format(p[7] or 0) }}</td>
+          <td>{{ p[8] }}</td>
+          <td>{{ p[9] }}</td>
+          <td class="acoes">
+            <a href="{{ url_for('editar_proposta', id=p[0]) }}">
+              <i class="material-icons editar">edit</i>
+            </a>
+            <a href="{{ url_for('excluir_proposta', id=p[0]) }}" onclick="return confirm('Excluir esta proposta?')">
+              <i class="material-icons deletar">delete</i>
+            </a>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="10">Nenhuma proposta encontrada.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div class="paginacao-tabela">
+      <div class="paginacao-mes centralizado">
+        <button class="btn-mes" onclick="mudarMes(-1)">← Mês anterior</button>
+        <span class="mes-atual">{{ mes_titulo }}</span>
+        <button class="btn-mes" onclick="mudarMes(1)">Próximo mês →</button>
+      </div>
+
+      {% if total_pages and total_pages > 1 %}
+      <div class="paginacao-paginas">
+        {% for p in range(1, total_pages + 1) %}
+        <button class="btn-page {% if p == page %}ativo{% endif %}" onclick="mudarPagina({{ p }})">
+          {{ p }}
+        </button>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+
+<script>
+  let ordemAsc = true;
+
+  function ordenarTabela(coluna) {
+    const tabela = document.querySelector("table tbody");
+    const linhas = Array.from(tabela.rows);
+
+    linhas.sort((a, b) => {
+      let x = a.cells[coluna].innerText.trim();
+      let y = b.cells[coluna].innerText.trim();
+
+      if (!isNaN(x) && !isNaN(y)) {
+        x = Number(x);
+        y = Number(y);
+      }
+
+      return ordemAsc ? (x > y ? 1 : -1) : (x < y ? 1 : -1);
+    });
+
+    ordemAsc = !ordemAsc;
+    linhas.forEach(linha => tabela.appendChild(linha));
+  }
+
+
+  document.querySelectorAll("thead .filtro").forEach((input, i) => {
+    input.addEventListener("keyup", () => {
+      const filtro = input.value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      const linhas = document.querySelectorAll("tbody tr");
+
+      linhas.forEach(linha => {
+        const celula = linha.cells[i];
+        const textoCelula = celula ? celula.innerText.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") : "";
+        linha.style.display = textoCelula.includes(filtro) ? "" : "none";
+      });
+    });
+  });
+
+  function selecionarPeriodo(periodo) {
+    document.querySelector("input[name='data_ini']").value = "";
+    document.querySelector("input[name='data_fim']").value = "";
+    document.querySelector("input[name='periodo']").value = periodo;
+    document.getElementById("form-filtros").submit();
+  }
+
+  function mudarMes(offset) {
+    const url = new URL(window.location.href);
+    let mes = url.searchParams.get("mes");
+
+    if (!mes) {
+      const hoje = new Date();
+      mes = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}`;
+    }
+
+    const [ano, mesNum] = mes.split("-");
+    const data = new Date(parseInt(ano, 10), parseInt(mesNum, 10) - 1 + offset, 1);
+    const novoMes = `${data.getFullYear()}-${String(data.getMonth() + 1).padStart(2, '0')}`;
+
+    url.searchParams.set("mes", novoMes);
+    url.searchParams.set("page", "1");
+    window.location.href = url.toString();
+  }
+
+  function mudarPagina(p) {
+    const url = new URL(window.location.href);
+    url.searchParams.set("page", String(p));
+    window.location.href = url.toString();
+  }
+</script>
+
+{% endblock %}

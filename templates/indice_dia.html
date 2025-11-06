@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Índice do Dia{% endblock %}
+
+{% block content %}
+
+<h1 class="titulo-tomorrow" style="margin-bottom: 25px;">Índice do Dia</h1>
+
+<div class="painel-tv">
+    <table class="tabela-tv">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Consultor</th>
+                <th>Valor Equivalente</th>
+                <th>Valor Original</th>
+                <th>Falta</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for linha in ranking %}
+            <tr>
+                <td>
+                    {% if loop.index == 1 %}🥇{% elif loop.index == 2 %}🥈{% elif loop.index == 3 %}🥉{% else %}{{ loop.index }}{% endif %}
+                </td>
+                <td>{{ linha[0] }}</td>
+                <td>R$ {{ "{:,.2f}".format(linha[1]) }}</td>
+                <td>R$ {{ "{:,.2f}".format(linha[2]) }}</td>
+                <td>R$ {{ "{:,.2f}".format(linha[4]) }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+
+        <tfoot>
+            <tr>
+                <th colspan="2">TOTAL DO DIA</th>
+                <th>R$ {{ "{:,.2f}".format(total_eq) }}</th>
+                <th>R$ {{ "{:,.2f}".format(total_or) }}</th>
+                <th></th>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+
+{% endblock %}

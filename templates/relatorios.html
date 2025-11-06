@@ -1,0 +1,344 @@
+{% extends "base.html" %}
+{% block title %}Relatórios de Propostas{% endblock %}
+
+{% block content %}
+
+<style>
+  .form-relatorios {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin: 25px auto 35px;
+    padding: 14px 20px;
+    background: var(--bg-container);
+    border-radius: 12px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.25);
+    width: fit-content;
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+    color: var(--cor-texto);
+  }
+
+  .form-relatorios label {
+    font-weight: 500;
+    color: var(--cor-texto);
+    font-size: 14px;
+  }
+
+  .form-relatorios select,
+  .form-relatorios input[type="datetime-local"],
+  .form-relatorios input[type="text"] {
+    padding: 7px 10px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    background: linear-gradient(40deg, var(--gradiente-inicio), var(--gradiente-fim));
+    color: var(--cor-texto);
+    font-size: 14px;
+    outline: none;
+    transition: all 0.3s ease;
+  }
+
+  .form-relatorios select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-color: var(--bg-input);
+    color: var(--cor-texto);
+  }
+
+  .form-relatorios select option {
+    background-color: #0e1d10;
+    color: #ffffff;
+  }
+
+  .form-relatorios select:focus,
+  .form-relatorios input[type="datetime-local"]:focus {
+    border-color: #00ff66;
+    box-shadow: 0 0 6px rgba(0, 255, 128, 0.3);
+    background: linear-gradient(40deg, var(--gradiente-inicio), var(--gradiente-fim));
+  }
+
+  .btn-filtrar {
+    background: linear-gradient(90deg, #00b848, #009634);
+    color: #fff;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 18px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+  }
+
+  .btn-filtrar:hover {
+    background: linear-gradient(90deg, #00e062, #00b848);
+    transform: scale(1.05);
+  }
+
+  .btn-baixar {
+    background: linear-gradient(90deg, #00cc33, #00a32a);
+    color: #fff;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 20px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+  }
+
+  .btn-baixar:hover {
+    background: linear-gradient(90deg, #00ff66, #00cc33);
+    transform: scale(1.05);
+  }
+
+  .tabela-relatorio {
+    width: 95%;
+    margin: auto;
+    background: var(--bg-container);
+    border-radius: 10px;
+    backdrop-filter: blur(8px);
+    max-height: 710px;
+    overflow-y: auto;
+    overflow-x: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+  }
+
+  .tabela-relatorio table {
+    width: 100%;
+    border-collapse: collapse;
+    background: transparent;
+    color: var(--cor-texto);
+    text-align: center;
+    border-radius: 10px;
+    overflow: hidden;
+    font-size: 14px;
+  }
+
+  .tabela-relatorio th {
+    background: rgba(0, 150, 0, 0.45);
+    color: #fff;
+    padding: 8px;
+    position: sticky;
+    top: 0;
+  }
+
+  .tabela-relatorio td {
+    padding: 8px 6px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    color: var(--cor-texto);
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  body:not(.dark-mode) .tabela-relatorio th {
+    background: rgba(0, 100, 0, 0.15);
+    color: #007006;
+  }
+
+  body:not(.dark-mode) .tabela-relatorio td {
+    background: rgba(0, 0, 0, 0.04);
+    color: #004d0a;
+  }
+
+  .tabela-relatorio tr:nth-child(even) td {
+    background: rgba(255, 255, 255, 0.07);
+  }
+
+  .msg-vazia {
+    text-align: center;
+    color: var(--cor-texto);
+    margin-top: 40px;
+    font-size: 18px;
+  }
+
+  .erro-msg {
+    color: #ff4d4d;
+    text-align: center;
+    margin-top: 10px;
+  }
+
+  .filtros {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    padding: 15px 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  }
+
+  .filtros label {
+    font-weight: 600;
+    color: var(--cor-texto);
+  }
+
+  .filtros input,
+  .filtros select {
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    background: rgba(255, 255, 255, 0.25);
+    color: var(--cor-texto);
+  }
+
+  .input-pequeno {
+    width: 150px;
+  }
+
+  .botao-filtrar {
+    background: #00b000;
+    color: white;
+    border: none;
+    font-weight: 600;
+    border-radius: 8px;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+
+  .botao-filtrar:hover {
+    background: #008000;
+  }
+
+  .botao-baixar {
+    background: #00b000;
+    color: white;
+    border: none;
+    font-weight: 600;
+    border-radius: 8px;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+
+  .botao-baixar:hover {
+    background: #008000;
+  }
+</style>
+
+<h1 class="titulo-tomorrow">Relatórios de Propostas</h1>
+
+<div class="relatorios-container">
+  <form method="POST" class="form-relatorios">
+    <label>Selecionar Usuário:</label>
+    <select name="usuario">
+      <option value="" {% if not user %}selected{% endif %}>Todos</option>
+      {% for u in usuarios %}
+      <option value="{{ u }}" {% if user==u %}selected{% endif %}>{{ u }}</option>
+      {% endfor %}
+    </select>
+
+    <label>Data Início:</label>
+    <input type="datetime-local" name="data_ini" value="{{ data_ini or '' }}">
+
+    <label>Data Fim:</label>
+    <input type="datetime-local" name="data_fim" value="{{ data_fim or '' }}">
+
+    <label>Observação:</label>
+    <input type="text" name="observacao" placeholder="Buscar" value="{{ observacao or '' }}" class="input-pequeno">
+
+    <label>Senha:</label>
+    <input type="text" name="senha_digitada" placeholder="Buscar Senha" value="{{ senha_digitada or '' }}"
+      class="input-pequeno">
+
+    <button type="submit" name="acao" value="filtrar" class="btn-filtrar">Filtrar</button>
+    <button type="submit" name="acao" value="baixar" class="btn-baixar">Baixar Excel</button>
+  </form>
+</div>
+
+{% if dados %}
+<div class="tabela-relatorio">
+  <h3>Exibindo {{ dados|length }} propostas de {{ user or 'Todos' }}</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Data</th>
+        <th>Consultor</th>
+        <th>Fonte</th>
+        <th>Senha Digitada</th>
+        <th>Tabela</th>
+        <th>Nome do Cliente</th>
+        <th>CPF</th>
+        <th>Valor Equivalente</th>
+        <th>Valor Original</th>
+        <th>Observação</th>
+        <th>Telefone</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for d in dados %}
+      <tr>
+        <td>{{ d[0] }}</td>
+        <td>{{ d[1] }}</td>
+        <td>{{ d[2] }}</td>
+        <td>{{ d[3] }}</td>
+        <td>{{ d[4] }}</td>
+        <td>{{ d[5] }}</td>
+        <td>{{ d[6] }}</td>
+        <td>R$ {{ "{:,.2f}".format(d[7] or 0) }}</td>
+        <td>R$ {{ "{:,.2f}".format(d[8] or 0) }}</td>
+        <td>{{ d[9] }}</td>
+        <td>{{ d[10] }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% elif not erro %}
+<div class="msg-vazia">
+  <p>Aguarde... Carregando as últimas 30 propostas.</p>
+</div>
+{% endif %}
+
+{% if erro %}
+<div class="erro-msg">{{ erro }}</div>
+{% endif %}
+
+<style>
+  .form-relatorios {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 15px 0 25px;
+  }
+
+  .tabela-relatorio {
+    width: 95%;
+    margin: auto;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    backdrop-filter: blur(8px);
+  }
+
+  .tabela-relatorio table {
+    width: 100%;
+    border-collapse: collapse;
+    color: white;
+  }
+
+  .tabela-relatorio th,
+  .tabela-relatorio td {
+    padding: 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    text-align: center;
+  }
+
+  .tabela-relatorio th {
+    background: rgba(0, 0, 0, 0.2);
+    font-weight: 600;
+  }
+
+  .msg-vazia {
+    text-align: center;
+    color: #fff;
+    margin-top: 40px;
+    font-size: 18px;
+  }
+</style>
+
+{% endblock %}

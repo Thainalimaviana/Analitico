@@ -1,0 +1,6 @@
+Flask
+requests
+Werkzeug
+gunicorn
+psycopg[binary]
+pandas
