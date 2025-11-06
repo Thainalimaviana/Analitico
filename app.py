@@ -134,7 +134,7 @@ def indice_dia():
     cur.execute("SELECT consultor, meta FROM metas_individuais;")
     metas_dict = {row[0]: row[1] for row in cur.fetchall()}
 
-    cur.execute("SELECT nome FROM users ORDER BY nome;")
+    cur.execute("SELECT nome FROM users WHERE role != 'admin' ORDER BY nome;")
     todos_usuarios = [r[0] for r in cur.fetchall()]
 
     query_dia = ("""
@@ -233,7 +233,13 @@ def relatorios():
         return redirect(url_for("login"))
     conn = get_conn()
     cur = conn.cursor()
-    cur.execute("SELECT DISTINCT consultor FROM propostas WHERE consultor IS NOT NULL ORDER BY consultor;")
+    cur.execute("""
+        SELECT DISTINCT consultor
+        FROM propostas
+        WHERE consultor IS NOT NULL
+        AND consultor NOT IN (SELECT nome FROM users WHERE role = 'admin')
+        ORDER BY consultor;
+    """)
     usuarios = [u[0] for u in cur.fetchall()]
 
     user = request.form.get("usuario")
@@ -260,8 +266,9 @@ def relatorios():
                valor_equivalente, valor_original, observacao, telefone
         FROM propostas
     """
-
     condicoes, params = [], []
+    
+    condicoes.append("consultor NOT IN (SELECT nome FROM users WHERE role = 'admin')")
 
     if user and user.strip():
         condicoes.append(f"consultor = {ph}")
@@ -455,6 +462,7 @@ def painel_admin():
            AND {"strftime('%Y-%m', p.data)" if isinstance(conn, sqlite3.Connection) else "TO_CHAR(p.data, 'YYYY-MM')"} = {ph}
         LEFT JOIN metas_individuais m
             ON u.nome = m.consultor
+        WHERE u.role != 'admin'
         GROUP BY u.nome, m.meta
         ORDER BY total_eq DESC;
     """
