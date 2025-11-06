@@ -1,15 +1,14 @@
-from flask import Flask, render_template, request, redirect, url_for, session, send_file
+from flask import Flask, render_template, request, redirect, url_for, session, send_file, flash
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime
+from datetime import datetime, timedelta
 import pandas as pd
-import sqlite3, psycopg2, os, io, pytz
-from flask import flash
-import json
+import sqlite3, psycopg2, os, io, pytz, json
+from dateutil.relativedelta import relativedelta
+
 try:
     import psycopg2
 except ImportError:
     psycopg2 = None
-
 
 app = Flask(__name__)
 app.secret_key = "consigtech_secret_2025"
@@ -70,8 +69,8 @@ def init_db():
             telefone TEXT
         )""")
 
-    cur.execute("SELECT * FROM users WHERE nome = ?", ("admin",)) if isinstance(conn, sqlite3.Connection) \
-        else cur.execute("SELECT * FROM users WHERE nome = %s", ("admin",))
+    cur.execute("SELECT * FROM users WHERE nome = ?" if isinstance(conn, sqlite3.Connection)
+                else "SELECT * FROM users WHERE nome = %s", ("admin",))
     if not cur.fetchone():
         senha_hash = generate_password_hash("Tech@2025")
         cur.execute("INSERT INTO users (nome, senha, role) VALUES (?, ?, ?)" if isinstance(conn, sqlite3.Connection)
@@ -85,7 +84,6 @@ init_db()
 def ensure_meta_table():
     conn = get_conn()
     cur = conn.cursor()
-
     if isinstance(conn, sqlite3.Connection):
         cur.execute("""
             CREATE TABLE IF NOT EXISTS metas_globais (
@@ -100,7 +98,6 @@ def ensure_meta_table():
                 valor NUMERIC(12,2)
             )
         """)
-
     conn.commit()
     conn.close()
 
@@ -119,7 +116,6 @@ def indice_dia():
 
     conn = get_conn()
     cur = conn.cursor()
-    ph = "?" if isinstance(conn, sqlite3.Connection) else "%s"
 
     cur.execute("""
         CREATE TABLE IF NOT EXISTS metas_individuais (
@@ -141,24 +137,31 @@ def indice_dia():
     cur.execute("SELECT nome FROM users ORDER BY nome;")
     todos_usuarios = [r[0] for r in cur.fetchall()]
 
-    query_dia = f"""
+    query_dia = ("""
         SELECT consultor,
                COALESCE(SUM(valor_equivalente), 0) AS total_eq,
                COALESCE(SUM(valor_original), 0) AS total_or
         FROM propostas
         WHERE date(data) = date('now', 'localtime')
         GROUP BY consultor;
-    """
+    """ if isinstance(conn, sqlite3.Connection) else """
+        SELECT consultor,
+               COALESCE(SUM(valor_equivalente), 0) AS total_eq,
+               COALESCE(SUM(valor_original), 0) AS total_or
+        FROM propostas
+        WHERE DATE(data AT TIME ZONE 'America/Sao_Paulo') = CURRENT_DATE
+        GROUP BY consultor;
+    """)
+
     cur.execute(query_dia)
     resultados = {r[0]: (r[1], r[2]) for r in cur.fetchall()}
 
-    query_total = """
+    cur.execute("""
         SELECT consultor,
                COALESCE(SUM(valor_equivalente), 0) AS eq_total
         FROM propostas
         GROUP BY consultor;
-    """
-    cur.execute(query_total)
+    """)
     totais = {r[0]: r[1] for r in cur.fetchall()}
 
     conn.close()
@@ -176,13 +179,7 @@ def indice_dia():
     total_eq = sum(r[1] for r in ranking)
     total_or = sum(r[2] for r in ranking)
 
-    return render_template(
-        "indice_dia.html",
-        ranking=ranking,
-        total_eq=total_eq,
-        total_or=total_or
-    )
-
+    return render_template("indice_dia.html", ranking=ranking, total_eq=total_eq, total_or=total_or)
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -210,25 +207,15 @@ def logout():
 def nova_proposta():
     if "user" not in session:
         return redirect(url_for("login"))
-
     if request.method == "POST":
         fuso = pytz.timezone("America/Sao_Paulo")
         agora = datetime.now(fuso).strftime("%Y-%m-%d %H:%M:%S")
-
         dados = (
-            agora,
-            session["user"],
-            request.form.get("fonte"),
-            request.form.get("senha_digitada"),
-            request.form.get("tabela"),
-            request.form.get("nome_cliente"),
-            request.form.get("cpf"),
-            request.form.get("valor_equivalente") or 0,
-            request.form.get("valor_original") or 0,
-            request.form.get("observacao"),
-            request.form.get("telefone")
+            agora, session["user"], request.form.get("fonte"), request.form.get("senha_digitada"),
+            request.form.get("tabela"), request.form.get("nome_cliente"), request.form.get("cpf"),
+            request.form.get("valor_equivalente") or 0, request.form.get("valor_original") or 0,
+            request.form.get("observacao"), request.form.get("telefone")
         )
-
         conn = get_conn()
         cur = conn.cursor()
         ph = "?" if isinstance(conn, sqlite3.Connection) else "%s"
@@ -244,7 +231,6 @@ def nova_proposta():
 def relatorios():
     if "user" not in session or session["role"] != "admin":
         return redirect(url_for("login"))
-
     conn = get_conn()
     cur = conn.cursor()
     cur.execute("SELECT DISTINCT consultor FROM propostas WHERE consultor IS NOT NULL ORDER BY consultor;")
@@ -264,6 +250,7 @@ def relatorios():
             return datetime.strptime(data_str, "%Y-%m-%dT%H:%M").strftime("%Y-%m-%d %H:%M:%S")
         except ValueError:
             return data_str
+
     data_ini = normalizar_data(data_ini)
     data_fim = normalizar_data(data_fim)
 
@@ -274,16 +261,14 @@ def relatorios():
         FROM propostas
     """
 
-    condicoes = []
-    params = []
+    condicoes, params = [], []
 
-    if user and user.strip() != "":
+    if user and user.strip():
         condicoes.append(f"consultor = {ph}")
         params.append(user)
     if data_ini and data_fim:
         condicoes.append(f"data BETWEEN {ph} AND {ph}")
-        params.append(data_ini)
-        params.append(data_fim)
+        params += [data_ini, data_fim]
     if observacao:
         condicoes.append(f"observacao LIKE {ph}")
         params.append(f"%{observacao}%")
@@ -293,20 +278,31 @@ def relatorios():
 
     if condicoes:
         query_base += " WHERE " + " AND ".join(condicoes)
-    query_base += " ORDER BY datetime(data) DESC"
+
+    order_clause = "ORDER BY datetime(data) DESC" if isinstance(conn, sqlite3.Connection) else "ORDER BY data DESC"
+    query_base += f" {order_clause}"
 
     cur.execute(query_base.replace("?", "%s") if not isinstance(conn, sqlite3.Connection) else query_base, tuple(params))
     dados = cur.fetchall()
 
     if acao == "baixar":
         if not dados:
-            cur.execute("""
-                SELECT data, consultor, fonte, senha_digitada, tabela, nome_cliente, cpf,
-                       valor_equivalente, valor_original, observacao, telefone
-                FROM propostas
-                ORDER BY datetime(data) DESC
-                LIMIT 30;
-            """)
+            if isinstance(conn, sqlite3.Connection):
+                cur.execute("""
+                    SELECT data, consultor, fonte, senha_digitada, tabela, nome_cliente, cpf,
+                           valor_equivalente, valor_original, observacao, telefone
+                    FROM propostas
+                    ORDER BY datetime(data) DESC
+                    LIMIT 30;
+                """)
+            else:
+                cur.execute("""
+                    SELECT data, consultor, fonte, senha_digitada, tabela, nome_cliente, cpf,
+                           valor_equivalente, valor_original, observacao, telefone
+                    FROM propostas
+                    ORDER BY data DESC
+                    LIMIT 30;
+                """)
             dados = cur.fetchall()
 
         colunas = ["Data", "Consultor", "Fonte", "Senha Digitada", "Tabela", "Nome", "CPF",
@@ -320,10 +316,9 @@ def relatorios():
         return send_file(output, as_attachment=True, download_name=filename)
 
     conn.close()
-    return render_template("relatorios.html", usuarios=usuarios, dados=dados,
-                           user=user, data_ini=data_ini, data_fim=data_fim,
+    return render_template("relatorios.html", usuarios=usuarios, dados=dados, user=user,
+                           data_ini=data_ini, data_fim=data_fim,
                            observacao=observacao, senha_digitada=senha_digitada)
-
 
 from datetime import datetime, timedelta
 
@@ -345,36 +340,36 @@ def dashboard():
         except:
             inicio = agora.replace(day=1).strftime("%Y-%m-%d")
             fim = agora.strftime("%Y-%m-%d")
-
     else:
         if periodo == "hoje":
             inicio = fim = agora.strftime("%Y-%m-%d")
-
         elif periodo == "ultima_semana":
             inicio = (agora - timedelta(days=7)).strftime("%Y-%m-%d")
             fim = agora.strftime("%Y-%m-%d")
-
         elif periodo == "ultimo_mes":
             mes_passado = (agora.replace(day=1) - timedelta(days=1))
             inicio = mes_passado.replace(day=1).strftime("%Y-%m-%d")
             fim = mes_passado.strftime("%Y-%m-%d")
-
         elif periodo == "tudo":
             inicio, fim = "1900-01-01", "2100-01-01"
-
         else:
             inicio = agora.replace(day=1).strftime("%Y-%m-%d")
             fim = agora.strftime("%Y-%m-%d")
 
     conn = get_conn()
     cur = conn.cursor()
-
     ph = "?" if isinstance(conn, sqlite3.Connection) else "%s"
+
+    # Correção: compatibilidade PostgreSQL x SQLite
+    if isinstance(conn, sqlite3.Connection):
+        filtro_data = f"date(data) BETWEEN {ph} AND {ph}"
+    else:
+        filtro_data = f"DATE(data AT TIME ZONE 'America/Sao_Paulo') BETWEEN {ph} AND {ph}"
 
     cur.execute(f"""
         SELECT SUM(valor_equivalente), SUM(valor_original), COUNT(*)
         FROM propostas
-        WHERE date(data) BETWEEN {ph} AND {ph}
+        WHERE {filtro_data}
     """, (inicio, fim))
     total_eq, total_or, total_propostas = cur.fetchone() or (0, 0, 0)
 
@@ -386,7 +381,7 @@ def dashboard():
     cur.execute(f"""
         SELECT consultor, SUM(valor_equivalente) AS total
         FROM propostas
-        WHERE date(data) BETWEEN {ph} AND {ph}
+        WHERE {filtro_data}
         GROUP BY consultor
         ORDER BY total DESC
         LIMIT 3;
@@ -469,17 +464,11 @@ def painel_admin():
     cur.execute("SELECT valor FROM metas_globais ORDER BY id DESC LIMIT 1;")
     meta_global_row = cur.fetchone()
     meta_global = meta_global_row[0] if meta_global_row else 0
-
     media_usuarios = (sum([r[3] or 0 for r in ranking]) / len(ranking)) if ranking else 0
 
     conn.close()
-
-    return render_template("painel_admin.html",
-                           ranking=ranking,
-                           meta_global=meta_global,
-                           media_usuarios=media_usuarios,
-                           mes_atual=mes)
-
+    return render_template("painel_admin.html", ranking=ranking, meta_global=meta_global,
+                           media_usuarios=media_usuarios, mes_atual=mes)
 
 @app.route("/editar_meta", methods=["POST"])
 def editar_meta():
@@ -521,7 +510,6 @@ def painel_usuario():
         consultores = [usuario_logado]
 
     consultor_filtro = request.args.get("consultor") if role == "admin" else usuario_logado
-
     data_ini = request.args.get("data_ini")
     data_fim = request.args.get("data_fim")
     periodo = request.args.get("periodo")
@@ -531,9 +519,7 @@ def painel_usuario():
     hoje = agora.strftime("%Y-%m-%d")
 
     if data_ini and data_fim:
-        inicio = data_ini
-        fim = data_fim
-
+        inicio, fim = data_ini, data_fim
     else:
         if periodo == "hoje":
             inicio = fim = hoje
@@ -546,7 +532,6 @@ def painel_usuario():
             fim = mes_passado.strftime("%Y-%m-%d")
         elif periodo == "tudo":
             inicio, fim = "1900-01-01", "2100-01-01"
-
         else:
             if not mes:
                 mes = agora.strftime("%Y-%m")
@@ -555,13 +540,23 @@ def painel_usuario():
 
     ph = "?" if isinstance(conn, sqlite3.Connection) else "%s"
 
-    query = f"""
-        SELECT id, data, fonte, tabela, nome_cliente, cpf,
-               valor_equivalente, valor_original, observacao, telefone
-        FROM propostas
-        WHERE consultor = {ph} AND date(data) BETWEEN {ph} AND {ph}
-        ORDER BY datetime(data) DESC;
-    """
+    if isinstance(conn, sqlite3.Connection):
+        query = f"""
+            SELECT id, data, fonte, tabela, nome_cliente, cpf,
+                   valor_equivalente, valor_original, observacao, telefone
+            FROM propostas
+            WHERE consultor = {ph} AND date(data) BETWEEN {ph} AND {ph}
+            ORDER BY datetime(data) DESC;
+        """
+    else:
+        query = f"""
+            SELECT id, data, fonte, tabela, nome_cliente, cpf,
+                   valor_equivalente, valor_original, observacao, telefone
+            FROM propostas
+            WHERE consultor = {ph}
+              AND DATE(data AT TIME ZONE 'America/Sao_Paulo') BETWEEN {ph} AND {ph}
+            ORDER BY data DESC;
+        """
 
     cur.execute(query, (consultor_filtro, inicio, fim))
     propostas = cur.fetchall()
@@ -570,37 +565,12 @@ def painel_usuario():
     total_or = sum([(p[7] or 0) for p in propostas])
 
     conn.close()
-
     mes_titulo = datetime.strptime(inicio, "%Y-%m-%d").strftime("%B/%Y")
 
-    return render_template("painel_usuario.html",
-        usuario_logado=usuario_logado,
-        propostas=propostas,
-        total_eq=total_eq,
-        total_or=total_or,
-        consultores=consultores,
-        consultor_filtro=consultor_filtro,
-        role=role,
-        inicio=inicio,
-        fim=fim,
-        mes=mes,
-        mes_titulo=mes_titulo,
-        hoje=hoje
-    )
-
-@app.route("/editar_meta_global", methods=["POST"])
-def editar_meta_global():
-    if "user" not in session or session["role"] != "admin":
-        return redirect(url_for("login"))
-    nova_meta = float(request.form["nova_meta"])
-    conn = get_conn()
-    cur = conn.cursor()
-    cur.execute("CREATE TABLE IF NOT EXISTS metas_globais (id SERIAL PRIMARY KEY, valor NUMERIC(12,2));")
-    cur.execute("INSERT INTO metas_globais (valor) VALUES (%s);" if not isinstance(conn, sqlite3.Connection) else
-                "INSERT INTO metas_globais (valor) VALUES (?);", (nova_meta,))
-    conn.commit()
-    conn.close()
-    return redirect(url_for("painel_admin"))
+    return render_template("painel_usuario.html", usuario_logado=usuario_logado,
+        propostas=propostas, total_eq=total_eq, total_or=total_or,
+        consultores=consultores, consultor_filtro=consultor_filtro,
+        role=role, inicio=inicio, fim=fim, mes=mes, mes_titulo=mes_titulo, hoje=hoje)
 
 @app.route("/editar_meta_individual", methods=["POST"])
 def editar_meta_individual():
