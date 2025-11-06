@@ -267,7 +267,7 @@ def relatorios():
         FROM propostas
     """
     condicoes, params = [], []
-    
+
     condicoes.append("consultor NOT IN (SELECT nome FROM users WHERE role = 'admin')")
 
     if user and user.strip():
@@ -483,19 +483,39 @@ def editar_meta():
     if "user" not in session or session["role"] != "admin":
         return redirect(url_for("login"))
 
-    nova_meta = float(request.form.get("valor_meta", 0))
+    try:
+        nova_meta = float(request.form.get("nova_meta", 0))
+    except:
+        nova_meta = 0
 
     conn = get_conn()
     cur = conn.cursor()
     ph = "?" if isinstance(conn, sqlite3.Connection) else "%s"
 
-    cur.execute("DELETE FROM metas_globais")
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS metas_globais (
+            id SERIAL PRIMARY KEY,
+            valor NUMERIC(12,2)
+        )
+    """ if not isinstance(conn, sqlite3.Connection) else """
+        CREATE TABLE IF NOT EXISTS metas_globais (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            valor REAL
+        )
+    """)
+
+    cur.execute("TRUNCATE metas_globais RESTART IDENTITY" if not isinstance(conn, sqlite3.Connection) else "DELETE FROM metas_globais;")
     cur.execute(f"INSERT INTO metas_globais (valor) VALUES ({ph})", (nova_meta,))
     conn.commit()
-    conn.close()
 
-    flash("Meta atualizada com sucesso!", "success")
+    cur.execute("SELECT valor FROM metas_globais ORDER BY id DESC LIMIT 1;")
+    ultimo = cur.fetchone()
+    print("Meta salva com sucesso:", ultimo[0] if ultimo else "(nenhuma)")
+
+    conn.close()
+    flash("Meta global atualizada com sucesso!", "success")
     return redirect(url_for("painel_admin"))
+
 
 
 from dateutil.relativedelta import relativedelta
