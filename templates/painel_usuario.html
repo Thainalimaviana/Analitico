@@ -136,7 +136,7 @@
       <tbody>
         {% for p in propostas %}
         <tr>
-          <td>{{ p[1][:10] }}</td>
+          <td>{{ p[1].strftime("%Y-%m-%d") if p[1] else "" }}</td>
           <td>{{ p[2] }}</td>
           <td>{{ p[3] }}</td>
           <td>{{ p[4] }}</td>
