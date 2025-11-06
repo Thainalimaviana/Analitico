@@ -459,24 +459,28 @@ def painel_admin():
         FROM users u
         LEFT JOIN propostas p
             ON u.nome = p.consultor
-           AND {"strftime('%Y-%m', p.data)" if isinstance(conn, sqlite3.Connection) else "TO_CHAR(p.data, 'YYYY-MM')"} = {ph}
+           AND {"strftime('%Y-%m', p.data) = ?" if isinstance(conn, sqlite3.Connection)
+                else "TO_CHAR(p.data, 'YYYY-MM') = %s"}
         LEFT JOIN metas_individuais m
             ON u.nome = m.consultor
         WHERE u.role != 'admin'
         GROUP BY u.nome, m.meta
         ORDER BY total_eq DESC;
     """
-    cur.execute(query, (f"{ano}-{mes_num}%",))
+
+    cur.execute(query, (f"{ano}-{mes_num}",))
     ranking = cur.fetchall()
 
     cur.execute("SELECT valor FROM metas_globais ORDER BY id DESC LIMIT 1;")
     meta_global_row = cur.fetchone()
     meta_global = meta_global_row[0] if meta_global_row else 0
+
     media_usuarios = (sum([r[3] or 0 for r in ranking]) / len(ranking)) if ranking else 0
 
     conn.close()
     return render_template("painel_admin.html", ranking=ranking, meta_global=meta_global,
                            media_usuarios=media_usuarios, mes_atual=mes)
+
 
 @app.route("/editar_meta", methods=["POST"])
 def editar_meta():
