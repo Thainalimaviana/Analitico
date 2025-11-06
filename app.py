@@ -5,6 +5,11 @@ import pandas as pd
 import sqlite3, psycopg2, os, io, pytz
 from flask import flash
 import json
+try:
+    import psycopg2
+except ImportError:
+    psycopg2 = None
+
 
 app = Flask(__name__)
 app.secret_key = "consigtech_secret_2025"
@@ -13,7 +18,7 @@ DATABASE_URL = os.environ.get("DATABASE_URL", "").replace("postgres://", "postgr
 LOCAL_DB = "local.db"
 
 def get_conn():
-    if DATABASE_URL:
+    if DATABASE_URL and psycopg2:
         return psycopg2.connect(DATABASE_URL, sslmode="require")
     else:
         return sqlite3.connect(LOCAL_DB, check_same_thread=False)

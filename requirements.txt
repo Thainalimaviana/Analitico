@@ -1,6 +1,8 @@
 Flask
-requests
-Werkzeug
 gunicorn
-psycopg[binary]
+psycopg2-binary
+pytz
 pandas
+openpyxl
+python-dateutil
+Werkzeug
