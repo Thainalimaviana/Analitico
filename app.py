@@ -457,7 +457,7 @@ def painel_admin():
         FROM users u
         LEFT JOIN propostas p
             ON u.nome = p.consultor
-           AND p.data LIKE {ph}
+           AND {"strftime('%Y-%m', p.data)" if isinstance(conn, sqlite3.Connection) else "TO_CHAR(p.data, 'YYYY-MM')"} = {ph}
         LEFT JOIN metas_individuais m
             ON u.nome = m.consultor
         GROUP BY u.nome, m.meta
