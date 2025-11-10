@@ -137,23 +137,28 @@ def indice_dia():
     cur.execute("SELECT nome FROM users WHERE role != 'admin' ORDER BY nome;")
     todos_usuarios = [r[0] for r in cur.fetchall()]
 
-    query_dia = ("""
-        SELECT consultor,
-               COALESCE(SUM(valor_equivalente), 0) AS total_eq,
-               COALESCE(SUM(valor_original), 0) AS total_or
-        FROM propostas
-        WHERE date(data) = date('now', 'localtime')
-        GROUP BY consultor;
-    """ if isinstance(conn, sqlite3.Connection) else """
-        SELECT consultor,
-               COALESCE(SUM(valor_equivalente), 0) AS total_eq,
-               COALESCE(SUM(valor_original), 0) AS total_or
-        FROM propostas
-        WHERE DATE(data AT TIME ZONE 'America/Sao_Paulo') = CURRENT_DATE
-        GROUP BY consultor;
-    """)
+    tz = pytz.timezone("America/Sao_Paulo")
+    hoje = datetime.now(tz).strftime("%Y-%m-%d")
 
-    cur.execute(query_dia)
+    if isinstance(conn, sqlite3.Connection):
+        cur.execute("""
+            SELECT consultor,
+                   COALESCE(SUM(valor_equivalente), 0) AS total_eq,
+                   COALESCE(SUM(valor_original), 0) AS total_or
+            FROM propostas
+            WHERE DATE(data, 'localtime') = ?
+            GROUP BY consultor;
+        """, (hoje,))
+    else:
+        cur.execute("""
+            SELECT consultor,
+                   COALESCE(SUM(valor_equivalente), 0) AS total_eq,
+                   COALESCE(SUM(valor_original), 0) AS total_or
+            FROM propostas
+            WHERE DATE(data AT TIME ZONE 'America/Sao_Paulo') = %s
+            GROUP BY consultor;
+        """, (hoje,))
+
     resultados = {r[0]: (r[1], r[2]) for r in cur.fetchall()}
 
     cur.execute("""
@@ -179,7 +184,14 @@ def indice_dia():
     total_eq = sum(r[1] for r in ranking)
     total_or = sum(r[2] for r in ranking)
 
-    return render_template("indice_dia.html", ranking=ranking, total_eq=total_eq, total_or=total_or)
+    return render_template(
+        "indice_dia.html",
+        ranking=ranking,
+        total_eq=total_eq,
+        total_or=total_or,
+        data_atual=hoje
+    )
+
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -207,32 +219,55 @@ def logout():
 def nova_proposta():
     if "user" not in session:
         return redirect(url_for("login"))
+
     if request.method == "POST":
         fuso = pytz.timezone("America/Sao_Paulo")
-        agora = datetime.now(fuso).strftime("%Y-%m-%d %H:%M:%S")
+
+        data_input = request.form.get("data_manual")
+        if data_input:
+            try:
+                data_formatada = datetime.strptime(data_input, "%Y-%m-%dT%H:%M").strftime("%Y-%m-%d %H:%M:%S")
+            except ValueError:
+                data_formatada = datetime.now(fuso).strftime("%Y-%m-%d %H:%M:%S")
+        else:
+            data_formatada = datetime.now(fuso).strftime("%Y-%m-%d %H:%M:%S")
+
         dados = (
-            agora, session["user"], request.form.get("fonte"), request.form.get("senha_digitada"),
-            request.form.get("tabela"), request.form.get("nome_cliente"), request.form.get("cpf"),
-            request.form.get("valor_equivalente") or 0, request.form.get("valor_original") or 0,
-            request.form.get("observacao"), request.form.get("telefone")
+            data_formatada,
+            session["user"],
+            request.form.get("fonte"),
+            request.form.get("senha_digitada"),
+            request.form.get("tabela"),
+            request.form.get("nome_cliente"),
+            request.form.get("cpf"),
+            request.form.get("valor_equivalente") or 0,
+            request.form.get("valor_original") or 0,
+            request.form.get("observacao"),
+            request.form.get("telefone")
         )
+
         conn = get_conn()
         cur = conn.cursor()
         ph = "?" if isinstance(conn, sqlite3.Connection) else "%s"
+
         cur.execute(f"""INSERT INTO propostas 
             (data, consultor, fonte, senha_digitada, tabela, nome_cliente, cpf, valor_equivalente, valor_original, observacao, telefone)
             VALUES ({','.join([ph]*11)})""", dados)
+
         conn.commit()
         conn.close()
         return render_template("nova_proposta.html", sucesso="Proposta enviada com sucesso!")
+
     return render_template("nova_proposta.html")
 
 @app.route("/relatorios", methods=["GET", "POST"])
 def relatorios():
     if "user" not in session or session["role"] != "admin":
         return redirect(url_for("login"))
+
     conn = get_conn()
     cur = conn.cursor()
+
     cur.execute("""
         SELECT DISTINCT consultor
         FROM propostas
@@ -247,6 +282,8 @@ def relatorios():
     data_fim = request.form.get("data_fim")
     observacao = request.form.get("observacao", "").strip()
     senha_digitada = request.form.get("senha_digitada", "").strip()
+    fonte = request.form.get("fonte", "").strip()
+    tabela = request.form.get("tabela", "").strip()
     acao = request.form.get("acao")
 
     def normalizar_data(data_str):
@@ -270,18 +307,39 @@ def relatorios():
 
     condicoes.append("consultor NOT IN (SELECT nome FROM users WHERE role = 'admin')")
 
+    def filtro_lower(campo, valor):
+        if isinstance(conn, sqlite3.Connection):
+            return f"LOWER({campo}) LIKE LOWER({ph})", f"%{valor.lower()}%"
+        else:
+            return f"LOWER({campo}) LIKE LOWER({ph})", f"%{valor}%"
+
     if user and user.strip():
-        condicoes.append(f"consultor = {ph}")
+        condicoes.append(f"LOWER(consultor) = LOWER({ph})")
         params.append(user)
+
     if data_ini and data_fim:
         condicoes.append(f"data BETWEEN {ph} AND {ph}")
         params += [data_ini, data_fim]
+
     if observacao:
-        condicoes.append(f"observacao LIKE {ph}")
-        params.append(f"%{observacao}%")
+        filtro, valor = filtro_lower("observacao", observacao)
+        condicoes.append(filtro)
+        params.append(valor)
+
     if senha_digitada:
-        condicoes.append(f"senha_digitada LIKE {ph}")
-        params.append(f"%{senha_digitada}%")
+        filtro, valor = filtro_lower("senha_digitada", senha_digitada)
+        condicoes.append(filtro)
+        params.append(valor)
+
+    if fonte:
+        filtro, valor = filtro_lower("fonte", fonte)
+        condicoes.append(filtro)
+        params.append(valor)
+
+    if tabela:
+        filtro, valor = filtro_lower("tabela", tabela)
+        condicoes.append(filtro)
+        params.append(valor)
 
     if condicoes:
         query_base += " WHERE " + " AND ".join(condicoes)
@@ -323,9 +381,18 @@ def relatorios():
         return send_file(output, as_attachment=True, download_name=filename)
 
     conn.close()
-    return render_template("relatorios.html", usuarios=usuarios, dados=dados, user=user,
-                           data_ini=data_ini, data_fim=data_fim,
-                           observacao=observacao, senha_digitada=senha_digitada)
+    return render_template(
+        "relatorios.html",
+        usuarios=usuarios,
+        dados=dados,
+        user=user,
+        data_ini=data_ini,
+        data_fim=data_fim,
+        observacao=observacao,
+        senha_digitada=senha_digitada,
+        fonte=fonte,
+        tabela=tabela
+    )
 
 from datetime import datetime, timedelta
 
@@ -813,9 +880,19 @@ def editar_proposta(id):
             valor_original = request.form.get("valor_original") or 0
             observacao = request.form.get("observacao")
             telefone = request.form.get("telefone")
+            data_manual = request.form.get("data_manual")
+
+            if data_manual:
+                try:
+                    nova_data = datetime.strptime(data_manual, "%Y-%m-%dT%H:%M").strftime("%Y-%m-%d %H:%M:%S")
+                except ValueError:
+                    nova_data = proposta[1]
+            else:
+                nova_data = proposta[1] 
 
             cur.execute(f"""
                 UPDATE propostas SET 
+                    data = {ph},
                     fonte = {ph},
                     senha_digitada = {ph},
                     tabela = {ph},
@@ -826,8 +903,10 @@ def editar_proposta(id):
                     observacao = {ph},
                     telefone = {ph}
                 WHERE id = {ph}
-            """, (fonte, senha_digitada, tabela, nome_cliente, cpf,
-                  valor_equivalente, valor_original, observacao, telefone, id))
+            """, (
+                nova_data, fonte, senha_digitada, tabela, nome_cliente, cpf,
+                valor_equivalente, valor_original, observacao, telefone, id
+            ))
 
             conn.commit()
             conn.close()

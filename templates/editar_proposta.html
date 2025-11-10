@@ -31,6 +31,7 @@
     .form-linha {
         display: flex;
         gap: 15px;
+        flex-wrap: wrap;
     }
 
     .barra-cpf {
@@ -53,6 +54,32 @@
     textarea.barra-cpf {
         resize: none;
         height: 90px;
+    }
+
+    .data-hora-linha {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        margin-top: 10px;
+    }
+
+    .data-hora-linha label {
+        color: var(--cor-texto);
+        font-weight: 600;
+        font-size: 15px;
+        margin-bottom: 6px;
+        margin-left: 3px;
+    }
+
+    input[type="datetime-local"].barra-cpf {
+        width: 100%;
+        transition: 0.3s ease;
+    }
+
+    input[type="datetime-local"].barra-cpf:focus {
+        border-color: #00b848;
+        box-shadow: 0 0 6px rgba(0, 255, 128, 0.4);
+        background: rgba(255, 255, 255, 0.18);
     }
 
     .button-group {
@@ -107,6 +134,15 @@
             <input class="barra-cpf" type="text" name="telefone" value="{{ proposta[10] }}" placeholder="Telefone com DDD">
         </div>
 
+        <div class="form-linha data-hora-linha">
+            <label>Data e Hora (opcional):</label>
+            <input class="barra-cpf" type="datetime-local" name="data_manual"
+                   value="{{ proposta[1]|replace(' ', 'T') if proposta[1] else '' }}">
+            <small style="color: var(--cor-texto); opacity: 0.7; margin-top: 4px;">
+                Se não alterar, será mantida a data original: {{ proposta[1] }}
+            </small>
+        </div>
+
         <div class="button-group">
             <button type="submit" class="azul">
                 <i class="fa fa-save"></i> Salvar Alterações
@@ -115,4 +151,3 @@
     </form>
 </div>
 {% endblock %}
-

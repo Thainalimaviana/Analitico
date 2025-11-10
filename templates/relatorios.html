@@ -246,6 +246,13 @@
     <input type="text" name="senha_digitada" placeholder="Buscar Senha" value="{{ senha_digitada or '' }}"
       class="input-pequeno">
 
+    <!-- 🆕 Novos filtros -->
+    <label>Fonte:</label>
+    <input type="text" name="fonte" placeholder="Buscar Fonte" value="{{ fonte or '' }}" class="input-pequeno">
+
+    <label>Tabela:</label>
+    <input type="text" name="tabela" placeholder="Buscar Tabela" value="{{ tabela or '' }}" class="input-pequeno">
+
     <button type="submit" name="acao" value="filtrar" class="btn-filtrar">Filtrar</button>
     <button type="submit" name="acao" value="baixar" class="btn-baixar">Baixar Excel</button>
   </form>

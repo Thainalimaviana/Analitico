@@ -1,45 +1,100 @@
 <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/logo.png') }}">
+<style>
+  .form-linha label {
+    color: var(--cor-texto);
+    font-weight: 600;
+    font-size: 15px;
+    margin-bottom: 6px;
+    display: inline-block;
+  }
+
+  input[type="datetime-local"].barra-cpf {
+    background: var(--bg-input);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 10px;
+    color: var(--cor-texto);
+    font-size: 15px;
+    padding: 10px 12px;
+    width: 100%;
+    transition: 0.3s ease;
+  }
+
+  input[type="datetime-local"].barra-cpf:focus {
+    border-color: #00b848;
+    box-shadow: 0 0 6px rgba(0, 255, 128, 0.4);
+    background: rgba(255, 255, 255, 0.18);
+  }
+
+  .form-linha.data-hora-linha {
+    margin-top: 12px;
+    margin-bottom: 25px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .form-linha.data-hora-linha label {
+    margin-bottom: 6px;
+    margin-left: 2px;
+  }
+
+  .button-group {
+    margin-top: 10px;
+  }
+
+  @media (max-width: 600px) {
+    .form-linha.data-hora-linha input {
+      width: 100%;
+    }
+  }
+</style>
+
 {% extends "base.html" %}
 {% block title %}Nova Proposta{% endblock %}
 
 {% block content %}
-  <h1 class="titulo-tomorrow">Nova Proposta</h1>
+<h1 class="titulo-tomorrow">Nova Proposta</h1>
 
-  {% if sucesso %}
-  <div class="msg-sucesso">
-    <i class="fa fa-check-circle"></i> {{ sucesso }}
-  </div>
-  {% endif %}
+{% if sucesso %}
+<div class="msg-sucesso">
+  <i class="fa fa-check-circle"></i> {{ sucesso }}
+</div>
+{% endif %}
 
-  <div class="container">
-    <form method="POST">
-      <div class="form-linha">
-        <input class="barra-cpf" type="text" name="fonte" placeholder="Fonte da Proposta (ex: CLT / FGTS)">
-        <input class="barra-cpf" type="text" name="senha_digitada" placeholder="Senha Digitada">
-      </div>
+<div class="container">
+  <form method="POST">
+    <div class="form-linha">
+      <input class="barra-cpf" type="text" name="fonte" placeholder="Fonte da Proposta (ex: CLT / FGTS)">
+      <input class="barra-cpf" type="text" name="senha_digitada" placeholder="Senha Digitada">
+    </div>
 
-      <div class="form-linha">
-        <input class="barra-cpf" type="text" name="tabela" placeholder="Tabela">
-        <input class="barra-cpf" type="text" name="nome_cliente" placeholder="Nome do Cliente">
-      </div>
+    <div class="form-linha">
+      <input class="barra-cpf" type="text" name="tabela" placeholder="Tabela">
+      <input class="barra-cpf" type="text" name="nome_cliente" placeholder="Nome do Cliente">
+    </div>
 
-      <div class="form-linha">
-        <input class="barra-cpf" type="text" name="cpf" placeholder="CPF">
-        <input class="barra-cpf" type="text" name="telefone" placeholder="Telefone">
-      </div>
+    <div class="form-linha">
+      <input class="barra-cpf" type="text" name="cpf" placeholder="CPF">
+      <input class="barra-cpf" type="text" name="telefone" placeholder="Telefone">
+    </div>
 
-      <div class="form-linha">
-        <input class="barra-cpf" type="number" step="0.01" name="valor_equivalente" placeholder="Valor Equivalente">
-        <input class="barra-cpf" type="number" step="0.01" name="valor_original" placeholder="Valor Original">
-      </div>
+    <div class="form-linha">
+      <input class="barra-cpf" type="number" step="0.01" name="valor_equivalente" placeholder="Valor Equivalente">
+      <input class="barra-cpf" type="number" step="0.01" name="valor_original" placeholder="Valor Original">
+    </div>
 
-      <textarea name="observacao" class="barra-cpf" rows="3" placeholder="Observações adicionais..."></textarea>
+    <textarea name="observacao" class="barra-cpf" rows="3" placeholder="Observações adicionais..."></textarea>
 
-      <div class="button-group">
-        <button type="submit" class="azul">
-          <i class="fa fa-paper-plane"></i> Enviar Proposta
-        </button>
-      </div>
-    </form>
-  </div>
+    <div class="form-linha data-hora-linha">
+      <label>Data e Hora (opcional):</label>
+      <input class="barra-cpf" type="datetime-local" name="data_manual" placeholder="Selecione data e hora">
+    </div>
+
+    <div class="button-group">
+      <button type="submit" class="azul">
+        <i class="fa fa-paper-plane"></i> Enviar Proposta
+      </button>
+    </div>
+  </form>
+</div>
 {% endblock %}
