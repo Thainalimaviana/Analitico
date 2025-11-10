@@ -137,7 +137,7 @@
         <div class="form-linha data-hora-linha">
             <label>Data e Hora (opcional):</label>
             <input class="barra-cpf" type="datetime-local" name="data_manual"
-                   value="{{ proposta[1]|replace(' ', 'T') if proposta[1] else '' }}">
+                   value="{% if proposta[1] %}{{ proposta[1][:16].replace(' ', 'T') }}{% endif %}">
             <small style="color: var(--cor-texto); opacity: 0.7; margin-top: 4px;">
                 Se não alterar, será mantida a data original: {{ proposta[1] }}
             </small>
