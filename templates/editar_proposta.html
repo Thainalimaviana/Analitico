@@ -113,31 +113,40 @@
 
     <form method="POST">
         <div class="form-linha">
-            <input class="barra-cpf" type="text" name="fonte" value="{{ proposta[2] }}" placeholder="Fonte da Proposta (ex: CLT / FGTS)">
-            <input class="barra-cpf" type="text" name="senha_digitada" value="{{ proposta[3] }}" placeholder="Senha digitada (ex: PAN / QI)">
-            <input class="barra-cpf" type="text" name="tabela" value="{{ proposta[4] }}" placeholder="Tabela (ex: Facta / QI)">
+            <input class="barra-cpf" type="text" name="fonte" value="{{ proposta[2] }}"
+                placeholder="Fonte da Proposta (ex: CLT / FGTS)">
+            <input class="barra-cpf" type="text" name="senha_digitada" value="{{ proposta[3] }}"
+                placeholder="Senha digitada (ex: PAN / QI)">
+            <input class="barra-cpf" type="text" name="tabela" value="{{ proposta[4] }}"
+                placeholder="Tabela (ex: Facta / QI)">
         </div>
 
         <div class="form-linha">
-            <input class="barra-cpf" type="text" name="nome_cliente" value="{{ proposta[5] }}" placeholder="Nome do Cliente">
-            <input class="barra-cpf" type="text" name="cpf" value="{{ proposta[6] }}" placeholder="CPF (somente números)">
+            <input class="barra-cpf" type="text" name="nome_cliente" value="{{ proposta[5] }}"
+                placeholder="Nome do Cliente">
+            <input class="barra-cpf" type="text" name="cpf" value="{{ proposta[6] }}"
+                placeholder="CPF (somente números)">
         </div>
 
         <div class="form-linha">
-            <input class="barra-cpf" type="number" step="0.01" name="valor_equivalente" value="{{ proposta[7] }}" placeholder="Valor Equivalente (R$)">
-            <input class="barra-cpf" type="number" step="0.01" name="valor_original" value="{{ proposta[8] }}" placeholder="Valor Original (R$)">
+            <input class="barra-cpf" type="number" step="0.01" name="valor_equivalente" value="{{ proposta[7] }}"
+                placeholder="Valor Equivalente (R$)">
+            <input class="barra-cpf" type="number" step="0.01" name="valor_original" value="{{ proposta[8] }}"
+                placeholder="Valor Original (R$)">
         </div>
 
-        <textarea name="observacao" class="barra-cpf" placeholder="Observações adicionais...">{{ proposta[9] }}</textarea>
+        <textarea name="observacao" class="barra-cpf"
+            placeholder="Observações adicionais...">{{ proposta[9] }}</textarea>
 
         <div class="form-linha">
-            <input class="barra-cpf" type="text" name="telefone" value="{{ proposta[10] }}" placeholder="Telefone com DDD">
+            <input class="barra-cpf" type="text" name="telefone" value="{{ proposta[10] }}"
+                placeholder="Telefone com DDD">
         </div>
 
         <div class="form-linha data-hora-linha">
             <label>Data e Hora (opcional):</label>
             <input class="barra-cpf" type="datetime-local" name="data_manual"
-                   value="{% if proposta[1] %}{{ proposta[1][:16].replace(' ', 'T') }}{% endif %}">
+                value="{% if proposta[1] %}{% if proposta[1].__class__.__name__ == 'datetime' %}{{ proposta[1].strftime('%Y-%m-%dT%H:%M') }}{% else %}{{ proposta[1][:16].replace(' ', 'T') }}{% endif %}{% endif %}">
             <small style="color: var(--cor-texto); opacity: 0.7; margin-top: 4px;">
                 Se não alterar, será mantida a data original: {{ proposta[1] }}
             </small>
