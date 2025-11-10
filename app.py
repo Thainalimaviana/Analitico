@@ -35,7 +35,7 @@ def init_db():
         )""")
         cur.execute("""CREATE TABLE IF NOT EXISTS propostas (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            data TEXT DEFAULT (datetime('now','localtime')),
+            data TEXT,
             consultor TEXT,
             fonte TEXT,
             senha_digitada TEXT,
@@ -56,7 +56,7 @@ def init_db():
         )""")
         cur.execute("""CREATE TABLE IF NOT EXISTS propostas (
             id SERIAL PRIMARY KEY,
-            data TIMESTAMP DEFAULT (CURRENT_TIMESTAMP AT TIME ZONE 'America/Sao_Paulo'),
+            data TIMESTAMP,
             consultor TEXT,
             fonte TEXT,
             senha_digitada TEXT,
