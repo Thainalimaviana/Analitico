@@ -221,16 +221,19 @@ def nova_proposta():
         return redirect(url_for("login"))
 
     if request.method == "POST":
-        fuso = pytz.timezone("America/Sao_Paulo")
-
+        tz_br = pytz.timezone("America/Sao_Paulo")
         data_input = request.form.get("data_manual")
+
         if data_input:
             try:
-                data_formatada = datetime.strptime(data_input, "%Y-%m-%dT%H:%M").strftime("%Y-%m-%d %H:%M:%S")
-            except ValueError:
-                data_formatada = datetime.now(fuso).strftime("%Y-%m-%d %H:%M:%S")
+                data_obj = datetime.strptime(data_input, "%Y-%m-%dT%H:%M")
+                data_obj = tz_br.localize(data_obj)
+                data_formatada = data_obj.strftime("%Y-%m-%d %H:%M:%S")
+            except Exception as e:
+                print("Erro ao processar data_manual:", e)
+                data_formatada = datetime.now(tz_br).strftime("%Y-%m-%d %H:%M:%S")
         else:
-            data_formatada = datetime.now(fuso).strftime("%Y-%m-%d %H:%M:%S")
+            data_formatada = datetime.now(tz_br).strftime("%Y-%m-%d %H:%M:%S")
 
         dados = (
             data_formatada,
@@ -891,11 +894,10 @@ def editar_proposta(id):
 
             if data_manual:
                 try:
-                    import pytz
                     tz_br = pytz.timezone("America/Sao_Paulo")
                     data_obj = datetime.strptime(data_manual, "%Y-%m-%dT%H:%M")
-                    data_local = tz_br.localize(data_obj)
-                    nova_data = data_local.strftime("%Y-%m-%d %H:%M:%S")
+                    data_obj = tz_br.localize(data_obj)
+                    nova_data = data_obj.strftime("%Y-%m-%d %H:%M:%S")
                 except Exception as e:
                     print("Erro ao converter data_manual:", e)
                     nova_data = proposta[1]
