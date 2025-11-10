@@ -42,26 +42,6 @@
     transition: all 0.3s ease;
   }
 
-  .form-relatorios select {
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    background-color: var(--bg-input);
-    color: var(--cor-texto);
-  }
-
-  .form-relatorios select option {
-    background-color: #0e1d10;
-    color: #ffffff;
-  }
-
-  .form-relatorios select:focus,
-  .form-relatorios input[type="datetime-local"]:focus {
-    border-color: #00ff66;
-    box-shadow: 0 0 6px rgba(0, 255, 128, 0.3);
-    background: linear-gradient(40deg, var(--gradiente-inicio), var(--gradiente-fim));
-  }
-
   .btn-filtrar {
     background: linear-gradient(90deg, #00b848, #009634);
     color: #fff;
@@ -147,6 +127,27 @@
     background: rgba(255, 255, 255, 0.07);
   }
 
+  .acao-btn {
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 17px;
+    margin: 0 5px;
+    transition: transform 0.2s ease;
+  }
+
+  .acao-btn:hover {
+    transform: scale(1.2);
+  }
+
+  .btn-editar {
+    color: #007bff;
+  }
+
+  .btn-excluir {
+    color: #ff3b3b;
+  }
+
   .msg-vazia {
     text-align: center;
     color: var(--cor-texto);
@@ -159,66 +160,42 @@
     text-align: center;
     margin-top: 10px;
   }
+  .acoes-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
 
-  .filtros {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 10px;
-    justify-content: center;
-    background: rgba(255, 255, 255, 0.15);
-    border-radius: 12px;
-    padding: 15px 20px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  }
+.btn-acao {
+  width: 25px;
+  height: 25px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 10px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+  transition: all 0.25s ease;
+  font-size: 15px;
+  text-decoration: none;
+}
 
-  .filtros label {
-    font-weight: 600;
-    color: var(--cor-texto);
-  }
+.btn-acao.editar {
+  background: linear-gradient(40deg, var(--gradiente-inicio), var(--gradiente-fim));
+  color: var(--cor-texto);
+}
 
-  .filtros input,
-  .filtros select {
-    padding: 8px 10px;
-    border-radius: 8px;
-    border: 1px solid rgba(255, 255, 255, 0.25);
-    background: rgba(255, 255, 255, 0.25);
-    color: var(--cor-texto);
-  }
+.btn-acao.excluir {
+  background: linear-gradient(40deg, var(--gradiente-inicio), var(--gradiente-fim));
+  color: var(--cor-texto);
+}
 
-  .input-pequeno {
-    width: 150px;
-  }
+.btn-acao:hover {
+  transform: scale(1.12);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+  filter: brightness(1.1);
+}
 
-  .botao-filtrar {
-    background: #00b000;
-    color: white;
-    border: none;
-    font-weight: 600;
-    border-radius: 8px;
-    padding: 8px 16px;
-    cursor: pointer;
-    transition: 0.3s;
-  }
-
-  .botao-filtrar:hover {
-    background: #008000;
-  }
-
-  .botao-baixar {
-    background: #00b000;
-    color: white;
-    border: none;
-    font-weight: 600;
-    border-radius: 8px;
-    padding: 8px 16px;
-    cursor: pointer;
-    transition: 0.3s;
-  }
-
-  .botao-baixar:hover {
-    background: #008000;
-  }
 </style>
 
 <h1 class="titulo-tomorrow">Relatórios de Propostas</h1>
@@ -246,7 +223,6 @@
     <input type="text" name="senha_digitada" placeholder="Buscar Senha" value="{{ senha_digitada or '' }}"
       class="input-pequeno">
 
-    <!-- 🆕 Novos filtros -->
     <label>Fonte:</label>
     <input type="text" name="fonte" placeholder="Buscar Fonte" value="{{ fonte or '' }}" class="input-pequeno">
 
@@ -275,22 +251,35 @@
         <th>Valor Original</th>
         <th>Observação</th>
         <th>Telefone</th>
+        <th>Ações</th>
       </tr>
     </thead>
     <tbody>
       {% for d in dados %}
       <tr>
-        <td>{{ d[0] }}</td>
         <td>{{ d[1] }}</td>
         <td>{{ d[2] }}</td>
         <td>{{ d[3] }}</td>
         <td>{{ d[4] }}</td>
         <td>{{ d[5] }}</td>
         <td>{{ d[6] }}</td>
-        <td>R$ {{ "{:,.2f}".format(d[7] or 0) }}</td>
-        <td>R$ {{ "{:,.2f}".format(d[8] or 0) }}</td>
-        <td>{{ d[9] }}</td>
+        <td>{{ d[7] }}</td>
+        <td>R$ {{ "{:,.2f}".format((d[8] or 0)|float) }}</td>
+        <td>R$ {{ "{:,.2f}".format((d[9] or 0)|float) }}</td>
         <td>{{ d[10] }}</td>
+        <td>{{ d[11] }}</td>
+        <td>
+          <div class="acoes-container">
+            <a href="{{ url_for('editar_proposta', id=d[0], origem='relatorios') }}" class="btn-acao editar"
+              title="Editar">
+              <i class="fa fa-pen"></i>
+            </a>
+            <a href="{{ url_for('excluir_proposta', id=d[0], origem='relatorios') }}" class="btn-acao excluir"
+              title="Excluir" onclick="return confirm('Tem certeza que deseja excluir esta proposta?')">
+              <i class="fa fa-trash"></i>
+            </a>
+          </div>
+        </td>
       </tr>
       {% endfor %}
     </tbody>
@@ -305,48 +294,5 @@
 {% if erro %}
 <div class="erro-msg">{{ erro }}</div>
 {% endif %}
-
-<style>
-  .form-relatorios {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin: 15px 0 25px;
-  }
-
-  .tabela-relatorio {
-    width: 95%;
-    margin: auto;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 10px;
-    backdrop-filter: blur(8px);
-  }
-
-  .tabela-relatorio table {
-    width: 100%;
-    border-collapse: collapse;
-    color: white;
-  }
-
-  .tabela-relatorio th,
-  .tabela-relatorio td {
-    padding: 8px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-    text-align: center;
-  }
-
-  .tabela-relatorio th {
-    background: rgba(0, 0, 0, 0.2);
-    font-weight: 600;
-  }
-
-  .msg-vazia {
-    text-align: center;
-    color: #fff;
-    margin-top: 40px;
-    font-size: 18px;
-  }
-</style>
 
 {% endblock %}

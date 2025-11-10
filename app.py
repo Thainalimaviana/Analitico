@@ -299,10 +299,11 @@ def relatorios():
 
     ph = "?" if isinstance(conn, sqlite3.Connection) else "%s"
     query_base = f"""
-        SELECT data, consultor, fonte, senha_digitada, tabela, nome_cliente, cpf,
+        SELECT id, data, consultor, fonte, senha_digitada, tabela, nome_cliente, cpf,
                valor_equivalente, valor_original, observacao, telefone
         FROM propostas
-    """
+    """ 
+
     condicoes, params = [], []
 
     condicoes.append("consultor NOT IN (SELECT nome FROM users WHERE role = 'admin')")
@@ -370,7 +371,7 @@ def relatorios():
                 """)
             dados = cur.fetchall()
 
-        colunas = ["Data", "Consultor", "Fonte", "Senha Digitada", "Tabela", "Nome", "CPF",
+        colunas = ["ID", "Data", "Consultor", "Fonte", "Senha Digitada", "Tabela", "Nome", "CPF",
                    "Valor Equivalente", "Valor Original", "Observação", "Telefone"]
         df = pd.DataFrame(dados, columns=colunas)
         output = io.BytesIO()
@@ -434,7 +435,6 @@ def dashboard():
     cur = conn.cursor()
     ph = "?" if isinstance(conn, sqlite3.Connection) else "%s"
 
-    # Correção: compatibilidade PostgreSQL x SQLite
     if isinstance(conn, sqlite3.Connection):
         filtro_data = f"date(data) BETWEEN {ph} AND {ph}"
     else:
@@ -846,7 +846,14 @@ def excluir_proposta(id):
     conn.commit()
     conn.close()
 
-    return redirect(url_for("painel_usuario"))
+    origem = request.args.get("origem")
+
+    if origem == "relatorios" and session.get("role") == "admin":
+        flash("Proposta excluída com sucesso!", "success")
+        return redirect(url_for("relatorios"))
+    else:
+        flash("Proposta excluída com sucesso!", "success")
+        return redirect(url_for("painel_usuario"))
 
 @app.route("/editar_proposta/<int:id>", methods=["GET", "POST"])
 def editar_proposta(id):
@@ -916,7 +923,12 @@ def editar_proposta(id):
             conn.commit()
             conn.close()
             flash("Proposta atualizada com sucesso!", "success")
-            return redirect(url_for("painel_usuario"))
+
+            origem = request.args.get("origem")
+            if origem == "relatorios" and session.get("role") == "admin":
+                return redirect(url_for("relatorios"))
+            else:
+                return redirect(url_for("painel_usuario"))
 
         conn.close()
         return render_template("editar_proposta.html", proposta=proposta)
