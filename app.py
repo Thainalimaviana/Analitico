@@ -888,7 +888,7 @@ def editar_proposta(id):
                 except ValueError:
                     nova_data = proposta[1]
             else:
-                nova_data = proposta[1] 
+                nova_data = proposta[1]
 
             cur.execute(f"""
                 UPDATE propostas SET 
