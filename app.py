@@ -884,8 +884,13 @@ def editar_proposta(id):
 
             if data_manual:
                 try:
-                    nova_data = datetime.strptime(data_manual, "%Y-%m-%dT%H:%M").strftime("%Y-%m-%d %H:%M:%S")
-                except ValueError:
+                    import pytz
+                    tz_br = pytz.timezone("America/Sao_Paulo")
+                    data_obj = datetime.strptime(data_manual, "%Y-%m-%dT%H:%M")
+                    data_local = tz_br.localize(data_obj)
+                    nova_data = data_local.strftime("%Y-%m-%d %H:%M:%S")
+                except Exception as e:
+                    print("Erro ao converter data_manual:", e)
                     nova_data = proposta[1]
             else:
                 nova_data = proposta[1]
