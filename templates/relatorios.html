@@ -258,6 +258,17 @@
   .cards-resumo .cinza {
     background: linear-gradient(90deg, #555, #777);
   }
+
+  .dark-mode select {
+    background-color: #003f1a !important;
+    color: #ffffff !important;
+    border: 1px solid #00ff66 !important;
+  }
+
+  .dark-mode option {
+    background-color: #003f1a !important;
+    color: #ffffff !important;
+  }
 </style>
 
 <h1 class="titulo-tomorrow">Relatórios de Propostas</h1>
@@ -310,11 +321,11 @@
     <p>R$ {{ "{:,.2f}".format(total_original|float) }}</p>
   </div>
   <div class="card amarelo">
-    <h4>Propostas Subidas</h4>
+    <h4>Propostas</h4>
     <p>{{ total_propostas }}</p>
   </div>
   <div class="card cinza">
-    <h4>Falta para Meta</h4>
+    <h4>Falta</h4>
     <p>R$ {{ "{:,.2f}".format(falta_para_meta|float) }}</p>
   </div>
 </div>
@@ -403,7 +414,7 @@
       } else {
         texto = texto.replace(/,/g, "");
       }
-      
+
       if (!isNaN(num)) {
         el.innerText = num.toLocaleString("pt-BR", {
           style: "currency",

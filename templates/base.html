@@ -11,6 +11,14 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <script src="https://kit.fontawesome.com/a2e0b6b343.js" crossorigin="anonymous"></script>
     <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+    <script>
+        (function () {
+            if (localStorage.getItem("theme") === "dark") {
+                document.documentElement.classList.add("dark-mode");
+            }
+        })();
+    </script>
+
 </head>
 <style>
     .sidebar-header {
@@ -57,6 +65,7 @@
 </style>
 
 <script defer src="{{ url_for('static', filename='js/formatar_brl.js') }}"></script>
+
 <body class="pagina">
     <button class="menu-toggle" id="menuToggle">
         <i class="fa-solid fa-bars"></i>
