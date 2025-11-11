@@ -8,7 +8,10 @@
     display: inline-block;
   }
 
-  input[type="datetime-local"].barra-cpf {
+  input[type="datetime-local"].barra-cpf,
+  select.barra-cpf,
+  input.barra-cpf,
+  textarea.barra-cpf {
     background: var(--bg-input);
     border: 1px solid rgba(255, 255, 255, 0.25);
     border-radius: 10px;
@@ -19,10 +22,19 @@
     transition: 0.3s ease;
   }
 
-  input[type="datetime-local"].barra-cpf:focus {
+  input[type="datetime-local"].barra-cpf:focus,
+  select.barra-cpf:focus,
+  input.barra-cpf:focus,
+  textarea.barra-cpf:focus {
     border-color: #00b848;
     box-shadow: 0 0 6px rgba(0, 255, 128, 0.4);
     background: rgba(255, 255, 255, 0.18);
+  }
+
+  select.barra-cpf:disabled,
+  input.barra-cpf:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
   }
 
   .form-linha.data-hora-linha {
@@ -47,6 +59,34 @@
       width: 100%;
     }
   }
+
+  select.barra-cpf {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background: var(--bg-input);
+    color: var(--cor-texto);
+    font-weight: 500;
+  }
+
+  select.barra-cpf option {
+    background: var(--gradiente-fim);
+    color: var(--cor-texto);
+  }
+
+  select.barra-cpf {
+    background-image: linear-gradient(45deg, transparent 50%, #00b848 50%),
+      linear-gradient(135deg, #00b848 50%, transparent 50%);
+    background-position: calc(100% - 18px) center, calc(100% - 12px) center;
+    background-size: 6px 6px, 6px 6px;
+    background-repeat: no-repeat;
+  }
+
+  select.barra-cpf:focus {
+    outline: none;
+    border-color: #00b848;
+    box-shadow: 0 0 6px rgba(0, 255, 128, 0.4);
+  }
 </style>
 
 {% extends "base.html" %}
@@ -63,27 +103,69 @@
 
 <div class="container">
   <form method="POST">
+
     <div class="form-linha">
-      <input class="barra-cpf" type="text" name="fonte" placeholder="Fonte da Proposta (ex: CLT / FGTS)">
-      <input class="barra-cpf" type="text" name="senha_digitada" placeholder="Senha Digitada">
+      <label>Fonte:</label>
+      <select class="barra-cpf" name="fonte" required>
+        <option value="">Selecione a Fonte</option>
+        <option value="URA">URA</option>
+        <option value="Consultados antigos">Consultados antigos</option>
+        <option value="Consultados de hoje">Consultados de hoje</option>
+        <option value="Cliente de analítico/carteira">Cliente de analítico/carteira</option>
+        <option value="Indicação">Indicação</option>
+      </select>
     </div>
 
     <div class="form-linha">
-      <input class="barra-cpf" type="text" name="tabela" placeholder="Tabela">
-      <input class="barra-cpf" type="text" name="nome_cliente" placeholder="Nome do Cliente">
+      <label>Banco:</label>
+      <select class="barra-cpf" name="banco" id="banco" required>
+        <option value="" disabled selected>Selecione o Banco</option>
+        <option value="C6">C6</option>
+        <option value="Amigoz">Amigoz</option>
+        <option value="Presença">Presença</option>
+        <option value="Prata">Prata</option>
+        <option value="V8">V8</option>
+        <option value="PAN">PAN</option>
+        <option value="Facta">Facta</option>
+      </select>
     </div>
 
     <div class="form-linha">
-      <input class="barra-cpf" type="text" name="cpf" placeholder="CPF">
+      <label>Senha Digitada:</label>
+      <select class="barra-cpf" name="senha_digitada" id="senha_digitada" disabled required>
+        <option value="">Selecione o Banco primeiro</option>
+      </select>
+    </div>
+
+    <div class="form-linha">
+      <label>Tabela:</label>
+      <select class="barra-cpf" name="tabela" id="tabela" disabled required>
+        <option value="">Selecione a Senha primeiro</option>
+      </select>
+    </div>
+
+    <div class="form-linha">
+      <input class="barra-cpf" type="text" name="nome_cliente" placeholder="Nome do Cliente" required>
+      <input class="barra-cpf" type="text" name="cpf" placeholder="CPF" required>
+    </div>
+
+    <div class="form-linha">
       <input class="barra-cpf" type="text" name="telefone" placeholder="Telefone">
-    </div>
-
-    <div class="form-linha">
       <input class="barra-cpf" type="number" step="0.01" name="valor_equivalente" placeholder="Valor Equivalente">
       <input class="barra-cpf" type="number" step="0.01" name="valor_original" placeholder="Valor Original">
     </div>
 
-    <textarea name="observacao" class="barra-cpf" rows="3" placeholder="Observações adicionais..."></textarea>
+    <div class="form-linha">
+      <label>Observação:</label>
+      <select name="observacao" class="barra-cpf">
+        <option value="">Selecione a Observação</option>
+        <option value="PAGO">PAGO</option>
+        <option value="AGUARDANDO PAGAMENTO">AGUARDANDO PAGAMENTO</option>
+        <option value="ANALISE MESA">ANÁLISE MESA</option>
+        <option value="REPRESENTAÇÃO">REPRESENTAÇÃO</option>
+        <option value="INTEGRADA">INTEGRADA</option>
+      </select>
+    </div>
 
     <div class="form-linha data-hora-linha">
       <label>Data e Hora (opcional):</label>
@@ -95,6 +177,101 @@
         <i class="fa fa-paper-plane"></i> Enviar Proposta
       </button>
     </div>
+
   </form>
 </div>
+
+<script>
+  const dados = {
+    "C6": {
+      senhas: [
+        "51077297890_000367", "51077297890_004500", "45849199845_004500", "55472794803_000148",
+        "50187921830_000148", "51077297890_000148", "50187921830_000012", "50187921830_000367"
+      ],
+      tabelas: [
+        "48x - TAB: 800017 - c/ seguro 4 parcelas", "36x - TAB: 800017 - c/ seguro 4 parcelas",
+        "48x - TAB: 800016 - c/ seguro 2 parcelas", "36x - TAB: 800016 - c/ seguro 2 parcelas",
+        "24x - TAB: 800017 - c/ seguro 4 parcelas", "24x - TAB: 800016 - c/ seguro 2 parcelas",
+        "18x - TAB: 800017 - c/ seguro 4 parcelas", "18x - TAB: 800016 - c/ seguro 2 parcelas",
+        "12x - TAB: 800017 - c/ seguro 4 parcelas", "12x - TAB: 800017 - c/ seguro 2 parcelas",
+        "6x - TAB: 800017 - c/ seguro 4 parcelas", "6x - TAB: 800016 - c/ seguro 2 parcelas",
+        "48x - sem seguro", "36x - sem seguro", "24x - sem seguro", "18x - sem seguro",
+        "12x - sem seguro", "6x - sem seguro"
+      ]
+    },
+    "Amigoz": {
+      senhas: ["306.125.888-40", "458.491.998-45", "510.772.978-90", "501.879.218-30"],
+      tabelas: [
+        "36x c/ seguro", "24x c/ seguro", "18x c/ seguro",
+        "36x s/ seguro", "24x s/ seguro", "18x s/ seguro"
+      ]
+    },
+    "Presença": {
+      senhas: ["30612588840_BWzs", "55472794803_EkNx"],
+      tabelas: [
+        "24x - CONSIGNADO PRIVADO (5167)", "18x - CONSIGNADO PRIVADO (5166)",
+        "12x - CONSIGNADO PRIVADO (5164)", "6x - CONSIGNADO PRIVADO (5163)",
+        "12x - CONSIGNADO PRIVADO (5165)", "6x - CONSIGNADO PRIVADO (5162)"
+      ]
+    },
+    "Prata": {
+      senhas: ["thaina737373@hotmail.com", "biancafaria13@gmail.com"],
+      tabelas: ["6X", "12X", "18X", "24X", "36X", "48X"]
+    },
+    "V8": {
+      senhas: ["thaina737373@gmail.com"],
+      tabelas: [
+        "CLT ACELERA - COM SEGURO - 6X", "CLT ACELERA - COM SEGURO - 12x",
+        "CLT ACELERA - COM SEGURO - 18x", "CLT ACELERA - COM SEGURO - 24x",
+        "CLT ACELERA - SEM SEGURO - 6X", "CLT ACELERA - SEM SEGURO - 12x",
+        "CLT ACELERA - SEM SEGURO - 18x", "CLT ACELERA - SEM SEGURO - 24x"
+      ]
+    },
+    "PAN": {
+      senhas: ["50187921830", "51077297890", "30612588840", "55472794803"],
+      tabelas: ["6X", "12X", "18X", "24X", "36X", "48X"]
+    },
+    "Facta": {
+      senhas: ["96552_biancafaria", "99365_biancafaria"],
+      tabelas: ["36x", "30X", "24X", "20X", "18X", "15X", "14x", "15x", "12X", "10X", "8X", "6x"]
+    }
+  };
+
+  const bancoSelect = document.getElementById("banco");
+  const senhaSelect = document.getElementById("senha_digitada");
+  const tabelaSelect = document.getElementById("tabela");
+
+  bancoSelect.addEventListener("change", () => {
+    const banco = bancoSelect.value;
+    senhaSelect.disabled = false;
+    tabelaSelect.disabled = true;
+    senhaSelect.innerHTML = '<option value="">Selecione a Senha</option>';
+    tabelaSelect.innerHTML = '<option value="">Selecione a Senha primeiro</option>';
+
+    if (dados[banco]) {
+      dados[banco].senhas.forEach(s => {
+        const opt = document.createElement("option");
+        opt.value = s;
+        opt.textContent = s;
+        senhaSelect.appendChild(opt);
+      });
+    }
+  });
+
+  senhaSelect.addEventListener("change", () => {
+    const banco = bancoSelect.value;
+    tabelaSelect.disabled = false;
+    tabelaSelect.innerHTML = '<option value="">Selecione a Tabela</option>';
+
+    if (dados[banco]) {
+      dados[banco].tabelas.forEach(t => {
+        const opt = document.createElement("option");
+        opt.value = t;
+        opt.textContent = t;
+        tabelaSelect.appendChild(opt);
+      });
+    }
+  });
+</script>
+
 {% endblock %}

@@ -57,7 +57,6 @@
     <table>
       <thead>
         <tr>
-
           <th>
             <div class="th-top">
               <span>Data</span>
@@ -76,23 +75,15 @@
 
           <th>
             <div class="th-top">
+              <span>Banco</span>
+              <span class="seta" onclick="ordenarTabela(3)">⇅</span>
+            </div>
+            <input type="text" class="filtro">
+          </th>
+
+          <th>
+            <div class="th-top">
               <span>Senha</span>
-              <span class="seta" onclick="ordenarTabela(3)">⇅</span>
-            </div>
-            <input type="text" class="filtro">
-          </th>
-
-          <th>
-            <div class="th-top">
-              <span>Tabela</span>
-              <span class="seta" onclick="ordenarTabela(3)">⇅</span>
-            </div>
-            <input type="text" class="filtro">
-          </th>
-
-          <th>
-            <div class="th-top">
-              <span>Nome Cliente</span>
               <span class="seta" onclick="ordenarTabela(4)">⇅</span>
             </div>
             <input type="text" class="filtro">
@@ -100,7 +91,7 @@
 
           <th>
             <div class="th-top">
-              <span>CPF</span>
+              <span>Tabela</span>
               <span class="seta" onclick="ordenarTabela(5)">⇅</span>
             </div>
             <input type="text" class="filtro">
@@ -108,22 +99,38 @@
 
           <th>
             <div class="th-top">
-              <span>Equivalente</span>
+              <span>Nome Cliente</span>
               <span class="seta" onclick="ordenarTabela(6)">⇅</span>
+            </div>
+            <input type="text" class="filtro">
+          </th>
+
+          <th>
+            <div class="th-top">
+              <span>CPF</span>
+              <span class="seta" onclick="ordenarTabela(7)">⇅</span>
+            </div>
+            <input type="text" class="filtro">
+          </th>
+
+          <th>
+            <div class="th-top">
+              <span>Equivalente</span>
+              <span class="seta" onclick="ordenarTabela(8)">⇅</span>
             </div>
           </th>
 
           <th>
             <div class="th-top">
               <span>Original</span>
-              <span class="seta" onclick="ordenarTabela(7)">⇅</span>
+              <span class="seta" onclick="ordenarTabela(9)">⇅</span>
             </div>
           </th>
 
           <th>
             <div class="th-top">
               <span>Observação</span>
-              <span class="seta" onclick="ordenarTabela(8)">⇅</span>
+              <span class="seta" onclick="ordenarTabela(10)">⇅</span>
             </div>
             <input type="text" class="filtro">
           </th>
@@ -131,13 +138,12 @@
           <th>
             <div class="th-top">
               <span>Telefone</span>
-              <span class="seta" onclick="ordenarTabela(9)">⇅</span>
+              <span class="seta" onclick="ordenarTabela(11)">⇅</span>
             </div>
             <input type="text" class="filtro">
           </th>
 
           <th>Ações</th>
-
         </tr>
       </thead>
 
@@ -146,14 +152,15 @@
         <tr>
           <td>{{ p[1].strftime("%Y-%m-%d") if p[1] else "" }}</td>
           <td>{{ p[2] or "" }}</td>
-          <td>{{ p[3] or "" }}</td>
-          <td>{{ p[4] or "" }}</td>
-          <td>{{ p[5] or "" }}</td>
-          <td>{{ p[6] or "" }}</td>
-          <td>R$ {{ "{:,.2f}".format(p[7] | float or 0) }}</td>
-          <td>R$ {{ "{:,.2f}".format(p[8] | float or 0) }}</td>
-          <td>{{ p[9] or "" }}</td>
-          <td>{{ p[10] or "" }}</td>
+          <td>{{ p[3] or "" }}</td> <!-- Banco -->
+          <td>{{ p[4] or "" }}</td> <!-- Senha -->
+          <td>{{ p[5] or "" }}</td> <!-- Tabela -->
+          <td>{{ p[6] or "" }}</td> <!-- Nome -->
+          <td>{{ p[7] or "" }}</td> <!-- CPF -->
+          <td>R$ {{ "{:,.2f}".format(p[8] | float or 0) }}</td> <!-- Equivalente -->
+          <td>R$ {{ "{:,.2f}".format(p[9] | float or 0) }}</td> <!-- Original -->
+          <td>{{ p[10] or "" }}</td> <!-- Observação -->
+          <td>{{ p[11] or "" }}</td> <!-- Telefone -->
           <td class="acoes">
             <a href="{{ url_for('editar_proposta', id=p[0]) }}">
               <i class="material-icons editar">edit</i>
@@ -165,12 +172,10 @@
         </tr>
         {% else %}
         <tr>
-          <td colspan="11" style="text-align:center;">Nenhuma proposta encontrada.</td>
+          <td colspan="12" style="text-align:center;">Nenhuma proposta encontrada.</td>
         </tr>
         {% endfor %}
       </tbody>
-
-
     </table>
 
     <div class="paginacao-tabela">

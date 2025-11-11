@@ -86,7 +86,9 @@
                 {% endif %}
 
                 <li><a href="{{ url_for('indice_dia') }}">▸ Índice do Dia</a></li>
+                {% if session.get('role') != 'admin' %}
                 <li><a href="{{ url_for('nova_proposta') }}">▸ Enviar Proposta</a></li>
+                {% endif %}
 
                 {% if session.get('role') == 'admin' %}
                 <li><a href="{{ url_for('relatorios') }}">▸ Relatórios Excel</a></li>

@@ -160,42 +160,104 @@
     text-align: center;
     margin-top: 10px;
   }
+
   .acoes-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-}
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+  }
 
-.btn-acao {
-  width: 25px;
-  height: 25px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-radius: 10px;
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
-  transition: all 0.25s ease;
-  font-size: 15px;
-  text-decoration: none;
-}
+  .btn-acao {
+    width: 25px;
+    height: 25px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 10px;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+    transition: all 0.25s ease;
+    font-size: 15px;
+    text-decoration: none;
+  }
 
-.btn-acao.editar {
-  background: linear-gradient(40deg, var(--gradiente-inicio), var(--gradiente-fim));
-  color: var(--cor-texto);
-}
+  .btn-acao.editar {
+    background: linear-gradient(40deg, var(--gradiente-inicio), var(--gradiente-fim));
+    color: var(--cor-texto);
+  }
 
-.btn-acao.excluir {
-  background: linear-gradient(40deg, var(--gradiente-inicio), var(--gradiente-fim));
-  color: var(--cor-texto);
-}
+  .btn-acao.excluir {
+    background: linear-gradient(40deg, var(--gradiente-inicio), var(--gradiente-fim));
+    color: var(--cor-texto);
+  }
 
-.btn-acao:hover {
-  transform: scale(1.12);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
-  filter: brightness(1.1);
-}
+  .btn-acao:hover {
+    transform: scale(1.12);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+    filter: brightness(1.1);
+  }
 
+  .cards-resumo {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    width: 90%;
+    margin: 15px auto 20px;
+  }
+
+  .cards-resumo .card {
+    flex: 1 1 180px;
+    max-width: 210px;
+    min-width: 180px;
+    height: 100px;
+    padding: 15px;
+    border-radius: 12px;
+    color: white;
+    text-align: center;
+    font-family: 'Poppins', sans-serif;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25);
+    transition: transform 0.25s ease, filter 0.25s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .cards-resumo .card:hover {
+    transform: scale(1.05);
+    filter: brightness(1.1);
+  }
+
+  .cards-resumo h4 {
+    font-size: 14px;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .cards-resumo p {
+    font-size: 18px;
+    font-weight: 700;
+    margin-top: 6px;
+  }
+
+  .cards-resumo .verde {
+    background: linear-gradient(90deg, #009f47, #00b84d);
+  }
+
+  .cards-resumo .azul {
+    background: linear-gradient(90deg, #0077ff, #00b7ff);
+  }
+
+  .cards-resumo .amarelo {
+    background: linear-gradient(90deg, #ffcc00, #ffb100);
+    color: #222;
+  }
+
+  .cards-resumo .cinza {
+    background: linear-gradient(90deg, #555, #777);
+  }
 </style>
 
 <h1 class="titulo-tomorrow">Relatórios de Propostas</h1>
@@ -229,10 +291,34 @@
     <label>Tabela:</label>
     <input type="text" name="tabela" placeholder="Buscar Tabela" value="{{ tabela or '' }}" class="input-pequeno">
 
+    <label>Banco:</label>
+    <input type="text" name="banco" placeholder="Buscar Banco" value="{{ banco or '' }}" class="input-pequeno">
+
     <button type="submit" name="acao" value="filtrar" class="btn-filtrar">Filtrar</button>
     <button type="submit" name="acao" value="baixar" class="btn-baixar">Baixar Excel</button>
   </form>
 </div>
+
+{% if dados %}
+<div class="cards-resumo">
+  <div class="card verde">
+    <h4>Valor Equivalente</h4>
+    <p>R$ {{ "{:,.2f}".format(total_equivalente|float) }}</p>
+  </div>
+  <div class="card azul">
+    <h4>Valor Original</h4>
+    <p>R$ {{ "{:,.2f}".format(total_original|float) }}</p>
+  </div>
+  <div class="card amarelo">
+    <h4>Propostas Subidas</h4>
+    <p>{{ total_propostas }}</p>
+  </div>
+  <div class="card cinza">
+    <h4>Falta para Meta</h4>
+    <p>R$ {{ "{:,.2f}".format(falta_para_meta|float) }}</p>
+  </div>
+</div>
+{% endif %}
 
 {% if dados %}
 <div class="tabela-relatorio">
@@ -243,6 +329,7 @@
         <th>Data</th>
         <th>Consultor</th>
         <th>Fonte</th>
+        <th>Banco</th>
         <th>Senha Digitada</th>
         <th>Tabela</th>
         <th>Nome do Cliente</th>
@@ -264,10 +351,11 @@
         <td>{{ d[5] }}</td>
         <td>{{ d[6] }}</td>
         <td>{{ d[7] }}</td>
-        <td>R$ {{ "{:,.2f}".format((d[8] or 0)|float) }}</td>
+        <td>{{ d[8] }}</td>
         <td>R$ {{ "{:,.2f}".format((d[9] or 0)|float) }}</td>
-        <td>{{ d[10] }}</td>
+        <td>R$ {{ "{:,.2f}".format((d[10] or 0)|float) }}</td>
         <td>{{ d[11] }}</td>
+        <td>{{ d[12] }}</td>
         <td>
           <div class="acoes-container">
             <a href="{{ url_for('editar_proposta', id=d[0], origem='relatorios') }}" class="btn-acao editar"
@@ -282,6 +370,7 @@
         </td>
       </tr>
       {% endfor %}
+
     </tbody>
   </table>
 </div>

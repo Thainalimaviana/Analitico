@@ -38,6 +38,7 @@ def init_db():
             data TEXT,
             consultor TEXT,
             fonte TEXT,
+            banco TEXT,
             senha_digitada TEXT,
             tabela TEXT,
             nome_cliente TEXT,
@@ -59,6 +60,7 @@ def init_db():
             data TIMESTAMP,
             consultor TEXT,
             fonte TEXT,
+            banco TEXT,
             senha_digitada TEXT,
             tabela TEXT,
             nome_cliente TEXT,
@@ -239,6 +241,7 @@ def nova_proposta():
             data_formatada,
             session["user"],
             request.form.get("fonte"),
+            request.form.get("banco"),
             request.form.get("senha_digitada"),
             request.form.get("tabela"),
             request.form.get("nome_cliente"),
@@ -254,8 +257,8 @@ def nova_proposta():
         ph = "?" if isinstance(conn, sqlite3.Connection) else "%s"
 
         cur.execute(f"""INSERT INTO propostas 
-            (data, consultor, fonte, senha_digitada, tabela, nome_cliente, cpf, valor_equivalente, valor_original, observacao, telefone)
-            VALUES ({','.join([ph]*11)})""", dados)
+            (data, consultor, fonte, banco, senha_digitada, tabela, nome_cliente, cpf, valor_equivalente, valor_original, observacao, telefone)
+            VALUES ({','.join([ph]*12)})""", dados)
 
         conn.commit()
         conn.close()
@@ -287,6 +290,8 @@ def relatorios():
     senha_digitada = request.form.get("senha_digitada", "").strip()
     fonte = request.form.get("fonte", "").strip()
     tabela = request.form.get("tabela", "").strip()
+    banco = request.form.get("banco", "").strip()
+
     acao = request.form.get("acao")
 
     def normalizar_data(data_str):
@@ -302,13 +307,12 @@ def relatorios():
 
     ph = "?" if isinstance(conn, sqlite3.Connection) else "%s"
     query_base = f"""
-        SELECT id, data, consultor, fonte, senha_digitada, tabela, nome_cliente, cpf,
+        SELECT id, data, consultor, fonte, banco, senha_digitada, tabela, nome_cliente, cpf,
                valor_equivalente, valor_original, observacao, telefone
         FROM propostas
-    """ 
+    """
 
     condicoes, params = [], []
-
     condicoes.append("consultor NOT IN (SELECT nome FROM users WHERE role = 'admin')")
 
     def filtro_lower(campo, valor):
@@ -340,6 +344,11 @@ def relatorios():
         condicoes.append(filtro)
         params.append(valor)
 
+    if banco:
+        filtro, valor = filtro_lower("banco", banco)
+        condicoes.append(filtro)
+        params.append(valor)
+
     if tabela:
         filtro, valor = filtro_lower("tabela", tabela)
         condicoes.append(filtro)
@@ -353,6 +362,27 @@ def relatorios():
 
     cur.execute(query_base.replace("?", "%s") if not isinstance(conn, sqlite3.Connection) else query_base, tuple(params))
     dados = cur.fetchall()
+
+    total_equivalente = sum(float(d[9] or 0) for d in dados)
+    total_original = sum(float(d[10] or 0) for d in dados)
+    total_propostas = len(dados)
+
+    cur.execute("SELECT valor FROM metas_globais ORDER BY id DESC LIMIT 1;")
+    meta_row = cur.fetchone()
+    meta_global = float(meta_row[0]) if meta_row else 0.0
+
+    if user:
+        cur.execute(
+            "SELECT meta FROM metas_individuais WHERE consultor = %s;"
+            if not isinstance(conn, sqlite3.Connection)
+            else "SELECT meta FROM metas_individuais WHERE consultor = ?;",
+            (user,),
+        )
+        meta_individual_row = cur.fetchone()
+        meta_individual = float(meta_individual_row[0]) if meta_individual_row else meta_global
+        falta_para_meta = max(meta_individual - float(total_equivalente or 0), 0)
+    else:
+        falta_para_meta = max(meta_global - float(total_equivalente or 0), 0)
 
     if acao == "baixar":
         if not dados:
@@ -374,7 +404,7 @@ def relatorios():
                 """)
             dados = cur.fetchall()
 
-        colunas = ["ID", "Data", "Consultor", "Fonte", "Senha Digitada", "Tabela", "Nome", "CPF",
+        colunas = ["ID", "Data", "Consultor", "Fonte", "Banco", "Senha Digitada", "Tabela", "Nome", "CPF",
                    "Valor Equivalente", "Valor Original", "Observação", "Telefone"]
         df = pd.DataFrame(dados, columns=colunas)
         output = io.BytesIO()
@@ -395,7 +425,12 @@ def relatorios():
         observacao=observacao,
         senha_digitada=senha_digitada,
         fonte=fonte,
-        tabela=tabela
+        tabela=tabela,
+        banco=banco,
+        total_equivalente=total_equivalente,
+        total_original=total_original,
+        total_propostas=total_propostas,
+        falta_para_meta=falta_para_meta
     )
 
 from datetime import datetime, timedelta
@@ -482,18 +517,27 @@ def dashboard():
 
 from datetime import timedelta
 
-@app.route("/painel_admin", methods=["GET"])
+@app.route("/painel_admin", methods=["GET", "POST"])
 def painel_admin():
     if "user" not in session or session["role"] != "admin":
         return redirect(url_for("login"))
 
-    mes = request.args.get("mes") or datetime.now().strftime("%Y-%m")
-    ano, mes_num = mes.split("-")
+    # 📅 Recebe filtros
+    data_ini = request.args.get("data_ini")
+    data_fim = request.args.get("data_fim")
+
+    # Se não houver filtros, usa o mês atual
+    agora = datetime.now()
+    if not data_ini or not data_fim:
+        data_ini = agora.replace(day=1).strftime("%Y-%m-%d")
+        ultimo_dia = (agora.replace(day=1) + relativedelta(months=1) - timedelta(days=1)).strftime("%Y-%m-%d")
+        data_fim = ultimo_dia
 
     conn = get_conn()
     cur = conn.cursor()
     ph = "?" if isinstance(conn, sqlite3.Connection) else "%s"
 
+    # Criação das tabelas se necessário
     cur.execute("""
         CREATE TABLE IF NOT EXISTS metas_globais (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -520,37 +564,59 @@ def painel_admin():
         )
     """)
 
-    query = f"""
-        SELECT u.nome AS consultor,
-               COALESCE(SUM(p.valor_equivalente), 0) AS total_eq,
-               COALESCE(SUM(p.valor_original), 0) AS total_or,
-               COALESCE(m.meta, 0) AS meta,
-               (COALESCE(m.meta, 0) - COALESCE(SUM(p.valor_equivalente), 0)) AS falta
-        FROM users u
-        LEFT JOIN propostas p
-            ON u.nome = p.consultor
-           AND {"strftime('%Y-%m', p.data) = ?" if isinstance(conn, sqlite3.Connection)
-                else "TO_CHAR(p.data, 'YYYY-MM') = %s"}
-        LEFT JOIN metas_individuais m
-            ON u.nome = m.consultor
-        WHERE u.role != 'admin'
-        GROUP BY u.nome, m.meta
-        ORDER BY total_eq DESC;
-    """
+    # 🔍 Consulta adaptada com filtro de data
+    if isinstance(conn, sqlite3.Connection):
+        query = f"""
+            SELECT u.nome AS consultor,
+                   COALESCE(SUM(p.valor_equivalente), 0) AS total_eq,
+                   COALESCE(SUM(p.valor_original), 0) AS total_or,
+                   COALESCE(m.meta, 0) AS meta,
+                   (COALESCE(m.meta, 0) - COALESCE(SUM(p.valor_equivalente), 0)) AS falta
+            FROM users u
+            LEFT JOIN propostas p
+                ON u.nome = p.consultor
+               AND DATE(p.data) BETWEEN {ph} AND {ph}
+            LEFT JOIN metas_individuais m
+                ON u.nome = m.consultor
+            WHERE u.role != 'admin'
+            GROUP BY u.nome, m.meta
+            ORDER BY total_eq DESC;
+        """
+    else:
+        query = f"""
+            SELECT u.nome AS consultor,
+                   COALESCE(SUM(p.valor_equivalente), 0) AS total_eq,
+                   COALESCE(SUM(p.valor_original), 0) AS total_or,
+                   COALESCE(m.meta, 0) AS meta,
+                   (COALESCE(m.meta, 0) - COALESCE(SUM(p.valor_equivalente), 0)) AS falta
+            FROM users u
+            LEFT JOIN propostas p
+                ON u.nome = p.consultor
+               AND DATE(p.data AT TIME ZONE 'America/Sao_Paulo') BETWEEN {ph} AND {ph}
+            LEFT JOIN metas_individuais m
+                ON u.nome = m.consultor
+            WHERE u.role != 'admin'
+            GROUP BY u.nome, m.meta
+            ORDER BY total_eq DESC;
+        """
 
-    cur.execute(query, (f"{ano}-{mes_num}",))
+    cur.execute(query, (data_ini, data_fim))
     ranking = cur.fetchall()
 
     cur.execute("SELECT valor FROM metas_globais ORDER BY id DESC LIMIT 1;")
     meta_global_row = cur.fetchone()
     meta_global = meta_global_row[0] if meta_global_row else 0
-
     media_usuarios = (sum([r[3] or 0 for r in ranking]) / len(ranking)) if ranking else 0
 
     conn.close()
-    return render_template("painel_admin.html", ranking=ranking, meta_global=meta_global,
-                           media_usuarios=media_usuarios, mes_atual=mes)
-
+    return render_template(
+        "painel_admin.html",
+        ranking=ranking,
+        meta_global=meta_global,
+        media_usuarios=media_usuarios,
+        data_ini=data_ini,
+        data_fim=data_fim
+    )
 
 @app.route("/editar_meta", methods=["POST"])
 def editar_meta():
@@ -642,7 +708,7 @@ def painel_usuario():
 
     if isinstance(conn, sqlite3.Connection):
         query = f"""
-            SELECT id, data, fonte, senha_digitada, tabela, nome_cliente, cpf,
+            SELECT id, data, fonte, banco, senha_digitada, tabela, nome_cliente, cpf,
                    valor_equivalente, valor_original, observacao, telefone
             FROM propostas
             WHERE consultor = {ph} AND date(data) BETWEEN {ph} AND {ph}
@@ -650,7 +716,7 @@ def painel_usuario():
         """
     else:
         query = f"""
-            SELECT id, data, fonte, senha_digitada, tabela, nome_cliente, cpf,
+            SELECT id, data, fonte, banco, senha_digitada, tabela, nome_cliente, cpf,
                    valor_equivalente, valor_original, observacao, telefone
             FROM propostas
             WHERE consultor = {ph}
@@ -660,7 +726,6 @@ def painel_usuario():
 
     cur.execute(query, (consultor_filtro, inicio, fim))
     propostas_raw = cur.fetchall()
-
     propostas = []
     for p in propostas_raw:
         try:
@@ -674,8 +739,8 @@ def painel_usuario():
         except Exception:
             propostas.append(p)
 
-    total_eq = sum([float(p[7] or 0) for p in propostas])
-    total_or = sum([float(p[8] or 0) for p in propostas])
+    total_eq = sum([float(p[8] or 0) for p in propostas])
+    total_or = sum([float(p[9] or 0) for p in propostas])
 
     conn.close()
 
@@ -869,7 +934,7 @@ def editar_proposta(id):
         ph = "?" if isinstance(conn, sqlite3.Connection) else "%s"
 
         cur.execute(f"""
-            SELECT id, data, fonte, senha_digitada, tabela, nome_cliente, cpf,
+            SELECT id, data, fonte, banco, senha_digitada, tabela, nome_cliente, cpf,
                    valor_equivalente, valor_original, observacao, telefone
             FROM propostas
             WHERE id = {ph}
@@ -908,6 +973,7 @@ def editar_proposta(id):
                 UPDATE propostas SET 
                     data = {ph},
                     fonte = {ph},
+                    banco = {ph},
                     senha_digitada = {ph},
                     tabela = {ph},
                     nome_cliente = {ph},
@@ -918,7 +984,7 @@ def editar_proposta(id):
                     telefone = {ph}
                 WHERE id = {ph}
             """, (
-                nova_data, fonte, senha_digitada, tabela, nome_cliente, cpf,
+                nova_data, fonte, request.form.get("banco"), senha_digitada, tabela, nome_cliente, cpf,
                 valor_equivalente, valor_original, observacao, telefone, id
             ))
 

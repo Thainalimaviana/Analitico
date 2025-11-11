@@ -1,155 +1,189 @@
 <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/logo.png') }}">
-{% extends "base.html" %}
-{% block title %}Editar Proposta{% endblock %}
-
-{% block content %}
 <style>
-    .editar-container {
-        max-width: 750px;
-        margin: 40px auto;
-        background: rgba(255, 255, 255, 0.15);
-        backdrop-filter: blur(10px);
-        border-radius: 18px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
-        padding: 35px 40px;
-        text-align: center;
-    }
-
-    .editar-container h1 {
-        font-size: 28px;
-        color: var(--cor-texto);
-        font-weight: 700;
-        margin-bottom: 25px;
-    }
-
-    form {
-        display: flex;
-        flex-direction: column;
-        gap: 18px;
-    }
-
-    .form-linha {
-        display: flex;
-        gap: 15px;
-        flex-wrap: wrap;
-    }
-
-    .barra-cpf {
-        flex: 1;
-        padding: 12px 14px;
-        border-radius: 10px;
-        background: linear-gradient(40deg, var(--gradiente-inicio), var(--gradiente-fim));
-        font-size: 15px;
-        color: var(--cor-texto);
-        font-weight: 600;
-        outline: none;
-        transition: all 0.25s ease-in-out;
-    }
-
-    .barra-cpf:focus {
-        box-shadow: 0 0 8px #00b84d;
-        transform: scale(1.01);
-    }
-
-    textarea.barra-cpf {
-        resize: none;
-        height: 90px;
-    }
-
-    .data-hora-linha {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        margin-top: 10px;
-    }
-
-    .data-hora-linha label {
+    .form-linha label {
         color: var(--cor-texto);
         font-weight: 600;
         font-size: 15px;
         margin-bottom: 6px;
-        margin-left: 3px;
+        display: inline-block;
     }
 
-    input[type="datetime-local"].barra-cpf {
+    input[type="datetime-local"].barra-cpf,
+    select.barra-cpf,
+    input.barra-cpf,
+    textarea.barra-cpf {
+        background: var(--bg-input);
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        border-radius: 10px;
+        color: var(--cor-texto);
+        font-size: 15px;
+        padding: 10px 12px;
         width: 100%;
         transition: 0.3s ease;
     }
 
-    input[type="datetime-local"].barra-cpf:focus {
+    input[type="datetime-local"].barra-cpf:focus,
+    select.barra-cpf:focus,
+    input.barra-cpf:focus,
+    textarea.barra-cpf:focus {
         border-color: #00b848;
         box-shadow: 0 0 6px rgba(0, 255, 128, 0.4);
         background: rgba(255, 255, 255, 0.18);
+    }
+
+    select.barra-cpf:disabled,
+    input.barra-cpf:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    .form-linha.data-hora-linha {
+        margin-top: 12px;
+        margin-bottom: 25px;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .form-linha.data-hora-linha label {
+        margin-bottom: 6px;
+        margin-left: 2px;
     }
 
     .button-group {
         margin-top: 10px;
     }
 
-    button.azul {
-        background: linear-gradient(90deg, #007bff, #00c3ff);
-        border: none;
-        color: white;
-        font-weight: 700;
-        font-size: 16px;
-        padding: 12px 22px;
-        border-radius: 10px;
-        cursor: pointer;
-        transition: all 0.25s;
+    @media (max-width: 600px) {
+        .form-linha.data-hora-linha input {
+            width: 100%;
+        }
     }
 
-    button.azul:hover {
-        background: linear-gradient(90deg, #0068d9, #00aee0);
-        transform: scale(1.03);
+    select.barra-cpf {
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        background: var(--bg-input);
+        color: var(--cor-texto);
+        font-weight: 500;
     }
 
-    i.fa-save {
-        margin-right: 6px;
+    select.barra-cpf option {
+        background: var(--gradiente-fim);
+        color: var(--cor-texto);
+    }
+
+    select.barra-cpf {
+        background-image: linear-gradient(45deg, transparent 50%, #00b848 50%),
+            linear-gradient(135deg, #00b848 50%, transparent 50%);
+        background-position: calc(100% - 18px) center, calc(100% - 12px) center;
+        background-size: 6px 6px, 6px 6px;
+        background-repeat: no-repeat;
+    }
+
+    select.barra-cpf:focus {
+        outline: none;
+        border-color: #00b848;
+        box-shadow: 0 0 6px rgba(0, 255, 128, 0.4);
     }
 </style>
 
-<div class="editar-container">
-    <h1>Editar Proposta</h1>
+{% extends "base.html" %}
+{% block title %}Editar Proposta{% endblock %}
 
+{% block content %}
+<h1 class="titulo-tomorrow">Editar Proposta</h1>
+
+{% if sucesso %}
+<div class="msg-sucesso">
+    <i class="fa fa-check-circle"></i> {{ sucesso }}
+</div>
+{% endif %}
+
+<div class="container">
     <form method="POST">
+
         <div class="form-linha">
-            <input class="barra-cpf" type="text" name="fonte" value="{{ proposta[2] }}"
-                placeholder="Fonte da Proposta (ex: CLT / FGTS)">
-            <input class="barra-cpf" type="text" name="senha_digitada" value="{{ proposta[3] }}"
-                placeholder="Senha digitada (ex: PAN / QI)">
-            <input class="barra-cpf" type="text" name="tabela" value="{{ proposta[4] }}"
-                placeholder="Tabela (ex: Facta / QI)">
+            <label>Fonte:</label>
+            <select class="barra-cpf" name="fonte" required>
+                <option value="">Selecione a Fonte</option>
+                <option value="URA" {% if proposta[2]=='URA' %}selected{% endif %}>URA</option>
+                <option value="Consultados antigos" {% if proposta[2]=='Consultados antigos' %}selected{% endif %}>
+                    Consultados antigos</option>
+                <option value="Consultados de hoje" {% if proposta[2]=='Consultados de hoje' %}selected{% endif %}>
+                    Consultados de hoje</option>
+                <option value="Cliente de analítico/carteira" {% if proposta[2]=='Cliente de analítico/carteira'
+                    %}selected{% endif %}>Cliente de analítico/carteira</option>
+                <option value="Indicação" {% if proposta[2]=='Indicação' %}selected{% endif %}>Indicação</option>
+            </select>
         </div>
 
         <div class="form-linha">
-            <input class="barra-cpf" type="text" name="nome_cliente" value="{{ proposta[5] }}"
-                placeholder="Nome do Cliente">
-            <input class="barra-cpf" type="text" name="cpf" value="{{ proposta[6] }}"
-                placeholder="CPF (somente números)">
+            <label>Banco:</label>
+            <select class="barra-cpf" name="banco" id="banco" required>
+                <option value="" disabled>Selecione o Banco</option>
+                <option value="C6" {% if proposta[3]=='C6' %}selected{% endif %}>C6</option>
+                <option value="Amigoz" {% if proposta[3]=='Amigoz' %}selected{% endif %}>Amigoz</option>
+                <option value="Presença" {% if proposta[3]=='Presença' %}selected{% endif %}>Presença</option>
+                <option value="Prata" {% if proposta[3]=='Prata' %}selected{% endif %}>Prata</option>
+                <option value="V8" {% if proposta[3]=='V8' %}selected{% endif %}>V8</option>
+                <option value="PAN" {% if proposta[3]=='PAN' %}selected{% endif %}>PAN</option>
+                <option value="Facta" {% if proposta[3]=='Facta' %}selected{% endif %}>Facta</option>
+            </select>
         </div>
 
         <div class="form-linha">
-            <input class="barra-cpf" type="number" step="0.01" name="valor_equivalente" value="{{ proposta[7] }}"
-                placeholder="Valor Equivalente (R$)">
-            <input class="barra-cpf" type="number" step="0.01" name="valor_original" value="{{ proposta[8] }}"
-                placeholder="Valor Original (R$)">
+            <label>Senha Digitada:</label>
+            <input class="barra-cpf" type="text" name="senha_digitada" value="{{ proposta[4] or '' }}"
+                placeholder="Senha Digitada">
         </div>
 
-        <textarea name="observacao" class="barra-cpf"
-            placeholder="Observações adicionais...">{{ proposta[9] }}</textarea>
+        <div class="form-linha">
+            <label>Tabela:</label>
+            <input class="barra-cpf" type="text" name="tabela" value="{{ proposta[5] or '' }}" placeholder="Tabela">
+        </div>
 
         <div class="form-linha">
-            <input class="barra-cpf" type="text" name="telefone" value="{{ proposta[10] }}"
-                placeholder="Telefone com DDD">
+            <input class="barra-cpf" type="text" name="nome_cliente" placeholder="Nome do Cliente"
+                value="{{ proposta[6] or '' }}" required>
+            <input class="barra-cpf" type="text" name="cpf" placeholder="CPF" value="{{ proposta[7] or '' }}" required>
+        </div>
+
+        <div class="form-linha">
+            <input class="barra-cpf" type="text" name="telefone" placeholder="Telefone"
+                value="{{ proposta[11] or '' }}">
+            <input class="barra-cpf" type="number" step="0.01" name="valor_equivalente" placeholder="Valor Equivalente"
+                value="{{ proposta[8] or '' }}">
+            <input class="barra-cpf" type="number" step="0.01" name="valor_original" placeholder="Valor Original"
+                value="{{ proposta[9] or '' }}">
+        </div>
+
+        <div class="form-linha">
+            <label>Observação:</label>
+            <select name="observacao" class="barra-cpf">
+                <option value="">Selecione a Observação</option>
+                <option value="PAGO" {% if proposta[10]=='PAGO' %}selected{% endif %}>PAGO</option>
+                <option value="AGUARDANDO PAGAMENTO" {% if proposta[10]=='AGUARDANDO PAGAMENTO' %}selected{% endif %}>
+                    AGUARDANDO PAGAMENTO</option>
+                <option value="ANALISE MESA" {% if proposta[10]=='ANALISE MESA' %}selected{% endif %}>ANÁLISE MESA
+                </option>
+                <option value="REPRESENTAÇÃO" {% if proposta[10]=='REPRESENTAÇÃO' %}selected{% endif %}>REPRESENTAÇÃO
+                </option>
+                <option value="INTEGRADA" {% if proposta[10]=='INTEGRADA' %}selected{% endif %}>INTEGRADA</option>
+            </select>
         </div>
 
         <div class="form-linha data-hora-linha">
             <label>Data e Hora (opcional):</label>
-            <input class="barra-cpf" type="datetime-local" name="data_manual"
-                value="{% if proposta[1] %}{% if proposta[1].__class__.__name__ == 'datetime' %}{{ proposta[1].strftime('%Y-%m-%dT%H:%M') }}{% else %}{{ proposta[1][:16].replace(' ', 'T') }}{% endif %}{% endif %}">
-            <small style="color: var(--cor-texto); opacity: 0.7; margin-top: 4px;">
-                Se não alterar, será mantida a data original: {{ proposta[1] }}
-            </small>
+            <input class="barra-cpf" type="datetime-local" name="data_manual" 
+            value="{% if proposta[1] %}
+                {% if proposta[1] is string %}
+                    {{ proposta[1][:16] }}
+                {% else %}
+                    {{ proposta[1].strftime('%Y-%m-%dT%H:%M') }}
+                {% endif %}
+                    {% endif %}">
         </div>
 
         <div class="button-group">
@@ -157,6 +191,7 @@
                 <i class="fa fa-save"></i> Salvar Alterações
             </button>
         </div>
+
     </form>
 </div>
 {% endblock %}
