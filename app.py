@@ -16,6 +16,15 @@ app.secret_key = "consigtech_secret_2025"
 DATABASE_URL = os.environ.get("DATABASE_URL", "").replace("postgres://", "postgresql://")
 LOCAL_DB = "local.db"
 
+@app.template_filter('brl')
+def format_brl(value):
+    try:
+        valor = float(value or 0)
+        return f"R$ {valor:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+    except Exception:
+        return "R$ 0,00"
+
+
 def get_conn():
     if DATABASE_URL and psycopg2:
         return psycopg2.connect(DATABASE_URL, sslmode="require")

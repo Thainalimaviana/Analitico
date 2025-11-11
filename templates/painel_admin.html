@@ -8,7 +8,6 @@
     <h1>Painel Administrativo</h1>
   </div>
 
-  <!-- 🔍 Filtro de Data -->
   <form method="get" class="filtro-data">
     <label>Data Início:</label>
     <input type="date" name="data_ini" value="{{ data_ini }}">
@@ -61,7 +60,6 @@
   </div>
 </div>
 
-<!-- MODAL META GLOBAL -->
 <div id="modalGlobal" class="modal">
   <div class="modal-content">
     <span class="close" onclick="fecharMetaGlobal()">&times;</span>
@@ -73,7 +71,6 @@
   </div>
 </div>
 
-<!-- MODAL META INDIVIDUAL -->
 <div id="modalIndividual" class="modal">
   <div class="modal-content">
     <span class="close" onclick="fecharMeta()">&times;</span>
@@ -87,55 +84,91 @@
 </div>
 
 <script>
-function abrirMeta(consultor, metaAtual) {
-  document.getElementById("consultor_meta").value = consultor;
-  document.getElementById("valor_meta").value = metaAtual;
-  document.getElementById("modalIndividual").style.display = "block";
-}
-function fecharMeta() {
-  document.getElementById("modalIndividual").style.display = "none";
-}
-function abrirMetaGlobal() {
-  document.getElementById("modalGlobal").style.display = "block";
-}
-function fecharMetaGlobal() {
-  document.getElementById("modalGlobal").style.display = "none";
-}
+  function abrirMeta(consultor, metaAtual) {
+    document.getElementById("consultor_meta").value = consultor;
+    document.getElementById("valor_meta").value = metaAtual;
+    document.getElementById("modalIndividual").style.display = "block";
+  }
+  function fecharMeta() {
+    document.getElementById("modalIndividual").style.display = "none";
+  }
+  function abrirMetaGlobal() {
+    document.getElementById("modalGlobal").style.display = "block";
+  }
+  function fecharMetaGlobal() {
+    document.getElementById("modalGlobal").style.display = "none";
+  }
 </script>
 
 <style>
-.filtro-data {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 25px;
-  flex-wrap: wrap;
-}
-.filtro-data label {
-  font-weight: 600;
-  color: var(--cor-texto);
-}
-.filtro-data input[type="date"] {
-  padding: 6px 10px;
-  border-radius: 8px;
-  border: 1px solid rgba(0,0,0,0.2);
-  background: var(--bg-input);
-  color: var(--cor-texto);
-  font-size: 14px;
-}
-.btn-filtrar {
-  background: #108001;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  padding: 8px 15px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: 0.3s;
-}
-.btn-filtrar:hover {
-  background: #0c6401;
-}
+  .filtro-data {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+  }
+
+  .filtro-data label {
+    font-weight: 600;
+    color: var(--cor-texto);
+  }
+
+  .filtro-data input[type="date"] {
+    padding: 6px 10px;
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    background: var(--bg-input);
+    color: var(--cor-texto);
+    font-size: 14px;
+  }
+
+  .btn-filtrar {
+    background: #108001;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 15px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: 0.3s;
+  }
+
+  .btn-filtrar:hover {
+    background: #0c6401;
+  }
 </style>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll(".valor, td").forEach(el => {
+      const textoOriginal = el.innerText.trim();
+
+      if (!textoOriginal.includes("R$")) return;
+
+      let texto = textoOriginal.replace(/[R$\s]/g, "");
+
+      if (texto.includes(",") && texto.includes(".")) {
+        if (texto.indexOf(",") > texto.indexOf(".")) {
+          texto = texto.replace(/\./g, "").replace(",", ".");
+        } else {
+          texto = texto.replace(/,/g, "");
+        }
+      } else if (texto.includes(",")) {
+        texto = texto.replace(",", ".");
+      } else {
+        texto = texto.replace(/,/g, "");
+      }
+
+      const num = parseFloat(texto);
+      if (!isNaN(num)) {
+        el.innerText = num.toLocaleString("pt-BR", {
+          style: "currency",
+          currency: "BRL"
+        });
+      }
+    });
+  });
+</script>
+
 {% endblock %}
