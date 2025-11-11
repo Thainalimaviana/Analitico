@@ -83,6 +83,8 @@ def init_db():
 
 init_db()
 
+init_db()
+
 def ensure_meta_table():
     conn = get_conn()
     cur = conn.cursor()
@@ -103,7 +105,24 @@ def ensure_meta_table():
     conn.commit()
     conn.close()
 
+def ensure_banco_column():
+    conn = get_conn()
+    cur = conn.cursor()
+    try:
+        cur.execute("SELECT banco FROM propostas LIMIT 1;")
+    except Exception:
+        print("🛠️ Corrigindo estrutura: adicionando coluna 'banco' em 'propostas'...")
+        try:
+            cur.execute("ALTER TABLE propostas ADD COLUMN banco TEXT;")
+            conn.commit()
+            print("✅ Coluna 'banco' adicionada com sucesso.")
+        except Exception as e2:
+            print("⚠️ Falha ao criar coluna 'banco':", e2)
+    finally:
+        conn.close()
+
 ensure_meta_table()
+ensure_banco_column()
 
 @app.route("/")
 def home():
