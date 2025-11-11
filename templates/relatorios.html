@@ -403,8 +403,7 @@
       } else {
         texto = texto.replace(/,/g, "");
       }
-
-      const num = parseFloat(texto);
+      
       if (!isNaN(num)) {
         el.innerText = num.toLocaleString("pt-BR", {
           style: "currency",
