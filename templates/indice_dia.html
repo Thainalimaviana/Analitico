@@ -161,9 +161,37 @@
 </div>
 
 <script>
-    setInterval(() => {
-        window.location.reload();
-    }, 30000);
+    function atualizarPainelTV() {
+        fetch(window.location.href)
+            .then(res => res.text())
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, "text/html");
+
+                const novoTotal = doc.querySelector(".tabela-total");
+                if (novoTotal) {
+                    document.querySelector(".tabela-total").innerHTML = novoTotal.innerHTML;
+                }
+
+                const novasTabelas = doc.querySelectorAll(".tabela-tv");
+                const tabelasAntigas = document.querySelectorAll(".tabela-tv");
+
+                novasTabelas.forEach((nova, i) => {
+                    if (tabelasAntigas[i]) {
+                        tabelasAntigas[i].innerHTML = nova.innerHTML;
+                    }
+                });
+
+                if (typeof aplicarFormatacaoBRL === "function") {
+                    aplicarFormatacaoBRL();
+                }
+            })
+            .catch(err => console.error("Erro ao atualizar painel TV:", err));
+    }
+
+    setInterval(atualizarPainelTV, 30000);
+    atualizarPainelTV();
 </script>
+
 
 {% endblock %}

@@ -110,30 +110,36 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-    const legendaCor = document.body.classList.contains("dark-mode") ? "#fff" : "#222";
+    let graficoComparativo, graficoRanking;
 
-    new Chart(document.getElementById('graficoComparativo'), {
-        type: 'doughnut',
-        data: {
-            labels: ['Valor Equivalente', 'Falta para Meta'],
-            datasets: [{
-                data: [{{ total_eq }}, {{ falta_meta }}],
-        backgroundColor: ['#00c853', '#424242'],
-        borderWidth: 0
-    }]
-  },
-        options: {
+    function renderizarGraficos() {
+        const legendaCor = document.body.classList.contains("dark-mode") ? "#fff" : "#222";
+
+        if (graficoComparativo) graficoComparativo.destroy();
+        if (graficoRanking) graficoRanking.destroy();
+
+        graficoComparativo = new Chart(document.getElementById('graficoComparativo'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Valor Equivalente', 'Falta para Meta'],
+                datasets: [{
+                    data: [{{ total_eq }}, {{ falta_meta }}],
+            backgroundColor: ['#00c853', '#424242'],
+            borderWidth: 0
+        }]
+            },
+    options: {
         cutout: '70%',
-        plugins: { legend: { position: 'bottom', labels: { color: legendaCor } } },
+            plugins: { legend: { position: 'bottom', labels: { color: legendaCor } } },
         maintainAspectRatio: false,
-        responsive: true
+            responsive: true
     }
-});
+        });
 
     const nomes = {{ ranking| map(attribute = 0) | list | tojson }};
     const valores = {{ ranking| map(attribute = 1) | list | tojson }};
 
-    new Chart(document.getElementById('graficoRanking'), {
+    graficoRanking = new Chart(document.getElementById('graficoRanking'), {
         type: 'bar',
         data: {
             labels: nomes,
@@ -153,6 +159,43 @@
             responsive: true
         }
     });
+    }
+
+    renderizarGraficos();
+
+    function atualizarDashboard() {
+        fetch(window.location.href)
+            .then(res => res.text())
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, "text/html");
+
+                const novosCards = doc.querySelector(".cards-dashboard");
+                if (novosCards) {
+                    document.querySelector(".cards-dashboard").innerHTML = novosCards.innerHTML;
+                }
+
+                const novoRanking = doc.querySelector(".grafico-ranking");
+                if (novoRanking) {
+                    document.querySelector(".grafico-ranking").innerHTML = novoRanking.innerHTML;
+                }
+
+                const novoEq = parseFloat(doc.querySelector(".card.verde .valor").innerText.replace(/[^\d,]/g, '').replace(',', '.')) || 0;
+                const novaMeta = parseFloat(doc.querySelector(".card.cinza .valor").innerText.replace(/[^\d,]/g, '').replace(',', '.')) || 0;
+
+                if (graficoComparativo) {
+                    graficoComparativo.data.datasets[0].data = [novoEq, novaMeta];
+                    graficoComparativo.update();
+                }
+
+                if (typeof aplicarFormatacaoBRL === "function") {
+                    aplicarFormatacaoBRL();
+                }
+            })
+            .catch(err => console.error("Erro ao atualizar dashboard:", err));
+    }
+
+    setInterval(atualizarDashboard, 60000);
 </script>
 
 {% endblock %}
