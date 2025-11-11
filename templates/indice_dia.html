@@ -28,7 +28,6 @@
         max-width: 650px;
     }
 
-
     table.tabela-tv {
         border-collapse: collapse;
         width: 100%;
@@ -42,20 +41,22 @@
         background: linear-gradient(90deg, #009a2a, #00c73c);
         color: white;
         font-weight: bold;
-        font-size: 16px;
+        font-size: 18px;
     }
 
     .tabela-tv th {
         padding: 12px 14px;
         text-align: center;
         font-size: 20px;
+        font-weight: 700;
     }
 
     .tabela-tv td {
         padding: 12px 14px;
         text-align: center;
         color: var(--cor-texto);
-        font-size: 18px;
+        font-size: 22px;
+        font-weight: 800;
     }
 
     .tabela-tv tbody tr:nth-child(even) {
@@ -68,7 +69,7 @@
 
     .tabela-tv td.valor {
         color: var(--cor-texto);
-        font-weight: 700;
+        font-weight: 800;
     }
 
     .tabela-tv tfoot th {
@@ -83,7 +84,7 @@
         text-align: center;
         font-weight: 700;
         font-size: 32px;
-        color: #007a33;
+        color: var(--cor-texto);
         margin-bottom: 25px;
     }
 
@@ -108,8 +109,6 @@
         text-transform: uppercase;
     }
 </style>
-
-<h1>Índice do Dia</h1>
 
 <div class="painel-tv">
     <table class="tabela-total">
@@ -160,4 +159,11 @@
         </table>
     </div>
 </div>
+
+<script>
+    setInterval(() => {
+        window.location.reload();
+    }, 30000);
+</script>
+
 {% endblock %}

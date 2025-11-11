@@ -726,6 +726,7 @@ tfoot th {
   background: rgba(100, 100, 100, 0.144);
   border-radius: 10px;
   overflow: hidden;
+  color: var(--cor-texto);
 }
 
 .tabela-admin th,
@@ -733,6 +734,7 @@ tfoot th {
   padding: 12px;
   text-align: center;
   border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  color: var(--cor-texto);
 }
 
 .btn-editar {
