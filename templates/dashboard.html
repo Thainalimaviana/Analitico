@@ -147,7 +147,7 @@
             data: {
                 labels: ['Valor Equivalente', 'Falta para Meta'],
                 datasets: [{
-                    data: [{{ total_eq }}, {{ falta_meta }}],
+                    data: [{{ "%.2f"|format(total_eq) }}, {{ "%.2f"|format(falta_meta) }}],
             backgroundColor: ['#00c853', '#424242'],
             borderWidth: 0
         }]
@@ -177,16 +177,19 @@
                         return ctx[0].label;
                     },
                     label: function(ctx) {
-                        const valor = ctx.parsed;
+                        const valor = Number(ctx.parsed) || 0;
                         const formatado = new Intl.NumberFormat("pt-BR", {
                             style: "currency",
-                            currency: "BRL"
+                            currency: "BRL",
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
                         }).format(valor);
                         return [
                             '──────────────',
                             `💸 ${formatado}`
                         ];
                     }
+
                 }
             }
         },
