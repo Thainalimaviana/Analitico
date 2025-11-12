@@ -325,15 +325,14 @@ def relatorios():
     """)
     usuarios = [u[0] for u in cur.fetchall()]
 
-    user = request.form.get("usuario")
-    data_ini = request.form.get("data_ini")
-    data_fim = request.form.get("data_fim")
-    observacao = request.form.get("observacao", "").strip()
-    senha_digitada = request.form.get("senha_digitada", "").strip()
-    fonte = request.form.get("fonte", "").strip()
-    tabela = request.form.get("tabela", "").strip()
-    banco = request.form.get("banco", "").strip()
-
+    user = request.form.get("usuario") or request.args.get("usuario")
+    data_ini = request.form.get("data_ini") or request.args.get("data_ini")
+    data_fim = request.form.get("data_fim") or request.args.get("data_fim")
+    observacao = (request.form.get("observacao") or request.args.get("observacao") or "").strip()
+    senha_digitada = (request.form.get("senha_digitada") or request.args.get("senha_digitada") or "").strip()
+    fonte = (request.form.get("fonte") or request.args.get("fonte") or "").strip()
+    tabela = (request.form.get("tabela") or request.args.get("tabela") or "").strip()
+    banco = (request.form.get("banco") or request.args.get("banco") or "").strip()
     acao = request.form.get("acao")
 
     def normalizar_data(data_str):
@@ -348,6 +347,7 @@ def relatorios():
     data_fim = normalizar_data(data_fim)
 
     ph = "?" if isinstance(conn, sqlite3.Connection) else "%s"
+
     query_base = f"""
         SELECT id, data, consultor, fonte, banco, senha_digitada, tabela, nome_cliente, cpf,
                valor_equivalente, valor_original, observacao, telefone
@@ -400,14 +400,24 @@ def relatorios():
         query_base += " WHERE " + " AND ".join(condicoes)
 
     order_clause = "ORDER BY datetime(data) DESC" if isinstance(conn, sqlite3.Connection) else "ORDER BY data DESC"
-    query_base += f" {order_clause}"
 
-    cur.execute(query_base.replace("?", "%s") if not isinstance(conn, sqlite3.Connection) else query_base, tuple(params))
+    pagina = int(request.args.get("pagina", 1))
+    por_pagina = 50
+    offset = (pagina - 1) * por_pagina
+
+    cur.execute(f"SELECT COUNT(*) FROM ({query_base})", tuple(params))
+    total_registros = cur.fetchone()[0]
+    total_paginas = (total_registros + por_pagina - 1) // por_pagina
+
+    query_paginada = f"{query_base} {order_clause} LIMIT {ph} OFFSET {ph}"
+    params_paginada = params + [por_pagina, offset]
+
+    cur.execute(query_paginada.replace("?", "%s") if not isinstance(conn, sqlite3.Connection) else query_paginada, tuple(params_paginada))
     dados = cur.fetchall()
 
-    total_equivalente = sum(float(d[9] or 0) for d in dados)
-    total_original = sum(float(d[10] or 0) for d in dados)
-    total_propostas = len(dados)
+    cur.execute(f"SELECT COALESCE(SUM(valor_equivalente),0), COALESCE(SUM(valor_original),0) FROM ({query_base})", tuple(params))
+    total_equivalente, total_original = cur.fetchone()
+    total_propostas = total_registros
 
     cur.execute("SELECT valor FROM metas_globais ORDER BY id DESC LIMIT 1;")
     meta_row = cur.fetchone()
@@ -426,26 +436,8 @@ def relatorios():
     else:
         falta_para_meta = max(meta_global - float(total_equivalente or 0), 0)
 
+    # === Exportação Excel ===
     if acao == "baixar":
-        if not dados:
-            if isinstance(conn, sqlite3.Connection):
-                cur.execute("""
-                    SELECT data, consultor, fonte, senha_digitada, tabela, nome_cliente, cpf,
-                           valor_equivalente, valor_original, observacao, telefone
-                    FROM propostas
-                    ORDER BY datetime(data) DESC
-                    LIMIT 30;
-                """)
-            else:
-                cur.execute("""
-                    SELECT data, consultor, fonte, senha_digitada, tabela, nome_cliente, cpf,
-                           valor_equivalente, valor_original, observacao, telefone
-                    FROM propostas
-                    ORDER BY data DESC
-                    LIMIT 30;
-                """)
-            dados = cur.fetchall()
-
         colunas = ["ID", "Data", "Consultor", "Fonte", "Banco", "Senha Digitada", "Tabela", "Nome", "CPF",
                    "Valor Equivalente", "Valor Original", "Observação", "Telefone"]
         df = pd.DataFrame(dados, columns=colunas)
@@ -457,6 +449,7 @@ def relatorios():
         return send_file(output, as_attachment=True, download_name=filename)
 
     conn.close()
+
     return render_template(
         "relatorios.html",
         usuarios=usuarios,
@@ -472,7 +465,9 @@ def relatorios():
         total_equivalente=total_equivalente,
         total_original=total_original,
         total_propostas=total_propostas,
-        falta_para_meta=falta_para_meta
+        falta_para_meta=falta_para_meta,
+        pagina=pagina,
+        total_paginas=total_paginas
     )
 
 from datetime import datetime, timedelta
