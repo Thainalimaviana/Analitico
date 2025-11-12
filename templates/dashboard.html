@@ -151,14 +151,49 @@
             backgroundColor: ['#00c853', '#424242'],
             borderWidth: 0
         }]
-            },
+    },
     options: {
         cutout: '70%',
-            plugins: { legend: { position: 'bottom', labels: { color: legendaCor } } },
+            plugins: {
+            legend: {
+                position: 'bottom',
+                    labels: {
+                    color: getComputedStyle(document.body).getPropertyValue('--cor-texto').trim() || '#222'
+                }
+
+            },
+            tooltip: {
+                backgroundColor: 'rgba(20, 20, 20, 0.92)',
+                    borderColor: 'rgba(255, 255, 255, 0.15)',
+                        borderWidth: 1,
+                            padding: 10,
+                                titleColor: '#fff',
+                                    bodyColor: '#fff',
+                                        titleFont: { size: 14, weight: 'bold' },
+                bodyFont: { size: 13 },
+                displayColors: false,
+                    callbacks: {
+                    title: function(ctx) {
+                        return ctx[0].label;
+                    },
+                    label: function(ctx) {
+                        const valor = ctx.parsed;
+                        const formatado = new Intl.NumberFormat("pt-BR", {
+                            style: "currency",
+                            currency: "BRL"
+                        }).format(valor);
+                        return [
+                            '──────────────',
+                            `💸 ${formatado}`
+                        ];
+                    }
+                }
+            }
+        },
         maintainAspectRatio: false,
             responsive: true
     }
-        });
+});
 
     const nomes = {{ ranking| map(attribute = 0) | list | tojson }};
     const valores = {{ ranking| map(attribute = 1) | list | tojson }};
@@ -219,7 +254,8 @@
             .catch(err => console.error("Erro ao atualizar dashboard:", err));
     }
 
-    setInterval(atualizarDashboard, 60000);
+    setInterval(atualizarDashboard, 300000);
+    setTimeout(atualizarDashboard, 10000);
 
 </script>
 <script>
@@ -228,6 +264,8 @@
     const valores = {{ bancos_dados | map(attribute = 2) | list | tojson }};
 
     const legendaCor = document.body.classList.contains("dark-mode") ? "#fff" : "#222";
+
+    const formatarBRL = (v) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(v);
 
     new Chart(document.getElementById('graficoBancos'), {
         type: 'bar',
@@ -245,22 +283,42 @@
             plugins: {
                 legend: { display: false },
                 tooltip: {
+                    backgroundColor: 'rgba(20, 20, 20, 0.92)',
+                    borderColor: 'rgba(255, 255, 255, 0.15)',
+                    borderWidth: 1,
+                    padding: 10,
+                    titleColor: '#fff',
+                    bodyColor: '#fff',
+                    titleFont: { size: 14, weight: 'bold' },
+                    bodyFont: { size: 13 },
+                    displayColors: false,
                     callbacks: {
+                        title: function (ctx) {
+                            return ctx[0].label;
+                        },
                         label: function (ctx) {
-                            const index = ctx.dataIndex;
-                            const qtd = ctx.parsed.y || ctx.parsed.x;
-                            const valor = valores[index] || 0;
+                            const i = ctx.dataIndex;
+                            const qtd = propostas[i];
+                            const valor = valores[i];
                             return [
-                                `${qtd} proposta${qtd > 1 ? 's' : ''}`,
-                                `Valor total: R$ ${valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
+                                '──────────────',
+                                `📊 ${qtd} proposta${qtd > 1 ? 's' : ''}`,
+                                `💰 ${formatarBRL(valor)}`
                             ];
                         }
                     }
                 }
             },
             scales: {
-                x: { ticks: { color: legendaCor } },
-                y: { beginAtZero: true, ticks: { color: legendaCor } }
+                x: {
+                    ticks: { color: legendaCor, font: { weight: '600' } },
+                    grid: { color: 'rgba(255,255,255,0.08)' }
+                },
+                y: {
+                    beginAtZero: true,
+                    ticks: { color: legendaCor },
+                    grid: { color: 'rgba(255,255,255,0.08)' }
+                }
             },
             maintainAspectRatio: false,
             responsive: true
