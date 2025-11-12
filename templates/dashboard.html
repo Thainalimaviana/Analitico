@@ -183,7 +183,6 @@
         if (graficoComparativo) graficoComparativo.destroy();
         if (graficoRanking) graficoRanking.destroy();
 
-        // === Gráfico de Rosquinha ===
         graficoComparativo = new Chart(document.getElementById('graficoComparativo'), {
             type: 'doughnut',
             data: {
@@ -238,7 +237,6 @@
     }
     });
 
-    // === Gráfico de Ranking dos Consultores ===
     const nomes = {{ ranking| map(attribute = 0) | list | tojson }};
     const valores = {{ ranking| map(attribute = 1) | list | tojson }};
 
@@ -331,7 +329,6 @@
     }
 
     setInterval(atualizarDashboard, 300000);
-    setTimeout(atualizarDashboard, 10000);
 
 </script>
 <script>
