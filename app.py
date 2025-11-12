@@ -570,11 +570,9 @@ def painel_admin():
     if "user" not in session or session["role"] != "admin":
         return redirect(url_for("login"))
 
-    # 📅 Recebe filtros
     data_ini = request.args.get("data_ini")
     data_fim = request.args.get("data_fim")
 
-    # Se não houver filtros, usa o mês atual
     agora = datetime.now()
     if not data_ini or not data_fim:
         data_ini = agora.replace(day=1).strftime("%Y-%m-%d")
@@ -585,7 +583,6 @@ def painel_admin():
     cur = conn.cursor()
     ph = "?" if isinstance(conn, sqlite3.Connection) else "%s"
 
-    # Criação das tabelas se necessário
     cur.execute("""
         CREATE TABLE IF NOT EXISTS metas_globais (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -612,7 +609,6 @@ def painel_admin():
         )
     """)
 
-    # 🔍 Consulta adaptada com filtro de data
     if isinstance(conn, sqlite3.Connection):
         query = f"""
             SELECT u.nome AS consultor,
@@ -775,6 +771,7 @@ def painel_usuario():
     cur.execute(query, (consultor_filtro, inicio, fim))
     propostas_raw = cur.fetchall()
     propostas = []
+
     for p in propostas_raw:
         try:
             data_val = p[1]
@@ -789,6 +786,21 @@ def painel_usuario():
 
     total_eq = sum([float(p[8] or 0) for p in propostas])
     total_or = sum([float(p[9] or 0) for p in propostas])
+
+    try:
+        cur.execute(
+            "SELECT meta FROM metas_individuais WHERE consultor = ?"
+            if isinstance(conn, sqlite3.Connection)
+            else "SELECT meta FROM metas_individuais WHERE consultor = %s",
+            (consultor_filtro,),
+        )
+        meta_row = cur.fetchone()
+        meta_individual = float(meta_row[0]) if meta_row else 0
+    except Exception as e:
+        print("⚠️ Erro ao buscar meta individual:", e)
+        meta_individual = 0
+
+    falta_meta = max(meta_individual - total_eq, 0)
 
     conn.close()
 
@@ -813,7 +825,9 @@ def painel_usuario():
         fim=fim,
         mes=mes,
         mes_titulo=mes_titulo,
-        hoje=hoje
+        hoje=hoje,
+        meta_individual=meta_individual,
+        falta_meta=falta_meta
     )
 
 @app.route("/editar_meta_individual", methods=["POST"])

@@ -811,8 +811,8 @@ tfoot th {
 
 .tabela-usuario {
   margin-top: 25px;
-  max-height: 450px;
-  overflow-y: auto;
+  margin-bottom: 100px;
+  overflow-y: visible; 
   display: block;
 }
 

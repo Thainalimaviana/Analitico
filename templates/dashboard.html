@@ -1,4 +1,45 @@
 <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/logo.png') }}">
+<style>
+    .barra {
+        position: relative;
+        cursor: pointer;
+    }
+
+    .tooltip-podio {
+        position: absolute;
+        bottom: 110%;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(20, 20, 20, 0.92);
+        color: #fff;
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-size: 13px;
+        font-family: 'Poppins', sans-serif;
+        white-space: nowrap;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.25s ease;
+    }
+
+    .barra:hover .tooltip-podio {
+        opacity: 1;
+    }
+
+    .tooltip-podio::before {
+        content: '';
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        border-width: 6px;
+        border-style: solid;
+        border-color: rgba(20, 20, 20, 0.92) transparent transparent transparent;
+    }
+</style>
+
 {% extends "base.html" %}
 {% block title %}Dashboard{% endblock %}
 
@@ -142,16 +183,17 @@
         if (graficoComparativo) graficoComparativo.destroy();
         if (graficoRanking) graficoRanking.destroy();
 
+        // === Gráfico de Rosquinha ===
         graficoComparativo = new Chart(document.getElementById('graficoComparativo'), {
             type: 'doughnut',
             data: {
                 labels: ['Valor Equivalente', 'Falta para Meta'],
                 datasets: [{
-                    data: [{{ "%.2f"|format(total_eq) }}, {{ "%.2f"|format(falta_meta) }}],
+                    data: [{{ "%.2f"| format(total_eq) }}, {{ "%.2f"| format(falta_meta) }}],
             backgroundColor: ['#00c853', '#424242'],
             borderWidth: 0
         }]
-    },
+        },
     options: {
         cutout: '70%',
             plugins: {
@@ -160,7 +202,6 @@
                     labels: {
                     color: getComputedStyle(document.body).getPropertyValue('--cor-texto').trim() || '#222'
                 }
-
             },
             tooltip: {
                 backgroundColor: 'rgba(20, 20, 20, 0.92)',
@@ -189,15 +230,15 @@
                             `💸 ${formatado}`
                         ];
                     }
-
                 }
             }
         },
         maintainAspectRatio: false,
             responsive: true
     }
-});
+    });
 
+    // === Gráfico de Ranking dos Consultores ===
     const nomes = {{ ranking| map(attribute = 0) | list | tojson }};
     const valores = {{ ranking| map(attribute = 1) | list | tojson }};
 
@@ -212,7 +253,38 @@
             }]
         },
         options: {
-            plugins: { legend: { display: false } },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: 'rgba(20, 20, 20, 0.92)',
+                    borderColor: 'rgba(255, 255, 255, 0.15)',
+                    borderWidth: 1,
+                    padding: 10,
+                    titleColor: '#fff',
+                    bodyColor: '#fff',
+                    titleFont: { size: 14, weight: 'bold' },
+                    bodyFont: { size: 13 },
+                    displayColors: false,
+                    callbacks: {
+                        title: function (ctx) {
+                            return ctx[0].label;
+                        },
+                        label: function (ctx) {
+                            const valor = Number(ctx.parsed.y || ctx.parsed.x) || 0;
+                            const formatado = new Intl.NumberFormat("pt-BR", {
+                                style: "currency",
+                                currency: "BRL",
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                            }).format(valor);
+                            return [
+                                '──────────────',
+                                `💰 ${formatado}`
+                            ];
+                        }
+                    }
+                }
+            },
             scales: {
                 y: { beginAtZero: true, ticks: { color: legendaCor } },
                 x: { ticks: { color: legendaCor } }
@@ -221,7 +293,8 @@
             responsive: true
         }
     });
-    }
+}
+
 
     renderizarGraficos();
 
@@ -328,6 +401,41 @@
         }
     });
 </script>
+
+<script>
+document.querySelectorAll(".barra").forEach(barra => {
+    const nome = barra.parentElement.querySelector(".nome")?.innerText || "Consultor";
+    const valorTexto = barra.querySelector(".valor")?.innerText.trim() || "0";
+
+    let valorNumerico = 0;
+    if (valorTexto.includes(",") && !valorTexto.includes(".")) {
+        valorNumerico = parseInt(valorTexto.replace(",", ""));
+    } else if (valorTexto.includes(".") && valorTexto.includes(",")) {
+        valorNumerico = parseFloat(valorTexto.replace(/\./g, "").replace(",", "."));
+    } else {
+        valorNumerico = parseFloat(valorTexto.replace(/\D/g, "")) || 0;
+    }
+
+    const valorFormatado = new Intl.NumberFormat("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    }).format(valorNumerico);
+
+    const tooltip = document.createElement("div");
+    tooltip.classList.add("tooltip-podio");
+    tooltip.innerHTML = `
+        <strong>${nome}</strong><br>
+        <div style="border-top:1px solid rgba(255,255,255,0.25); margin:4px 0;"></div>
+        🏅 ${valorFormatado}
+    `;
+    barra.appendChild(tooltip);
+});
+</script>
+
+
+
 
 
 {% endblock %}
