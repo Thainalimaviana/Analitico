@@ -104,7 +104,31 @@
             {% endif %}
         </div>
     </div>
+    <div class="grafico-bancos-container">
+        <h3>Distribuição de Propostas por Banco</h3>
+        <div class="canvas-wrapper">
+            <canvas id="graficoBancos"></canvas>
+        </div>
 
+        <table class="tabela-bancos">
+            <thead>
+                <tr>
+                    <th>Banco</th>
+                    <th>Propostas</th>
+                    <th>Valor Total (R$)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for b in bancos_dados %}
+                <tr>
+                    <td>{{ b[0] }}</td>
+                    <td>{{ b[1] }}</td>
+                    <td>R$ {{ "{:,.2f}".format(b[2]) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -196,6 +220,53 @@
     }
 
     setInterval(atualizarDashboard, 60000);
+
 </script>
+<script>
+    const bancos = {{ bancos_dados | map(attribute = 0) | list | tojson }};
+    const propostas = {{ bancos_dados | map(attribute = 1) | list | tojson }};
+    const valores = {{ bancos_dados | map(attribute = 2) | list | tojson }};
+
+    const legendaCor = document.body.classList.contains("dark-mode") ? "#fff" : "#222";
+
+    new Chart(document.getElementById('graficoBancos'), {
+        type: 'bar',
+        data: {
+            labels: bancos,
+            datasets: [{
+                label: 'Propostas',
+                data: propostas,
+                backgroundColor: '#00b848',
+                borderRadius: 10
+            }]
+        },
+        options: {
+            indexAxis: 'x',
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function (ctx) {
+                            const index = ctx.dataIndex;
+                            const qtd = ctx.parsed.y || ctx.parsed.x;
+                            const valor = valores[index] || 0;
+                            return [
+                                `${qtd} proposta${qtd > 1 ? 's' : ''}`,
+                                `Valor total: R$ ${valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
+                            ];
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: { ticks: { color: legendaCor } },
+                y: { beginAtZero: true, ticks: { color: legendaCor } }
+            },
+            maintainAspectRatio: false,
+            responsive: true
+        }
+    });
+</script>
+
 
 {% endblock %}

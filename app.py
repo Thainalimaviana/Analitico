@@ -537,6 +537,16 @@ def dashboard():
     """, (inicio, fim))
     ranking = cur.fetchall()
 
+    cur.execute(f"""
+        SELECT banco, COUNT(*) AS total_propostas, COALESCE(SUM(valor_equivalente), 0) AS total_valor
+        FROM propostas
+        WHERE {filtro_data}
+        GROUP BY banco
+        HAVING banco IS NOT NULL AND banco <> ''
+        ORDER BY total_propostas ASC;
+    """, (inicio, fim))
+    bancos_dados = cur.fetchall()
+
     conn.close()
 
     return render_template(
@@ -549,7 +559,8 @@ def dashboard():
         ranking=ranking or [],
         inicio=inicio,
         fim=fim,
-        periodo=periodo
+        periodo=periodo,
+        bancos_dados=bancos_dados
     )
 
 from datetime import timedelta

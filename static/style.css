@@ -204,7 +204,7 @@ body:not(.dark-mode) .container {
   display: flex;
   gap: 15px;
   margin-bottom: 15px;
-  
+
 }
 
 .form-linha input {
@@ -1502,4 +1502,56 @@ th:hover .seta {
   margin-top: 10px;
   font-weight: 600;
   color: var(--cor-texto);
+}
+
+.grafico-bancos-container {
+  margin: 40px auto;
+  width: 90%;
+  background: var(--bg-container);
+  padding: 25px;
+  border-radius: 15px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+  text-align: center;
+}
+
+.grafico-bancos-container h3 {
+  color: var(--cor-texto);
+  margin-bottom: 20px;
+}
+
+.grafico-bancos-container .canvas-wrapper {
+  height: 340px;
+  width: 100%;
+  margin-bottom: 25px;
+}
+
+.tabela-bancos {
+  width: 80%;
+  margin: 0 auto;
+  border-collapse: collapse;
+  color: var(--cor-texto);
+  font-size: 15px;
+  text-align: center;
+}
+
+.tabela-bancos th,
+.tabela-bancos td {
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  text-align: center;
+}
+
+
+.tabela-bancos th {
+  background: rgba(0, 150, 0, 0.4);
+  color: #fff;
+}
+
+body:not(.dark-mode) .tabela-bancos th {
+  background: rgba(0, 150, 0, 0.15);
+  color: #006c24;
+}
+
+.tabela-bancos tr:hover {
+  background: rgba(255, 255, 255, 0.08);
 }
