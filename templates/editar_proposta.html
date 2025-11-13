@@ -1,92 +1,92 @@
 <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/logo.png') }}">
 <style>
-    .form-linha label {
-        color: var(--cor-texto);
-        font-weight: 600;
-        font-size: 15px;
-        margin-bottom: 6px;
-        display: inline-block;
-    }
+  .form-linha label {
+    color: var(--cor-texto);
+    font-weight: 600;
+    font-size: 15px;
+    margin-bottom: 6px;
+    display: inline-block;
+  }
 
-    input[type="datetime-local"].barra-cpf,
-    select.barra-cpf,
-    input.barra-cpf,
-    textarea.barra-cpf {
-        background: var(--bg-input);
-        border: 1px solid rgba(255, 255, 255, 0.25);
-        border-radius: 10px;
-        color: var(--cor-texto);
-        font-size: 15px;
-        padding: 10px 12px;
-        width: 100%;
-        transition: 0.3s ease;
-    }
+  input[type="datetime-local"].barra-cpf,
+  select.barra-cpf,
+  input.barra-cpf,
+  textarea.barra-cpf {
+    background: var(--bg-input);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 10px;
+    color: var(--cor-texto);
+    font-size: 15px;
+    padding: 10px 12px;
+    width: 100%;
+    transition: 0.3s ease;
+  }
 
-    input[type="datetime-local"].barra-cpf:focus,
-    select.barra-cpf:focus,
-    input.barra-cpf:focus,
-    textarea.barra-cpf:focus {
-        border-color: #00b848;
-        box-shadow: 0 0 6px rgba(0, 255, 128, 0.4);
-        background: rgba(255, 255, 255, 0.18);
-    }
+  input[type="datetime-local"].barra-cpf:focus,
+  select.barra-cpf:focus,
+  input.barra-cpf:focus,
+  textarea.barra-cpf:focus {
+    border-color: #00b848;
+    box-shadow: 0 0 6px rgba(0, 255, 128, 0.4);
+    background: rgba(255, 255, 255, 0.18);
+  }
 
-    select.barra-cpf:disabled,
-    input.barra-cpf:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-    }
+  select.barra-cpf:disabled,
+  input.barra-cpf:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
 
-    .form-linha.data-hora-linha {
-        margin-top: 12px;
-        margin-bottom: 25px;
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-    }
+  .form-linha.data-hora-linha {
+    margin-top: 12px;
+    margin-bottom: 25px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
 
-    .form-linha.data-hora-linha label {
-        margin-bottom: 6px;
-        margin-left: 2px;
-    }
+  .form-linha.data-hora-linha label {
+    margin-bottom: 6px;
+    margin-left: 2px;
+  }
 
-    .button-group {
-        margin-top: 10px;
-    }
+  .button-group {
+    margin-top: 10px;
+  }
 
-    @media (max-width: 600px) {
-        .form-linha.data-hora-linha input {
-            width: 100%;
-        }
+  @media (max-width: 600px) {
+    .form-linha.data-hora-linha input {
+      width: 100%;
     }
+  }
 
-    select.barra-cpf {
-        appearance: none;
-        -webkit-appearance: none;
-        -moz-appearance: none;
-        background: var(--bg-input);
-        color: var(--cor-texto);
-        font-weight: 500;
-    }
+  select.barra-cpf {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background: var(--bg-input);
+    color: var(--cor-texto);
+    font-weight: 500;
+  }
 
-    select.barra-cpf option {
-        background: var(--gradiente-fim);
-        color: var(--cor-texto);
-    }
+  select.barra-cpf option {
+    background: var(--gradiente-fim);
+    color: var(--cor-texto);
+  }
 
-    select.barra-cpf {
-        background-image: linear-gradient(45deg, transparent 50%, #00b848 50%),
-            linear-gradient(135deg, #00b848 50%, transparent 50%);
-        background-position: calc(100% - 18px) center, calc(100% - 12px) center;
-        background-size: 6px 6px, 6px 6px;
-        background-repeat: no-repeat;
-    }
+  select.barra-cpf {
+    background-image: linear-gradient(45deg, transparent 50%, #00b848 50%),
+      linear-gradient(135deg, #00b848 50%, transparent 50%);
+    background-position: calc(100% - 18px) center, calc(100% - 12px) center;
+    background-size: 6px 6px, 6px 6px;
+    background-repeat: no-repeat;
+  }
 
-    select.barra-cpf:focus {
-        outline: none;
-        border-color: #00b848;
-        box-shadow: 0 0 6px rgba(0, 255, 128, 0.4);
-    }
+  select.barra-cpf:focus {
+    outline: none;
+    border-color: #00b848;
+    box-shadow: 0 0 6px rgba(0, 255, 128, 0.4);
+  }
 </style>
 
 {% extends "base.html" %}
@@ -97,104 +97,181 @@
 
 {% if sucesso %}
 <div class="msg-sucesso">
-    <i class="fa fa-check-circle"></i> {{ sucesso }}
+  <i class="fa fa-check-circle"></i> {{ sucesso }}
 </div>
 {% endif %}
 
 <div class="container">
-    <form method="POST">
+  <form method="POST">
 
-        <div class="form-linha">
-            <label>Fonte:</label>
-            <select class="barra-cpf" name="fonte" required>
-                <option value="">Selecione a Fonte</option>
-                <option value="URA" {% if proposta[2]=='URA' %}selected{% endif %}>URA</option>
-                <option value="Consultados antigos" {% if proposta[2]=='Consultados antigos' %}selected{% endif %}>
-                    Consultados antigos</option>
-                <option value="Consultados de hoje" {% if proposta[2]=='Consultados de hoje' %}selected{% endif %}>
-                    Consultados de hoje</option>
-                <option value="Cliente de analítico/carteira" {% if proposta[2]=='Cliente de analítico/carteira'
-                    %}selected{% endif %}>Cliente de analítico/carteira</option>
-                <option value="Indicação" {% if proposta[2]=='Indicação' %}selected{% endif %}>Indicação</option>
-            </select>
-        </div>
+    <div class="form-linha">
+      <label>Fonte:</label>
+      <select class="barra-cpf" name="fonte" required>
+        <option value="">Selecione a Fonte</option>
+        <option value="URA" {% if proposta[2]=='URA' %}selected{% endif %}>URA</option>
+        <option value="Consultados antigos" {% if proposta[2]=='Consultados antigos' %}selected{% endif %}>Consultados antigos</option>
+        <option value="Consultados de hoje" {% if proposta[2]=='Consultados de hoje' %}selected{% endif %}>Consultados de hoje</option>
+        <option value="Cliente de analítico/carteira" {% if proposta[2]=='Cliente de analítico/carteira' %}selected{% endif %}>Cliente de analítico/carteira</option>
+        <option value="Indicação" {% if proposta[2]=='Indicação' %}selected{% endif %}>Indicação</option>
+      </select>
+    </div>
 
-        <div class="form-linha">
-            <label>Banco:</label>
-            <select class="barra-cpf" name="banco" id="banco" required>
-                <option value="" disabled>Selecione o Banco</option>
-                <option value="C6" {% if proposta[3]=='C6' %}selected{% endif %}>C6</option>
-                <option value="Amigoz" {% if proposta[3]=='Amigoz' %}selected{% endif %}>Amigoz</option>
-                <option value="Presença" {% if proposta[3]=='Presença' %}selected{% endif %}>Presença</option>
-                <option value="Prata" {% if proposta[3]=='Prata' %}selected{% endif %}>Prata</option>
-                <option value="V8" {% if proposta[3]=='V8' %}selected{% endif %}>V8</option>
-                <option value="PAN" {% if proposta[3]=='PAN' %}selected{% endif %}>PAN</option>
-                <option value="Facta-CLT" {% if proposta[3]=='Facta-CLT' %}selected{% endif %}>Facta - CLT</option>
-                <option value="Facta-FGTS" {% if proposta[3]=='Facta-FGTS' %}selected{% endif %}>Facta - FGTS</option>
-                <option value="Tá Quitado" {% if proposta[3]=='Tá Quitado' %}selected{% endif %}>Tá quitado</option>
-                <option value="Simplix" {% if proposta[3]=='Simplix' %}selected{% endif %}>Simplix</option>
-            </select>
-        </div>
+    <div class="form-linha">
+      <label>Banco:</label>
+      <select class="barra-cpf" name="banco" id="banco" required>
+        <option value="" disabled>Selecione o Banco</option>
+        <option value="C6" {% if proposta[3]=='C6' %}selected{% endif %}>C6</option>
+        <option value="Amigoz" {% if proposta[3]=='Amigoz' %}selected{% endif %}>Amigoz</option>
+        <option value="Presença" {% if proposta[3]=='Presença' %}selected{% endif %}>Presença</option>
+        <option value="Prata" {% if proposta[3]=='Prata' %}selected{% endif %}>Prata</option>
+        <option value="V8" {% if proposta[3]=='V8' %}selected{% endif %}>V8</option>
+        <option value="PAN" {% if proposta[3]=='PAN' %}selected{% endif %}>PAN</option>
+        <option value="Facta-CLT" {% if proposta[3]=='Facta-CLT' %}selected{% endif %}>Facta - CLT</option>
+        <option value="Facta-FGTS" {% if proposta[3]=='Facta-FGTS' %}selected{% endif %}>Facta - FGTS </option>
+        <option value="Tá Quitado" {% if proposta[3]=='Tá Quitado' %}selected{% endif %}>Tá Quitado</option>
+        <option value="Simplix" {% if proposta[3]=='Simplix' %}selected{% endif %}>Simplix</option>
+      </select>
+    </div>
 
-        <div class="form-linha">
-            <label>Senha Digitada:</label>
-            <input class="barra-cpf" type="text" name="senha_digitada" value="{{ proposta[4] or '' }}"
-                placeholder="Senha Digitada">
-        </div>
+    <div class="form-linha">
+      <label>Senha Digitada:</label>
+      <select class="barra-cpf" name="senha_digitada" id="senha_digitada" required>
+        <option value="{{ proposta[4] or '' }}">{{ proposta[4] or 'Selecione o Banco primeiro' }}</option>
+      </select>
+    </div>
 
-        <div class="form-linha">
-            <label>Tabela:</label>
-            <input class="barra-cpf" type="text" name="tabela" value="{{ proposta[5] or '' }}" placeholder="Tabela">
-        </div>
+    <div class="form-linha">
+      <label>Tabela:</label>
+      <select class="barra-cpf" name="tabela" id="tabela" required>
+        <option value="{{ proposta[5] or '' }}">{{ proposta[5] or 'Selecione a Senha primeiro' }}</option>
+      </select>
+    </div>
 
-        <div class="form-linha">
-            <input class="barra-cpf" type="text" name="nome_cliente" placeholder="Nome do Cliente"
-                value="{{ proposta[6] or '' }}" required>
-            <input class="barra-cpf" type="text" name="cpf" placeholder="CPF" value="{{ proposta[7] or '' }}" required>
-        </div>
+    <div class="form-linha">
+      <input class="barra-cpf" type="text" name="nome_cliente" placeholder="Nome do Cliente" value="{{ proposta[6] or '' }}" required>
+      <input class="barra-cpf" type="text" name="cpf" placeholder="CPF" value="{{ proposta[7] or '' }}" required>
+    </div>
 
-        <div class="form-linha">
-            <input class="barra-cpf" type="text" name="telefone" placeholder="Telefone"
-                value="{{ proposta[11] or '' }}">
-            <input class="barra-cpf" type="number" step="0.01" name="valor_equivalente" placeholder="Valor Equivalente"
-                value="{{ proposta[8] or '' }}">
-            <input class="barra-cpf" type="number" step="0.01" name="valor_original" placeholder="Valor Original"
-                value="{{ proposta[9] or '' }}">
-        </div>
+    <div class="form-linha">
+      <input class="barra-cpf" type="text" name="telefone" placeholder="Telefone" value="{{ proposta[11] or '' }}">
+      <input class="barra-cpf" type="number" step="0.01" name="valor_equivalente" placeholder="Valor Equivalente" value="{{ proposta[8] or '' }}">
+      <input class="barra-cpf" type="number" step="0.01" name="valor_original" placeholder="Valor Original" value="{{ proposta[9] or '' }}">
+    </div>
 
-        <div class="form-linha">
-            <label>Observação:</label>
-            <select name="observacao" class="barra-cpf">
-                <option value="">Selecione a Observação</option>
-                <option value="PAGO" {% if proposta[10]=='PAGO' %}selected{% endif %}>PAGO</option>
-                <option value="AGUARDANDO PAGAMENTO" {% if proposta[10]=='AGUARDANDO PAGAMENTO' %}selected{% endif %}>
-                    AGUARDANDO PAGAMENTO</option>
-                <option value="ANALISE MESA" {% if proposta[10]=='ANALISE MESA' %}selected{% endif %}>ANÁLISE MESA
-                </option>
-                <option value="REPRESENTAÇÃO" {% if proposta[10]=='REPRESENTAÇÃO' %}selected{% endif %}>REPRESENTAÇÃO
-                </option>
-                <option value="INTEGRADA" {% if proposta[10]=='INTEGRADA' %}selected{% endif %}>INTEGRADA</option>
-            </select>
-        </div>
+    <div class="form-linha">
+      <label>Observação:</label>
+      <select name="observacao" class="barra-cpf">
+        <option value="">Selecione a Observação</option>
+        <option value="PAGO" {% if proposta[10]=='PAGO' %}selected{% endif %}>PAGO</option>
+        <option value="AGUARDANDO PAGAMENTO" {% if proposta[10]=='AGUARDANDO PAGAMENTO' %}selected{% endif %}>AGUARDANDO PAGAMENTO</option>
+        <option value="ANALISE MESA" {% if proposta[10]=='ANALISE MESA' %}selected{% endif %}>ANÁLISE MESA</option>
+        <option value="REPRESENTAÇÃO" {% if proposta[10]=='REPRESENTAÇÃO' %}selected{% endif %}>REPRESENTAÇÃO</option>
+        <option value="INTEGRADA" {% if proposta[10]=='INTEGRADA' %}selected{% endif %}>INTEGRADA</option>
+      </select>
+    </div>
 
-        <div class="form-linha data-hora-linha">
-            <label>Data e Hora (opcional):</label>
-            <input class="barra-cpf" type="datetime-local" name="data_manual" 
-            value="{% if proposta[1] %}
-                {% if proposta[1] is string %}
-                    {{ proposta[1][:16] }}
-                {% else %}
-                    {{ proposta[1].strftime('%Y-%m-%dT%H:%M') }}
-                {% endif %}
-                    {% endif %}">
-        </div>
+    <div class="form-linha data-hora-linha">
+      <label>Data e Hora (opcional):</label>
+      <input class="barra-cpf" type="datetime-local" name="data_manual" 
+      value="{% if proposta[1] %}
+        {% if proposta[1] is string %}
+          {{ proposta[1][:16] }}
+        {% else %}
+          {{ proposta[1].strftime('%Y-%m-%dT%H:%M') }}
+        {% endif %}
+      {% endif %}">
+    </div>
 
-        <div class="button-group">
-            <button type="submit" class="azul">
-                <i class="fa fa-save"></i> Salvar Alterações
-            </button>
-        </div>
+    <div class="button-group">
+      <button type="submit" class="azul">
+        <i class="fa fa-save"></i> Salvar Alterações
+      </button>
+    </div>
 
-    </form>
+  </form>
 </div>
+
+<script>
+const dados = {
+  "C6": {
+    senhas: ["51077297890_000367", "51077297890_004500"],
+    tabelas: ["48x", "36x", "24x", "18x", "12x", "6x"]
+  },
+  "Prata": {
+    senhas: ["thaina737373@hotmail.com", "biancafaria13@gmail.com"],
+    tabelas: ["6X", "12X", "18X", "24X", "36X", "48X"]
+  },
+  "Tá Quitado": {
+    senhas: ["thaina73@hotmail.com"],
+    tabelas: ["TQ FREE 2.0", "TQ LIGHT 2.0", "TQ FLEX 2.0", "TQ FLEX+ 2.0", "TQ TOTAL A", "TQ TOTAL B", "TQ MAX"]
+  },
+  "V8": {
+    senhas: ["thaina737373@gmail.com"],
+    tabelas: ["CLT ACELERA - COM SEGURO - 6X", "CLT ACELERA - COM SEGURO - 12x", "CLT ACELERA - COM SEGURO - 18x", "CLT ACELERA - COM SEGURO - 24x"]
+  },
+  "Presença": {
+    senhas: ["30612588840_BWzs", "55472794803_EkNx"],
+    tabelas: ["24x - CONSIGNADO PRIVADO (5167)", "18x - CONSIGNADO PRIVADO (5166)", "12x - CONSIGNADO PRIVADO (5164)"]
+  },
+  "Amigoz": {
+    senhas: ["458.491.998-45", "501.879.218-30"],
+    tabelas: ["24x c/ seguro", "18x c/ seguro"]
+  },
+  "Simplix": {
+    senhas: ["45849199845.0068"],
+    tabelas: ["SX8 ESPECIAL1 5Y", "SX6 5Y", "SX15 ESPECIAL1 5Y", "SX14 ESPECIAL1 5Y", "SX1 ULTRA ESPECIAL 5Y", 
+      "SX1 SUPER ESPECIAL1 5Y", "SX1 ESPECIAL1 5Y", "QI5 5Y", "QI1 ESPECIAL"]
+  },
+  "Facta-CLT": {
+    senhas: ["99365_biancafaria", "96552_biancafaria"],
+    tabelas: ["36x", "30x", "24x", "20x", "18x", "15x", "14x"]
+  },
+  "Facta-FGTS": {
+    senhas: ["99365_biancafaria", "96552_biancafaria"],
+    tabelas: ["GOLD PREMIUM RB (61115)", "GOLD PREMIUM RB (62154)", "GOLD PREFERENCE RB (61379)", "GOLD PREFERENCE RB (62170)", "PLUS RB (62189)", "GOLD POWER RB (60119)", "LIGHT RB (62138)", "GOLD FIDELIZA RB (63703)"]
+  },
+  "PAN": {
+    senhas: ["50187921830", "51077297890"],
+    tabelas: ["6X", "12X", "18X", "24X", "36X", "48X"]
+  }
+};
+
+const bancoSelect = document.getElementById("banco");
+const senhaSelect = document.getElementById("senha_digitada");
+const tabelaSelect = document.getElementById("tabela");
+
+bancoSelect.addEventListener("change", () => {
+  const banco = bancoSelect.value;
+  senhaSelect.innerHTML = '<option value="">Selecione a Senha</option>';
+  tabelaSelect.innerHTML = '<option value="">Selecione a Senha primeiro</option>';
+  tabelaSelect.disabled = true;
+
+  if (dados[banco]) {
+    dados[banco].senhas.forEach(s => {
+      const opt = document.createElement("option");
+      opt.value = s;
+      opt.textContent = s;
+      senhaSelect.appendChild(opt);
+    });
+    senhaSelect.disabled = false;
+  } else {
+    senhaSelect.disabled = true;
+  }
+});
+
+senhaSelect.addEventListener("change", () => {
+  const banco = bancoSelect.value;
+  tabelaSelect.innerHTML = '<option value="">Selecione a Tabela</option>';
+
+  if (dados[banco]) {
+    dados[banco].tabelas.forEach(t => {
+      const opt = document.createElement("option");
+      opt.value = t;
+      opt.textContent = t;
+      tabelaSelect.appendChild(opt);
+    });
+    tabelaSelect.disabled = false;
+  }
+});
+</script>
 {% endblock %}
