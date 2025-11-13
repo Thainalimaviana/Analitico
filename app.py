@@ -347,7 +347,6 @@ def relatorios():
     data_fim = normalizar_data(data_fim)
 
     ph = "?" if isinstance(conn, sqlite3.Connection) else "%s"
-
     query_base = f"""
         SELECT id, data, consultor, fonte, banco, senha_digitada, tabela, nome_cliente, cpf,
                valor_equivalente, valor_original, observacao, telefone
@@ -370,27 +369,41 @@ def relatorios():
     if data_ini and data_fim:
         condicoes.append(f"data BETWEEN {ph} AND {ph}")
         params += [data_ini, data_fim]
+        mes_atual = "Filtro personalizado"
+    else:
+        agora = datetime.now()
+        inicio_mes = agora.replace(day=1, hour=0, minute=0, second=0)
+        proximo_mes = inicio_mes + relativedelta(months=1)
+        fim_mes = proximo_mes - timedelta(seconds=1)
+
+        condicoes.append(f"data BETWEEN {ph} AND {ph}")
+        params += [inicio_mes.strftime("%Y-%m-%d %H:%M:%S"), fim_mes.strftime("%Y-%m-%d %H:%M:%S")]
+
+        meses_pt = {
+            "January": "Janeiro", "February": "Fevereiro", "March": "Março",
+            "April": "Abril", "May": "Maio", "June": "Junho", "July": "Julho",
+            "August": "Agosto", "September": "Setembro", "October": "Outubro",
+            "November": "Novembro", "December": "Dezembro"
+        }
+        mes_nome = inicio_mes.strftime("%B")
+        mes_atual = f"{meses_pt[mes_nome]}/{inicio_mes.year}"
 
     if observacao:
         filtro, valor = filtro_lower("observacao", observacao)
         condicoes.append(filtro)
         params.append(valor)
-
     if senha_digitada:
         filtro, valor = filtro_lower("senha_digitada", senha_digitada)
         condicoes.append(filtro)
         params.append(valor)
-
     if fonte:
         filtro, valor = filtro_lower("fonte", fonte)
         condicoes.append(filtro)
         params.append(valor)
-
     if banco:
         filtro, valor = filtro_lower("banco", banco)
         condicoes.append(filtro)
         params.append(valor)
-
     if tabela:
         filtro, valor = filtro_lower("tabela", tabela)
         condicoes.append(filtro)
@@ -412,7 +425,10 @@ def relatorios():
     query_paginada = f"{query_base} {order_clause} LIMIT {ph} OFFSET {ph}"
     params_paginada = params + [por_pagina, offset]
 
-    cur.execute(query_paginada.replace("?", "%s") if not isinstance(conn, sqlite3.Connection) else query_paginada, tuple(params_paginada))
+    cur.execute(
+        query_paginada.replace("?", "%s") if not isinstance(conn, sqlite3.Connection) else query_paginada,
+        tuple(params_paginada)
+    )
     dados = cur.fetchall()
 
     cur.execute(f"SELECT COALESCE(SUM(valor_equivalente),0), COALESCE(SUM(valor_original),0) FROM ({query_base})", tuple(params))
@@ -436,7 +452,6 @@ def relatorios():
     else:
         falta_para_meta = max(meta_global - float(total_equivalente or 0), 0)
 
-    # === Exportação Excel ===
     if acao == "baixar":
         colunas = ["ID", "Data", "Consultor", "Fonte", "Banco", "Senha Digitada", "Tabela", "Nome", "CPF",
                    "Valor Equivalente", "Valor Original", "Observação", "Telefone"]
@@ -467,7 +482,8 @@ def relatorios():
         total_propostas=total_propostas,
         falta_para_meta=falta_para_meta,
         pagina=pagina,
-        total_paginas=total_paginas
+        total_paginas=total_paginas,
+        mes_atual=mes_atual
     )
 
 from datetime import datetime, timedelta

@@ -345,7 +345,11 @@
     <button type="submit" name="acao" value="baixar" class="btn-baixar">Baixar Excel</button>
   </form>
 </div>
-
+{% if mes_atual %}
+<p style="font-size:16px; color:#666; margin-top:-10px;">
+  📅 Exibindo dados de {{ mes_atual }}
+</p>
+{% endif %}
 {% if dados %}
 <div class="cards-resumo">
   <div class="card verde">
@@ -435,13 +439,13 @@
   {% if pagina > 1 %}
   <a class="btn-page" href="?{{ query }}pagina=1">« Primeira</a>
   <a class="btn-page" href="?{{ query }}pagina={{ pagina - 1 }}"><- Anterior</a>
+      {% endif %}
+
+      <span>Página {{ pagina }} de {{ total_paginas }}</span>
+
+      {% if pagina < total_paginas %} <a class="btn-page" href="?{{ query }}pagina={{ pagina + 1 }}">Próxima -></a>
+  <a class="btn-page" href="?{{ query }}pagina={{ total_paginas }}">Última »</a>
   {% endif %}
-
-  <span>Página {{ pagina }} de {{ total_paginas }}</span>
-
-  {% if pagina < total_paginas %} <a class="btn-page" href="?{{ query }}pagina={{ pagina + 1 }}">Próxima -></a>
-    <a class="btn-page" href="?{{ query }}pagina={{ total_paginas }}">Última »</a>
-    {% endif %}
 
 </div>
 {% endif %}
