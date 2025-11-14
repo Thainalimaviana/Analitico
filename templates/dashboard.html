@@ -38,6 +38,39 @@
         border-style: solid;
         border-color: rgba(20, 20, 20, 0.92) transparent transparent transparent;
     }
+
+    .cards-dashboard .card {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .cards-dashboard .card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -75%;
+        width: 50%;
+        height: 100%;
+        background: linear-gradient(120deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.05) 100%);
+        transform: skewX(-20deg);
+        transition: all 0.8s ease;
+    }
+
+    .cards-dashboard .card:hover::before {
+        left: 125%;
+    }
+
+    .cards-dashboard .card {
+        transition: all 0.3s ease;
+        transform-origin: center;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .cards-dashboard .card:hover {
+        transform: scale(1.07);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+        z-index: 2;
+    }
 </style>
 
 {% extends "base.html" %}
@@ -78,12 +111,14 @@
 <div class="cards-dashboard">
     <div class="card verde">
         <h3>Valor Equivalente</h3>
-        <p class="valor">R$ {{ "{:,.2f}".format(total_eq or 0) }}</p>
+        <p class="valor">R$ {{ "{:,.2f}".format(total_eq or 0).replace(',', 'X').replace('.', ',').replace('X', '.') }}
+        </p>
     </div>
 
     <div class="card azul">
         <h3>Valor Original</h3>
-        <p class="valor">R$ {{ "{:,.2f}".format(total_or or 0) }}</p>
+        <p class="valor">R$ {{ "{:,.2f}".format(total_or or 0).replace(',', 'X').replace('.', ',').replace('X', '.') }}
+        </p>
     </div>
 
     <div class="card amarelo">
@@ -93,7 +128,8 @@
 
     <div class="card cinza">
         <h3>Falta para Meta</h3>
-        <p class="valor">R$ {{ "{:,.2f}".format(falta_meta or 0) }}</p>
+        <p class="valor">R$ {{ "{:,.2f}".format(falta_meta or 0).replace(',', 'X').replace('.', ',').replace('X', '.')
+            }}</p>
     </div>
 </div>
 
@@ -118,7 +154,8 @@
             <div class="coluna prata">
                 <div class="medalha">🥈</div>
                 <div class="barra prata-bar">
-                    <span class="valor">{{ "{:,.0f}".format(prata[1]) }}</span>
+                    <span class="valor">{{ "{:,.2f}".format(prata[1]).replace(',', 'X').replace('.', ',').replace('X',
+                        '.') }}</span>
                 </div>
                 <p class="nome">{{ prata[0] }}</p>
             </div>
@@ -128,7 +165,8 @@
             <div class="coluna ouro">
                 <div class="medalha">🥇</div>
                 <div class="barra ouro-bar">
-                    <span class="valor">{{ "{:,.0f}".format(ouro[1]) }}</span>
+                    <span class="valor">{{ "{:,.2f}".format(ouro[1]).replace(',', 'X').replace('.', ',').replace('X',
+                        '.') }}</span>
                 </div>
                 <p class="nome">{{ ouro[0] }}</p>
             </div>
@@ -138,7 +176,8 @@
             <div class="coluna bronze">
                 <div class="medalha">🥉</div>
                 <div class="barra bronze-bar">
-                    <span class="valor">{{ "{:,.0f}".format(bronze[1]) }}</span>
+                    <span class="valor">{{ "{:,.2f}".format(bronze[1]).replace(',', 'X').replace('.', ',').replace('X',
+                        '.') }}</span>
                 </div>
                 <p class="nome">{{ bronze[0] }}</p>
             </div>
@@ -296,6 +335,40 @@
 
     renderizarGraficos();
 
+    function inicializarTooltipsPodio() {
+        document.querySelectorAll(".barra").forEach(barra => {
+            if (barra.querySelector(".tooltip-podio")) return;
+
+            const nome = barra.parentElement.querySelector(".nome")?.innerText || "Consultor";
+            const valorTexto = barra.querySelector(".valor")?.innerText.trim() || "0";
+
+            let valorNumerico = 0;
+            if (valorTexto.includes(",") && !valorTexto.includes(".")) {
+                valorNumerico = parseInt(valorTexto.replace(",", ""));
+            } else if (valorTexto.includes(".") && valorTexto.includes(",")) {
+                valorNumerico = parseFloat(valorTexto.replace(/\./g, "").replace(",", "."));
+            } else {
+                valorNumerico = parseFloat(valorTexto.replace(/\D/g, "")) || 0;
+            }
+
+            const valorFormatado = new Intl.NumberFormat("pt-BR", {
+                style: "currency",
+                currency: "BRL",
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(valorNumerico);
+
+            const tooltip = document.createElement("div");
+            tooltip.classList.add("tooltip-podio");
+            tooltip.innerHTML = `
+            <strong>${nome}</strong><br>
+            <div style="border-top:1px solid rgba(255,255,255,0.25); margin:4px 0;"></div>
+            🏅 ${valorFormatado}
+        `;
+            barra.appendChild(tooltip);
+        });
+    }
+
     function atualizarDashboard() {
         fetch(window.location.href)
             .then(res => res.text())
@@ -313,22 +386,18 @@
                     document.querySelector(".grafico-ranking").innerHTML = novoRanking.innerHTML;
                 }
 
-                const novoEq = parseFloat(doc.querySelector(".card.verde .valor").innerText.replace(/[^\d,]/g, '').replace(',', '.')) || 0;
-                const novaMeta = parseFloat(doc.querySelector(".card.cinza .valor").innerText.replace(/[^\d,]/g, '').replace(',', '.')) || 0;
+                inicializarTooltipsPodio();
 
-                if (graficoComparativo) {
-                    graficoComparativo.data.datasets[0].data = [novoEq, novaMeta];
-                    graficoComparativo.update();
-                }
-
-                if (typeof aplicarFormatacaoBRL === "function") {
-                    aplicarFormatacaoBRL();
-                }
+                const hora = new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+                console.log(`✅ Dashboard atualizado (sem atualizar gráfico) às ${hora}`);
             })
             .catch(err => console.error("Erro ao atualizar dashboard:", err));
     }
 
     setInterval(atualizarDashboard, 300000);
+
+
+    document.addEventListener("DOMContentLoaded", inicializarTooltipsPodio);
 
 </script>
 <script>
@@ -400,35 +469,35 @@
 </script>
 
 <script>
-document.querySelectorAll(".barra").forEach(barra => {
-    const nome = barra.parentElement.querySelector(".nome")?.innerText || "Consultor";
-    const valorTexto = barra.querySelector(".valor")?.innerText.trim() || "0";
+    document.querySelectorAll(".barra").forEach(barra => {
+        const nome = barra.parentElement.querySelector(".nome")?.innerText || "Consultor";
+        const valorTexto = barra.querySelector(".valor")?.innerText.trim() || "0";
 
-    let valorNumerico = 0;
-    if (valorTexto.includes(",") && !valorTexto.includes(".")) {
-        valorNumerico = parseInt(valorTexto.replace(",", ""));
-    } else if (valorTexto.includes(".") && valorTexto.includes(",")) {
-        valorNumerico = parseFloat(valorTexto.replace(/\./g, "").replace(",", "."));
-    } else {
-        valorNumerico = parseFloat(valorTexto.replace(/\D/g, "")) || 0;
-    }
+        let valorNumerico = 0;
+        if (valorTexto.includes(",") && !valorTexto.includes(".")) {
+            valorNumerico = parseInt(valorTexto.replace(",", ""));
+        } else if (valorTexto.includes(".") && valorTexto.includes(",")) {
+            valorNumerico = parseFloat(valorTexto.replace(/\./g, "").replace(",", "."));
+        } else {
+            valorNumerico = parseFloat(valorTexto.replace(/\D/g, "")) || 0;
+        }
 
-    const valorFormatado = new Intl.NumberFormat("pt-BR", {
-        style: "currency",
-        currency: "BRL",
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-    }).format(valorNumerico);
+        const valorFormatado = new Intl.NumberFormat("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        }).format(valorNumerico);
 
-    const tooltip = document.createElement("div");
-    tooltip.classList.add("tooltip-podio");
-    tooltip.innerHTML = `
+        const tooltip = document.createElement("div");
+        tooltip.classList.add("tooltip-podio");
+        tooltip.innerHTML = `
         <strong>${nome}</strong><br>
         <div style="border-top:1px solid rgba(255,255,255,0.25); margin:4px 0;"></div>
         🏅 ${valorFormatado}
     `;
-    barra.appendChild(tooltip);
-});
+        barra.appendChild(tooltip);
+    });
 </script>
 
 

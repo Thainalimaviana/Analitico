@@ -45,11 +45,15 @@
       <tbody>
         {% for linha in ranking %}
         <tr>
-          <td>{{ linha[0] }}</td>
-          <td>R$ {{ "{:,.2f}".format(linha[1] or 0) }}</td>
-          <td>R$ {{ "{:,.2f}".format(linha[2] or 0) }}</td>
-          <td>R$ {{ "{:,.2f}".format(linha[3] or 0) }}</td>
-          <td>R$ {{ "{:,.2f}".format(linha[4] or 0) }}</td>
+          <td class="{% if linha[1] >= linha[3] %}texto-brilhante{% endif %}">{{ linha[0] }}</td>
+          <td class="{% if linha[1] >= linha[3] %}texto-brilhante{% endif %}">R$ {{ "{:,.2f}".format(linha[1] or 0) }}
+          </td>
+          <td class="{% if linha[1] >= linha[3] %}texto-brilhante{% endif %}">R$ {{ "{:,.2f}".format(linha[2] or 0) }}
+          </td>
+          <td class="{% if linha[1] >= linha[3] %}texto-brilhante{% endif %}">R$ {{ "{:,.2f}".format(linha[3] or 0) }}
+          </td>
+          <td class="{% if linha[1] >= linha[3] %}texto-brilhante{% endif %}">R$ {{ "{:,.2f}".format(linha[4] or 0) }}
+          </td>
           <td>
             <button class="btn-editar" onclick="abrirMeta('{{ linha[0] }}', '{{ linha[3] or 0 }}')">Editar</button>
           </td>
@@ -138,6 +142,29 @@
   .btn-filtrar:hover {
     background: #0c6401;
   }
+
+.texto-brilhante {
+  background: linear-gradient(90deg, #00ff99, #00c853, #00ff99, #00c853);
+  background-size: 400%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: brilho-texto 3s linear infinite;
+  font-weight: 700;
+  text-shadow: 0 0 8px rgba(0, 255, 120, 0.4);
+}
+
+@keyframes brilho-texto {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
 </style>
 <script>
   document.addEventListener("DOMContentLoaded", () => {
