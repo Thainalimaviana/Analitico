@@ -210,6 +210,150 @@
         </table>
     </div>
 </div>
+<div class="visao-fontes">
+    <h2 class="titulo-fonte">Visão por Fonte</h2>
+
+    {% for fonte, status_dados in fontes.items() %}
+    <details class="fonte">
+        <summary class="fonte-header">{{ fonte }}</summary>
+
+        <div class="fonte-detalhes">
+            {% if status_dados %}
+            {% for status, info in status_dados.items() %}
+            {% set classe = "cinza" %}
+            {% if "Paga" in status %}{% set classe = "verde" %}
+            {% elif "Pendente" in status %}{% set classe = "amarelo" %}
+            {% elif "Reprovada" in status %}{% set classe = "vermelho" %}{% endif %}
+
+            <div class="card-status {{ classe }}">
+                <h4>{{ status }}</h4>
+                <p><b>{{ info.qtd }}</b> propostas</p>
+                <p>Contrato: {{ info.valor_or | brl }}</p>
+                <p>Líquido: {{ info.valor_eq | brl }}</p>
+            </div>
+            {% endfor %}
+            {% else %}
+            <p style="padding:15px;color:#ac3333;">Nenhum dado encontrado para esta fonte.</p>
+            {% endif %}
+        </div>
+    </details>
+    {% endfor %}
+</div>
+
+<style>
+    .visao-fontes {
+        margin-top: 50px;
+    }
+
+    .titulo-fonte {
+        text-align: center;
+        font-family: 'Tomorrow', sans-serif;
+        font-size: 28px;
+        color: var(--cor-texto);
+        margin-bottom: 25px;
+    }
+
+    details.fonte {
+        border-radius: 14px;
+        margin: 20px auto;
+        padding: 0;
+        max-width: 1100px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    summary.fonte-header {
+        padding: 16px 22px;
+        font-family: 'Poppins', sans-serif;
+        font-size: 18px;
+        font-weight: 600;
+        color: #fff;
+        cursor: pointer;
+        border-radius: 14px;
+        transition: all 0.3s ease;
+    }
+
+    details.fonte:nth-child(1) summary {
+        background: linear-gradient(90deg, #bbbbbb, #707070);
+    }
+
+    details.fonte:nth-child(2) summary {
+        background: linear-gradient(90deg, #95d9fd, #69edff);
+        color: #000000;
+    }
+
+    details.fonte:nth-child(3) summary {
+        background: linear-gradient(90deg, #e8b3ff, #ba68c8);
+    }
+
+    details.fonte:nth-child(4) summary {
+        background: linear-gradient(90deg, #fcde92, #ffd54f);
+        color: #222;
+    }
+
+    details.fonte:nth-child(5) summary {
+        background: linear-gradient(90deg, #d5fca8, #aed581);
+        color: #222;
+    }
+
+    details.fonte:nth-child(6) summary {
+        background: linear-gradient(90deg, #f59e9c, #ef5350);
+    }
+
+    details.fonte:nth-child(7) summary {
+        background: linear-gradient(90deg, #9886ff, #c2c8ff);
+        color: #000000;
+    }
+
+    summary.fonte-header:hover {
+        filter: brightness(1.1);
+        transform: scale(1.02);
+    }
+
+    .fonte-detalhes {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        padding: 20px;
+        justify-content: flex-start;
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    .card-status {
+        border-radius: 12px;
+        padding: 16px;
+        width: 230px;
+        color: white;
+        font-family: 'Poppins', sans-serif;
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card-status:hover {
+        transform: scale(1.05);
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+    }
+
+    .verde {
+        background: #00b848;
+    }
+
+    .amarelo {
+        background: #fbc02d;
+        color: #222;
+    }
+
+    .vermelho {
+        background: #e53935;
+    }
+
+    .cinza {
+        background: #757575;
+    }
+</style>
+
+
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -499,9 +643,20 @@
         barra.appendChild(tooltip);
     });
 </script>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const fontes = document.querySelectorAll("details.fonte");
 
-
-
-
+        fontes.forEach(fonte => {
+            fonte.addEventListener("toggle", () => {
+                if (fonte.open) {
+                    fontes.forEach(outra => {
+                        if (outra !== fonte && outra.open) outra.open = false;
+                    });
+                }
+            });
+        });
+    });
+</script>
 
 {% endblock %}

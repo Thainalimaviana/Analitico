@@ -561,6 +561,41 @@ def dashboard():
         ORDER BY total_propostas ASC;
     """, (inicio, fim))
     bancos_dados = cur.fetchall()
+    
+    cur.execute(f"""
+        SELECT 
+            fonte,
+            observacao AS status,
+            COUNT(*) AS qtd,
+            COALESCE(SUM(valor_equivalente), 0) AS total_eq,
+            COALESCE(SUM(valor_original), 0) AS total_or
+        FROM propostas
+        WHERE fonte IN ('URA', 'Consultados antigos', 'Consultados de hoje', 
+                        'Indicação', 'Cliente de analítico/carteira', 'Tráfego')
+          AND {filtro_data}
+        GROUP BY fonte, observacao
+        ORDER BY fonte, observacao;
+    """, (inicio, fim))
+
+    dados_fontes = cur.fetchall()
+
+    fontes_lista = [
+        "URA",
+        "Consultados antigos",
+        "Consultados de hoje",
+        "Indicação",
+        "Cliente de analítico/carteira",
+        "Tráfego"
+    ]
+
+    fontes = {fonte: {} for fonte in fontes_lista}
+    for fonte, status, qtd, eq, or_ in dados_fontes:
+        status = (status or "Andamento").strip().title()
+        fontes[fonte][status] = {
+            "qtd": qtd,
+            "valor_eq": float(eq or 0),
+            "valor_or": float(or_ or 0)
+        }
 
     conn.close()
 
@@ -575,7 +610,8 @@ def dashboard():
         inicio=inicio,
         fim=fim,
         periodo=periodo,
-        bancos_dados=bancos_dados
+        bancos_dados=bancos_dados,
+        fontes=fontes
     )
 
 from datetime import timedelta
@@ -1083,6 +1119,54 @@ def editar_proposta(id):
         if conn:
             conn.close()
         return f"Ocorreu um erro ao editar a proposta: {e}", 500
+    
+@app.route("/visao_fontes")
+def visao_fontes():
+    fontes_lista = [
+        "URA",
+        "Consultados antigos",
+        "Consultados de hoje",
+        "Indicação",
+        "Cliente de analítico/carteira",
+        "Tráfego"
+    ]
+
+    conn = get_conn()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT 
+            fonte,
+            observacao,  -- usamos observacao como status (Pagas, Andamento, etc)
+            COUNT(*) AS qtd,
+            COALESCE(SUM(valor_equivalente), 0) AS total_eq,
+            COALESCE(SUM(valor_original), 0) AS total_or
+        FROM propostas
+        WHERE fonte IN ('URA', 'Consultados antigos', 'Consultados de hoje', 
+                        'Indicação', 'Cliente de analítico/carteira', 'Tráfego')
+        GROUP BY fonte, observacao
+        ORDER BY fonte;
+    """)
+
+    dados = cur.fetchall()
+    conn.close()
+
+    # Cria estrutura organizada por fonte
+    fontes = {fonte: {} for fonte in fontes_lista}
+
+    for fonte, status, qtd, eq, or_ in dados:
+        if fonte not in fontes:
+            continue
+
+        status = (status or "Andamento").strip().title()
+        fontes[fonte][status] = {
+            "qtd": qtd,
+            "valor_eq": float(eq or 0),
+            "valor_or": float(or_ or 0)
+        }
+
+    return render_template("visao_fontes.html", fontes=fontes)
+
 
 if __name__ == "__main__":
     app.run(debug=True)
