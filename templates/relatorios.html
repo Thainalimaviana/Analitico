@@ -326,20 +326,55 @@
     <input type="datetime-local" name="data_fim" value="{{ data_fim or '' }}">
 
     <label>Observação:</label>
-    <input type="text" name="observacao" placeholder="Buscar" value="{{ observacao or '' }}" class="input-pequeno">
+    <select name="observacao" class="input-pequeno">
+      <option value="">Todas</option>
+      <option value="PAGO" {% if observacao=='PAGO' %}selected{% endif %}>PAGO</option>
+      <option value="AGUARDANDO PAGAMENTO" {% if observacao=='AGUARDANDO PAGAMENTO' %}selected{% endif %}>AGUARDANDO
+        PAGAMENTO</option>
+      <option value="ANALISE MESA" {% if observacao=='ANALISE MESA' or observacao=='ANÁLISE MESA' %}selected{% endif %}>
+        ANÁLISE MESA</option>
+      <option value="REPRESENTAÇÃO" {% if observacao=='REPRESENTAÇÃO' or observacao=='REPRESENTACAO' %}selected{% endif
+        %}>REPRESENTAÇÃO</option>
+      <option value="INTEGRADA" {% if observacao=='INTEGRADA' %}selected{% endif %}>INTEGRADA</option>
+      <option value="ANDAMENTO" {% if observacao=='ANDAMENTO' %}selected{% endif %}>ANDAMENTO</option>
+    </select>
+
 
     <label>Senha:</label>
     <input type="text" name="senha_digitada" placeholder="Buscar Senha" value="{{ senha_digitada or '' }}"
       class="input-pequeno">
 
     <label>Fonte:</label>
-    <input type="text" name="fonte" placeholder="Buscar Fonte" value="{{ fonte or '' }}" class="input-pequeno">
+    <select name="fonte" class="input-pequeno">
+      <option value="">Todas</option>
+      <option value="URA" {% if fonte=='URA' %}selected{% endif %}>URA</option>
+      <option value="Consultados antigos" {% if fonte=='Consultados antigos' %}selected{% endif %}>Consultados antigos
+      </option>
+      <option value="Consultados de hoje" {% if fonte=='Consultados de hoje' %}selected{% endif %}>Consultados de hoje
+      </option>
+      <option value="Cliente de analítico/carteira" {% if fonte=='Cliente de analítico/carteira' %}selected{% endif %}>
+        Cliente de analítico/carteira</option>
+      <option value="Indicação" {% if fonte=='Indicação' %}selected{% endif %}>Indicação</option>
+      <option value="Tráfego" {% if fonte=='Tráfego' %}selected{% endif %}>Tráfego</option>
+    </select>
 
     <label>Tabela:</label>
     <input type="text" name="tabela" placeholder="Buscar Tabela" value="{{ tabela or '' }}" class="input-pequeno">
 
     <label>Banco:</label>
-    <input type="text" name="banco" placeholder="Buscar Banco" value="{{ banco or '' }}" class="input-pequeno">
+    <select name="banco" class="input-pequeno">
+      <option value="">Todos</option>
+      <option value="C6" {% if banco=='C6' %}selected{% endif %}>C6</option>
+      <option value="Amigoz" {% if banco=='Amigoz' %}selected{% endif %}>Amigoz</option>
+      <option value="Presença" {% if banco=='Presença' %}selected{% endif %}>Presença</option>
+      <option value="Prata" {% if banco=='Prata' %}selected{% endif %}>Prata</option>
+      <option value="V8" {% if banco=='V8' %}selected{% endif %}>V8</option>
+      <option value="PAN" {% if banco=='PAN' %}selected{% endif %}>PAN</option>
+      <option value="Facta-CLT" {% if banco=='Facta-CLT' %}selected{% endif %}>Facta - CLT</option>
+      <option value="Facta-FGTS" {% if banco=='Facta-FGTS' %}selected{% endif %}>Facta - FGTS</option>
+      <option value="Tá Quitado" {% if banco=='Tá Quitado' %}selected{% endif %}>Tá Quitado</option>
+      <option value="Simplix" {% if banco=='Simplix' %}selected{% endif %}>Simplix</option>
+    </select>
 
     <button type="submit" name="acao" value="filtrar" class="btn-filtrar">Filtrar</button>
     <button type="submit" name="acao" value="baixar" class="btn-baixar">Baixar Excel</button>

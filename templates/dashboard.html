@@ -221,13 +221,13 @@
             {% if status_dados %}
             {% for status, info in status_dados.items() %}
             {% set classe = "" %}
-            {% if "Pago" in status %}{% set classe = "pago" %}
+            {% if "Andamento" in status %}{% set classe = "andamento" %}
+            {% elif "Pago" in status %}{% set classe = "pago" %}
             {% elif "Aguardando Pagamento" in status %}{% set classe = "aguardando-pagamento" %}
             {% elif "Analise Mesa" in status or "Análise Mesa" in status %}{% set classe = "analise-mesa" %}
             {% elif "Representacao" in status or "Representação" in status %}{% set classe = "representacao" %}
             {% elif "Integrada" in status %}{% set classe = "integrada" %}
             {% endif %}
-
 
             <div class="card-status {{ classe }}">
                 <h4>{{ status }}</h4>
@@ -334,6 +334,10 @@
         transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
 
+    .card-status.andamento {
+        background: #8a8a8a;
+    }
+
     .card-status.pago {
         background: #00b848;
     }
@@ -345,6 +349,7 @@
 
     .card-status.analise-mesa {
         background: #42a5f5;
+
     }
 
     .card-status.representacao {
