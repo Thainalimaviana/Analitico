@@ -71,6 +71,14 @@
         box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
         z-index: 2;
     }
+
+    .cards-dashboard .card.roxo {
+        background: linear-gradient(90deg, #7b1fa2, #9c27b0);
+    }
+
+    .cards-dashboard .card.laranja {
+        background: linear-gradient(90deg, #ff9800, #ffb74d);
+    }
 </style>
 
 {% extends "base.html" %}
@@ -131,6 +139,18 @@
         <p class="valor">R$ {{ "{:,.2f}".format(falta_meta or 0).replace(',', 'X').replace('.', ',').replace('X', '.')
             }}</p>
     </div>
+    <div class="card roxo">
+        <h3>Ticket Meta Diária</h3>
+        <p class="valor">R$ {{ "{:,.2f}".format(ticket_meta_diaria).replace(',', 'X').replace('.', ',').replace('X',
+            '.') }}</p>
+    </div>
+
+    <div class="card laranja">
+        <h3>Média Contratos/Dia</h3>
+        <p class="valor">R$ {{ "{:,.2f}".format(media_diaria_contratos).replace(',', 'X').replace('.', ',').replace('X',
+            '.') }}</p>
+    </div>
+
 </div>
 
 <div class="container-graficos">
@@ -199,7 +219,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for b in bancos_dados %}
+                {% for b in bancos_dados|sort(attribute=1, reverse=True) %}
                 <tr>
                     <td>{{ b[0] }}</td>
                     <td>{{ b[1] }}</td>
@@ -207,6 +227,7 @@
                 </tr>
                 {% endfor %}
             </tbody>
+
         </table>
     </div>
 </div>

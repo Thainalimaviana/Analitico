@@ -597,6 +597,24 @@ def dashboard():
             "valor_or": float(or_ or 0)
         }
 
+    hoje_str = agora.strftime("%Y-%m-%d")
+
+    cur.execute(f"""
+        SELECT COALESCE(SUM(valor_equivalente), 0)
+        FROM propostas
+        WHERE DATE(data) = {ph}
+    """, (hoje_str,))
+    total_hoje = cur.fetchone()[0] or 0
+
+    primeiro_dia = agora.replace(day=1)
+    dias_passados = (agora - primeiro_dia).days + 1
+    media_diaria_contratos = (total_or or 0) / dias_passados if dias_passados > 0 else 0
+
+    ticket_meta_diaria = 0
+    if meta_global and total_eq is not None:
+        falta_dias = max(30 - dias_passados, 1)
+        ticket_meta_diaria = (falta_meta / falta_dias) if falta_dias > 0 else 0
+
     conn.close()
 
     return render_template(
@@ -611,7 +629,9 @@ def dashboard():
         fim=fim,
         periodo=periodo,
         bancos_dados=bancos_dados,
-        fontes=fontes
+        fontes=fontes,
+        ticket_meta_diaria=float(ticket_meta_diaria or 0),
+        media_diaria_contratos=float(media_diaria_contratos or 0)
     )
 
 from datetime import timedelta
