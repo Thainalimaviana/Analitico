@@ -612,11 +612,17 @@ def dashboard():
     dias_passados = (agora - primeiro_dia).days + 1
     dias_mes_real = calendar.monthrange(agora.year, agora.month)[1]
 
+    from datetime import date
+    dias_uteis_restantes = sum(
+        1 for i in range(agora.day + 1, dias_mes_real + 1)
+        if date(agora.year, agora.month, i).weekday() < 5
+    )
+
     media_diaria_contratos = (total_or / total_propostas) if total_propostas > 0 else 0
 
     ticket_meta_diaria = 0
     if meta_global and total_eq is not None:
-        falta_dias = max(dias_mes_real - dias_passados, 1)
+        falta_dias = max(dias_uteis_restantes, 1)
         ticket_meta_diaria = (falta_meta / falta_dias) if falta_dias > 0 else 0
 
     conn.close()
@@ -637,7 +643,6 @@ def dashboard():
         ticket_meta_diaria=float(ticket_meta_diaria or 0),
         media_diaria_contratos=float(media_diaria_contratos or 0)
     )
-
 
 from datetime import timedelta
 
