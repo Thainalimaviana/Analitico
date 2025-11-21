@@ -612,7 +612,7 @@ def dashboard():
     dias_passados = (agora - primeiro_dia).days + 1
     dias_mes_real = calendar.monthrange(agora.year, agora.month)[1]
 
-    media_diaria_contratos = (total_or or 0) / dias_passados if dias_passados > 0 else 0
+    media_diaria_contratos = (total_or / total_propostas) if total_propostas > 0 else 0
 
     ticket_meta_diaria = 0
     if meta_global and total_eq is not None:
@@ -637,6 +637,7 @@ def dashboard():
         ticket_meta_diaria=float(ticket_meta_diaria or 0),
         media_diaria_contratos=float(media_diaria_contratos or 0)
     )
+
 
 from datetime import timedelta
 
