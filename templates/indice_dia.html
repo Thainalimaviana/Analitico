@@ -113,7 +113,7 @@
 <div class="painel-tv">
     <table class="tabela-total">
         <tr>
-            <th>TOTAL DO DIA — R$ {{ "{:,.2f}".format(total_eq or 0) }}</th>
+            <th>TOTAL DO DIA — {{ total_eq | brl }}</th>
         </tr>
     </table>
 

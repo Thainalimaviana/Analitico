@@ -24,7 +24,6 @@ def format_brl(value):
     except Exception:
         return "R$ 0,00"
 
-
 def get_conn():
     if DATABASE_URL and psycopg2:
         return psycopg2.connect(DATABASE_URL, sslmode="require")
