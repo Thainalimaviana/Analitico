@@ -597,6 +597,8 @@ def dashboard():
             "valor_or": float(or_ or 0)
         }
 
+    import calendar
+
     hoje_str = agora.strftime("%Y-%m-%d")
 
     cur.execute(f"""
@@ -608,11 +610,13 @@ def dashboard():
 
     primeiro_dia = agora.replace(day=1)
     dias_passados = (agora - primeiro_dia).days + 1
+    dias_mes_real = calendar.monthrange(agora.year, agora.month)[1]
+
     media_diaria_contratos = (total_or or 0) / dias_passados if dias_passados > 0 else 0
 
     ticket_meta_diaria = 0
     if meta_global and total_eq is not None:
-        falta_dias = max(30 - dias_passados, 1)
+        falta_dias = max(dias_mes_real - dias_passados, 1)
         ticket_meta_diaria = (falta_meta / falta_dias) if falta_dias > 0 else 0
 
     conn.close()
