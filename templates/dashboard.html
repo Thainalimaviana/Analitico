@@ -220,10 +220,14 @@
         <div class="fonte-detalhes">
             {% if status_dados %}
             {% for status, info in status_dados.items() %}
-            {% set classe = "cinza" %}
-            {% if "Paga" in status %}{% set classe = "verde" %}
-            {% elif "Pendente" in status %}{% set classe = "amarelo" %}
-            {% elif "Reprovada" in status %}{% set classe = "vermelho" %}{% endif %}
+            {% set classe = "" %}
+            {% if "Pago" in status %}{% set classe = "pago" %}
+            {% elif "Aguardando Pagamento" in status %}{% set classe = "aguardando-pagamento" %}
+            {% elif "Analise Mesa" in status or "Análise Mesa" in status %}{% set classe = "analise-mesa" %}
+            {% elif "Representacao" in status or "Representação" in status %}{% set classe = "representacao" %}
+            {% elif "Integrada" in status %}{% set classe = "integrada" %}
+            {% endif %}
+
 
             <div class="card-status {{ classe }}">
                 <h4>{{ status }}</h4>
@@ -330,26 +334,30 @@
         transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
 
-    .card-status:hover {
-        transform: scale(1.05);
-        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
-    }
-
-    .verde {
+    .card-status.pago {
         background: #00b848;
     }
 
-    .amarelo {
-        background: #fbc02d;
+    .card-status.aguardando-pagamento {
+        background: #fdd835;
         color: #222;
     }
 
-    .vermelho {
+    .card-status.analise-mesa {
+        background: #42a5f5;
+    }
+
+    .card-status.representacao {
         background: #e53935;
     }
 
-    .cinza {
-        background: #757575;
+    .card-status.integrada {
+        background: #fb8c00;
+    }
+
+    .card-status:hover {
+        transform: scale(1.05);
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
     }
 </style>
 
