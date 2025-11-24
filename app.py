@@ -1234,15 +1234,39 @@ def visao_fontes():
 
 @app.route("/editar_meta_dia", methods=["POST"])
 def editar_meta_dia():
-    nova_meta_dia = float(request.form.get("nova_meta_dia", 0))
+    if "user" not in session or session["role"] != "admin":
+        return redirect(url_for("login"))
+
+    try:
+        nova_meta_dia = float(request.form.get("nova_meta_dia", 0))
+    except:
+        nova_meta_dia = 0
+
     conn = get_conn()
     cur = conn.cursor()
-    cur.execute("CREATE TABLE IF NOT EXISTS meta_dia (id INTEGER PRIMARY KEY AUTOINCREMENT, valor REAL)")
-    cur.execute("INSERT INTO meta_dia (valor) VALUES (?)", (nova_meta_dia,))
+
+    if isinstance(conn, sqlite3.Connection):
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS meta_dia (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                valor REAL
+            )
+        """)
+        cur.execute("DELETE FROM meta_dia;")
+        cur.execute("INSERT INTO meta_dia (valor) VALUES (?)", (nova_meta_dia,))
+    else:
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS meta_dia (
+                id SERIAL PRIMARY KEY,
+                valor NUMERIC(12,2)
+            )
+        """)
+        cur.execute("TRUNCATE meta_dia RESTART IDENTITY;")
+        cur.execute("INSERT INTO meta_dia (valor) VALUES (%s);", (nova_meta_dia,))
+
     conn.commit()
     conn.close()
     return redirect(url_for("painel_admin"))
-
 
 if __name__ == "__main__":
     app.run(debug=True)
