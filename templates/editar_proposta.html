@@ -109,9 +109,12 @@
       <select class="barra-cpf" name="fonte" required>
         <option value="">Selecione a Fonte</option>
         <option value="URA" {% if proposta[2]=='URA' %}selected{% endif %}>URA</option>
-        <option value="Consultados antigos" {% if proposta[2]=='Consultados antigos' %}selected{% endif %}>Consultados antigos</option>
-        <option value="Consultados de hoje" {% if proposta[2]=='Consultados de hoje' %}selected{% endif %}>Consultados de hoje</option>
-        <option value="Cliente de analítico/carteira" {% if proposta[2]=='Cliente de analítico/carteira' %}selected{% endif %}>Cliente de analítico/carteira</option>
+        <option value="Consultados antigos" {% if proposta[2]=='Consultados antigos' %}selected{% endif %}>Consultados
+          antigos</option>
+        <option value="Consultados de hoje" {% if proposta[2]=='Consultados de hoje' %}selected{% endif %}>Consultados
+          de hoje</option>
+        <option value="Cliente de analítico/carteira" {% if proposta[2]=='Cliente de analítico/carteira' %}selected{%
+          endif %}>Cliente de analítico/carteira</option>
         <option value="Indicação" {% if proposta[2]=='Indicação' %}selected{% endif %}>Indicação</option>
         <option value="Tráfego" {% if proposta[2]=='Tráfego' %}selected{% endif %}>Tráfego</option>
       </select>
@@ -149,14 +152,17 @@
     </div>
 
     <div class="form-linha">
-      <input class="barra-cpf" type="text" name="nome_cliente" placeholder="Nome do Cliente" value="{{ proposta[6] or '' }}" required>
+      <input class="barra-cpf" type="text" name="nome_cliente" placeholder="Nome do Cliente"
+        value="{{ proposta[6] or '' }}" required>
       <input class="barra-cpf" type="text" name="cpf" placeholder="CPF" value="{{ proposta[7] or '' }}" required>
     </div>
 
     <div class="form-linha">
       <input class="barra-cpf" type="text" name="telefone" placeholder="Telefone" value="{{ proposta[11] or '' }}">
-      <input class="barra-cpf" type="number" step="0.01" name="valor_equivalente" placeholder="Valor Equivalente" value="{{ proposta[8] or '' }}">
-      <input class="barra-cpf" type="number" step="0.01" name="valor_original" placeholder="Valor Original" value="{{ proposta[9] or '' }}">
+      <input class="barra-cpf" type="number" step="0.01" name="valor_equivalente" placeholder="Valor Equivalente"
+        value="{{ proposta[8] or '' }}">
+      <input class="barra-cpf" type="number" step="0.01" name="valor_original" placeholder="Valor Original"
+        value="{{ proposta[9] or '' }}">
     </div>
 
     <div class="form-linha">
@@ -164,7 +170,8 @@
       <select name="observacao" class="barra-cpf">
         <option value="">Selecione a Observação</option>
         <option value="PAGO" {% if proposta[10]=='PAGO' %}selected{% endif %}>PAGO</option>
-        <option value="AGUARDANDO PAGAMENTO" {% if proposta[10]=='AGUARDANDO PAGAMENTO' %}selected{% endif %}>AGUARDANDO PAGAMENTO</option>
+        <option value="AGUARDANDO PAGAMENTO" {% if proposta[10]=='AGUARDANDO PAGAMENTO' %}selected{% endif %}>AGUARDANDO
+          PAGAMENTO</option>
         <option value="ANALISE MESA" {% if proposta[10]=='ANALISE MESA' %}selected{% endif %}>ANÁLISE MESA</option>
         <option value="REPRESENTAÇÃO" {% if proposta[10]=='REPRESENTAÇÃO' %}selected{% endif %}>REPRESENTAÇÃO</option>
         <option value="INTEGRADA" {% if proposta[10]=='INTEGRADA' %}selected{% endif %}>INTEGRADA</option>
@@ -173,8 +180,7 @@
 
     <div class="form-linha data-hora-linha">
       <label>Data e Hora (opcional):</label>
-      <input class="barra-cpf" type="datetime-local" name="data_manual" 
-      value="{% if proposta[1] %}
+      <input class="barra-cpf" type="datetime-local" name="data_manual" value="{% if proposta[1] %}
         {% if proposta[1] is string %}
           {{ proposta[1][:16] }}
         {% else %}
@@ -193,86 +199,94 @@
 </div>
 
 <script>
-const dados = {
-  "C6": {
-    senhas: ["51077297890_000367", "51077297890_004500"],
-    tabelas: ["48x", "36x", "24x", "18x", "12x", "6x"]
-  },
-  "Prata": {
-    senhas: ["thaina737373@hotmail.com", "biancafaria13@gmail.com"],
-    tabelas: ["6X", "12X", "18X", "24X", "36X", "48X"]
-  },
-  "Tá Quitado": {
-    senhas: ["thaina73@hotmail.com"],
-    tabelas: ["TQ FREE 2.0", "TQ LIGHT 2.0", "TQ FLEX 2.0", "TQ FLEX+ 2.0", "TQ TOTAL A", "TQ TOTAL B", "TQ MAX"]
-  },
-  "V8": {
-    senhas: ["thaina737373@gmail.com"],
-    tabelas: ["CLT ACELERA - COM SEGURO - 6X", "CLT ACELERA - COM SEGURO - 12x", "CLT ACELERA - COM SEGURO - 18x", "CLT ACELERA - COM SEGURO - 24x"]
-  },
-  "Presença": {
-    senhas: ["30612588840_BWzs", "55472794803_EkNx"],
-    tabelas: ["24x - CONSIGNADO PRIVADO (5167)", "18x - CONSIGNADO PRIVADO (5166)", "12x - CONSIGNADO PRIVADO (5164)"]
-  },
-  "Amigoz": {
-    senhas: ["458.491.998-45", "501.879.218-30"],
-    tabelas: ["24x c/ seguro", "18x c/ seguro"]
-  },
-  "Simplix": {
-    senhas: ["45849199845.0068"],
-    tabelas: ["SX8 ESPECIAL1 5Y", "SX2 5Y", "SX5 5Y", "SX6 5Y", "SX15 ESPECIAL1 5Y", "SX14 ESPECIAL1 5Y", "SX1 ULTRA ESPECIAL 5Y", 
-      "SX1 SUPER ESPECIAL1 5Y", "SX1 ESPECIAL1 5Y", "QI5 5Y", "QI1 ESPECIAL"]
-  },
-  "Facta-CLT": {
-    senhas: ["99365_biancafaria", "96552_biancafaria"],
-    tabelas: ["36x", "30x", "24x", "20x", "18x", "15x", "14x"]
-  },
-  "Facta-FGTS": {
-    senhas: ["99365_biancafaria", "96552_biancafaria"],
-    tabelas: ["GOLD PREMIUM RB (61115)", "GOLD PREMIUM RB (62154)", "GOLD PREFERENCE RB (61379)", "GOLD PREFERENCE RB (62170)", "PLUS RB (62189)", "GOLD POWER RB (60119)", "LIGHT RB (62138)", "GOLD FIDELIZA RB (63703)"]
-  },
-  "PAN": {
-    senhas: ["50187921830", "51077297890"],
-    tabelas: ["6X", "12X", "18X", "24X", "36X", "48X"]
-  }
-};
+  const dados = {
+    "C6": {
+      senhas: ["51077297890_000367", "51077297890_004500"],
+      tabelas: ["48x", "36x", "24x", "18x", "12x", "6x"]
+    },
+    "Prata": {
+      senhas: ["thaina737373@hotmail.com", "biancafaria13@gmail.com"],
+      tabelas: ["6X", "12X", "18X", "24X", "36X", "48X"]
+    },
+    "Tá Quitado": {
+      senhas: ["thaina73@hotmail.com"],
+      tabelas: ["TQ FREE 2.0", "TQ LIGHT 2.0", "TQ FLEX 2.0", "TQ FLEX+ 2.0", "TQ TOTAL A", "TQ TOTAL B", "TQ MAX"]
+    },
+    "V8": {
+      senhas: ["thaina737373@gmail.com"],
+      tabelas: ["CLT ACELERA - COM SEGURO - 6X", "CLT ACELERA - COM SEGURO - 12x", "CLT ACELERA - COM SEGURO - 18x", "CLT ACELERA - COM SEGURO - 24x"]
+    },
+    "Presença": {
+      senhas: ["30612588840_BWzs", "55472794803_EkNx"],
+      tabelas: ["24x - CONSIGNADO PRIVADO (5167)", "18x - CONSIGNADO PRIVADO (5166)", "12x - CONSIGNADO PRIVADO (5164)"]
+    },
+    "Amigoz": {
+      senhas: ["458.491.998-45", "501.879.218-30"],
+      tabelas: ["24x c/ seguro", "18x c/ seguro"]
+    },
+    "Simplix": {
+      senhas: ["45849199845.0068"],
+      tabelas: ["SX8 ESPECIAL1 5Y", "SX2 5Y", "SX5 5Y", "SX6 5Y", "SX15 ESPECIAL1 5Y", "SX14 ESPECIAL1 5Y", "SX1 ULTRA ESPECIAL 5Y",
+        "SX1 SUPER ESPECIAL1 5Y", "SX1 ESPECIAL1 5Y", "QI5 5Y", "QI1 ESPECIAL"]
+    },
+    "Facta-CLT": {
+      senhas: ["96552_biancafaria", "99365_biancafaria"],
+      tabelas: ["FACTA - 63010	36x", "FACTA - 63010	30X", "FACTA - 63010	24X", "FACTA - 63010	20X", "FACTA - 63010	18X",
+        "FACTA - 63010	15X", "FACTA - 63010	14x", "FACTA - 63010	12x", "FACTA - 63010	10x", "FACTA - 63010	8x", "FACTA - 63010	6x",
+        "FACTA - 65692	36x", "FACTA - 65692	30x", "FACTA - 65692	24x", "FACTA - 65692	20x", "FACTA - 65692	18x", "FACTA - 65692	15x",
+        "FACTA - 65692	14x", "FACTA - 65692	12x", "FACTA - 65692	10x", "FACTA - 65692	8x", "FACTA - 65692	6x"]
+    },
+    "Facta-FGTS": {
+      senhas: ["99365_biancafaria", "96552_biancafaria"],
+      tabelas: ["GOLD PREMIUM RB (61115)", "GOLD PREMIUM RB (62154)", "GOLD PREFERENCE RB (61379)", "GOLD PREFERENCE RB (62170)", "PLUS RB (62189)", "GOLD POWER RB (60119)", "LIGHT RB (62138)", "GOLD FIDELIZA RB (63703)"]
+    },
+    "PAN": {
+      senhas: ["50187921830", "51077297890"],
+      tabelas: ["6X", "12X", "18X", "24X", "36X", "48X"]
+    },
 
-const bancoSelect = document.getElementById("banco");
-const senhaSelect = document.getElementById("senha_digitada");
-const tabelaSelect = document.getElementById("tabela");
+    "SEGUE": {
+      senhas: ["felipesales135895@gmail.com", "luanasenabrito@gmail.com", "teixeira.diego.santos@outlook.com", "yasminmiraandrade1@gmail.com"],
+      tabelas: ["6X A 9X - SEM SEGURO", "13X A 18 X - COM SEGURO", "19X A 24X - COM SEGURO", "10X A 36X - SEM SEGURO"]
+    }
+  };
 
-bancoSelect.addEventListener("change", () => {
-  const banco = bancoSelect.value;
-  senhaSelect.innerHTML = '<option value="">Selecione a Senha</option>';
-  tabelaSelect.innerHTML = '<option value="">Selecione a Senha primeiro</option>';
-  tabelaSelect.disabled = true;
+  const bancoSelect = document.getElementById("banco");
+  const senhaSelect = document.getElementById("senha_digitada");
+  const tabelaSelect = document.getElementById("tabela");
 
-  if (dados[banco]) {
-    dados[banco].senhas.forEach(s => {
-      const opt = document.createElement("option");
-      opt.value = s;
-      opt.textContent = s;
-      senhaSelect.appendChild(opt);
-    });
-    senhaSelect.disabled = false;
-  } else {
-    senhaSelect.disabled = true;
-  }
-});
+  bancoSelect.addEventListener("change", () => {
+    const banco = bancoSelect.value;
+    senhaSelect.innerHTML = '<option value="">Selecione a Senha</option>';
+    tabelaSelect.innerHTML = '<option value="">Selecione a Senha primeiro</option>';
+    tabelaSelect.disabled = true;
 
-senhaSelect.addEventListener("change", () => {
-  const banco = bancoSelect.value;
-  tabelaSelect.innerHTML = '<option value="">Selecione a Tabela</option>';
+    if (dados[banco]) {
+      dados[banco].senhas.forEach(s => {
+        const opt = document.createElement("option");
+        opt.value = s;
+        opt.textContent = s;
+        senhaSelect.appendChild(opt);
+      });
+      senhaSelect.disabled = false;
+    } else {
+      senhaSelect.disabled = true;
+    }
+  });
 
-  if (dados[banco]) {
-    dados[banco].tabelas.forEach(t => {
-      const opt = document.createElement("option");
-      opt.value = t;
-      opt.textContent = t;
-      tabelaSelect.appendChild(opt);
-    });
-    tabelaSelect.disabled = false;
-  }
-});
+  senhaSelect.addEventListener("change", () => {
+    const banco = bancoSelect.value;
+    tabelaSelect.innerHTML = '<option value="">Selecione a Tabela</option>';
+
+    if (dados[banco]) {
+      dados[banco].tabelas.forEach(t => {
+        const opt = document.createElement("option");
+        opt.value = t;
+        opt.textContent = t;
+        tabelaSelect.appendChild(opt);
+      });
+      tabelaSelect.disabled = false;
+    }
+  });
 </script>
 {% endblock %}
