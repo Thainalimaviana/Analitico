@@ -212,6 +212,21 @@ def indice_dia():
     """)
     totais = {r[0]: r[1] for r in cur.fetchall()}
 
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS meta_dia (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            valor REAL
+        )
+    """ if isinstance(conn, sqlite3.Connection) else """
+        CREATE TABLE IF NOT EXISTS meta_dia (
+            id SERIAL PRIMARY KEY,
+            valor NUMERIC(12,2)
+        )
+    """)
+    cur.execute("SELECT valor FROM meta_dia ORDER BY id DESC LIMIT 1;")
+    meta_dia_row = cur.fetchone()
+    meta_dia = meta_dia_row[0] if meta_dia_row else 0
+
     conn.close()
 
     ranking = []
@@ -227,14 +242,17 @@ def indice_dia():
     total_eq = sum(r[1] for r in ranking)
     total_or = sum(r[2] for r in ranking)
 
+    falta_meta_dia = max(meta_dia - total_eq, 0)
+
     return render_template(
         "indice_dia.html",
         ranking=ranking,
         total_eq=total_eq,
         total_or=total_or,
+        meta_dia=meta_dia,
+        falta_meta_dia=falta_meta_dia,
         data_atual=hoje
     )
-
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -731,16 +749,34 @@ def painel_admin():
     cur.execute("SELECT valor FROM metas_globais ORDER BY id DESC LIMIT 1;")
     meta_global_row = cur.fetchone()
     meta_global = meta_global_row[0] if meta_global_row else 0
+
     media_usuarios = (sum([r[3] or 0 for r in ranking]) / len(ranking)) if ranking else 0
 
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS meta_dia (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            valor REAL
+        )
+    """ if isinstance(conn, sqlite3.Connection) else """
+        CREATE TABLE IF NOT EXISTS meta_dia (
+            id SERIAL PRIMARY KEY,
+            valor NUMERIC(12,2)
+        )
+    """)
+    cur.execute("SELECT valor FROM meta_dia ORDER BY id DESC LIMIT 1;")
+    meta_dia_row = cur.fetchone()
+    meta_dia = meta_dia_row[0] if meta_dia_row else 0
+
     conn.close()
+
     return render_template(
         "painel_admin.html",
         ranking=ranking,
         meta_global=meta_global,
         media_usuarios=media_usuarios,
         data_ini=data_ini,
-        data_fim=data_fim
+        data_fim=data_fim,
+        meta_dia=meta_dia
     )
 
 @app.route("/editar_meta", methods=["POST"])
@@ -1181,7 +1217,6 @@ def visao_fontes():
     dados = cur.fetchall()
     conn.close()
 
-    # Cria estrutura organizada por fonte
     fontes = {fonte: {} for fonte in fontes_lista}
 
     for fonte, status, qtd, eq, or_ in dados:
@@ -1196,6 +1231,17 @@ def visao_fontes():
         }
 
     return render_template("visao_fontes.html", fontes=fontes)
+
+@app.route("/editar_meta_dia", methods=["POST"])
+def editar_meta_dia():
+    nova_meta_dia = float(request.form.get("nova_meta_dia", 0))
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("CREATE TABLE IF NOT EXISTS meta_dia (id INTEGER PRIMARY KEY AUTOINCREMENT, valor REAL)")
+    cur.execute("INSERT INTO meta_dia (valor) VALUES (?)", (nova_meta_dia,))
+    conn.commit()
+    conn.close()
+    return redirect(url_for("painel_admin"))
 
 
 if __name__ == "__main__":

@@ -27,6 +27,12 @@
       <h3>Média Individual</h3>
       <p class="valor">R$ {{ "{:,.2f}".format(media_usuarios or 0) }}</p>
     </div>
+
+    <div class="card-meta">
+      <h3>Meta Diária</h3>
+      <p class="valor">R$ {{ "{:,.2f}".format(meta_dia or 0) }}</p>
+      <button class="btn-editar" onclick="abrirMetaDia()">Editar Meta</button>
+    </div>
   </div>
 
   <div class="tabela-admin">
@@ -86,6 +92,25 @@
     </form>
   </div>
 </div>
+<div id="modalDia" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="fecharMetaDia()">&times;</span>
+    <h3>Editar Meta Diária</h3>
+    <form method="POST" action="{{ url_for('editar_meta_dia') }}">
+      <input type="number" name="nova_meta_dia" step="0.01" placeholder="Nova meta diária" required>
+      <button type="submit" class="btn-filtrar">Salvar</button>
+    </form>
+  </div>
+</div>
+
+<script>
+  function abrirMetaDia() {
+    document.getElementById("modalDia").style.display = "block";
+  }
+  function fecharMetaDia() {
+    document.getElementById("modalDia").style.display = "none";
+  }
+</script>
 
 <script>
   function abrirMeta(consultor, metaAtual) {
@@ -143,28 +168,29 @@
     background: #0c6401;
   }
 
-.texto-brilhante {
-  background: linear-gradient(90deg, #00ff99, #00c853, #00ff99, #00c853);
-  background-size: 400%;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation: brilho-texto 3s linear infinite;
-  font-weight: 700;
-  text-shadow: 0 0 8px rgba(0, 255, 120, 0.4);
-}
+  .texto-brilhante {
+    background: linear-gradient(90deg, #00ff99, #00c853, #00ff99, #00c853);
+    background-size: 400%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: brilho-texto 3s linear infinite;
+    font-weight: 700;
+    text-shadow: 0 0 8px rgba(0, 255, 120, 0.4);
+  }
 
-@keyframes brilho-texto {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
+  @keyframes brilho-texto {
+    0% {
+      background-position: 0% 50%;
+    }
 
+    50% {
+      background-position: 100% 50%;
+    }
+
+    100% {
+      background-position: 0% 50%;
+    }
+  }
 </style>
 <script>
   document.addEventListener("DOMContentLoaded", () => {

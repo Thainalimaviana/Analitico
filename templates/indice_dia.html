@@ -111,11 +111,17 @@
 </style>
 
 <div class="painel-tv">
-    <table class="tabela-total">
-        <tr>
-            <th>TOTAL DO DIA — {{ total_eq | brl }}</th>
-        </tr>
-    </table>
+    <div class="tabela-top-container">
+        <div class="tabela-top">
+            <div class="bloco-total">
+                TOTAL DO DIA — {{ total_eq | brl }}
+            </div>
+            <div class="bloco-falta">
+                FALTA PARA META DO DIA —
+                {{ (meta_dia - total_eq) | brl if meta_dia > total_eq else "Meta atingida!" }}
+            </div>
+        </div>
+    </div>
 
     <div class="tabelas-container">
         <table class="tabela-tv">
@@ -159,6 +165,71 @@
         </table>
     </div>
 </div>
+
+<style>
+    .tabela-top-container {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 10px;
+    }
+
+    .tabela-top {
+        display: flex;
+        justify-content: space-between;
+        width: 95%;
+        background: linear-gradient(90deg, #009a2a, #00c73c);
+        border-radius: 10px;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+        color: #fff;
+        font-weight: 700;
+        font-size: 22px;
+        text-transform: uppercase;
+    }
+
+    .bloco-total,
+    .bloco-falta {
+        flex: 1;
+        padding: 15px 40px;
+        text-align: center;
+    }
+
+    .bloco-total {
+        border-right: 2px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .tabelas-container {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        gap: 40px;
+        flex-wrap: wrap;
+        margin-top: 10px;
+    }
+
+    table.tabela-tv {
+        width: 100%;
+        max-width: 650px;
+        border-collapse: collapse;
+        border-radius: 12px;
+        overflow: hidden;
+        background: rgba(255, 255, 255, 0.12);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+    }
+
+    .tabela-tv thead {
+        background: linear-gradient(90deg, #009a2a, #00c73c);
+        color: white;
+        font-weight: bold;
+        font-size: 18px;
+    }
+
+    .tabela-tv th,
+    .tabela-tv td {
+        padding: 12px 14px;
+        text-align: center;
+    }
+</style>
+
 
 <script>
     function atualizarPainelTV() {
