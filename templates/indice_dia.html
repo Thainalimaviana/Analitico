@@ -167,24 +167,37 @@
 </div>
 
 <style>
+    .painel-tv {
+        width: 95%;
+        margin: 0 auto;
+        background: none;
+        border: none;
+        box-shadow: none;
+        padding: 0;
+    }
+
     .tabela-top-container {
         display: flex;
         justify-content: center;
-        margin-bottom: 10px;
+        align-items: center;
+        margin-bottom: 15px;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+        border-radius: 10px;
+        overflow: hidden;
     }
 
+
     .tabela-top {
-        display: flex;
-        justify-content: space-between;
-        width: 95%;
+        width: 100%;
         background: linear-gradient(90deg, #009a2a, #00c73c);
-        border-radius: 10px;
-        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
         color: #fff;
         font-weight: 700;
         font-size: 22px;
         text-transform: uppercase;
+        display: flex;
+        border-radius: 10px;
     }
+
 
     .bloco-total,
     .bloco-falta {
@@ -228,8 +241,11 @@
         padding: 12px 14px;
         text-align: center;
     }
-</style>
 
+    .tabela-tv td.valor {
+        font-weight: 800;
+    }
+</style>
 
 <script>
     function atualizarPainelTV() {
@@ -239,30 +255,26 @@
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(html, "text/html");
 
-                const novoTotal = doc.querySelector(".tabela-total");
-                if (novoTotal) {
-                    document.querySelector(".tabela-total").innerHTML = novoTotal.innerHTML;
+                const novoTopo = doc.querySelector(".tabela-top");
+                if (novoTopo) {
+                    document.querySelector(".tabela-top").innerHTML = novoTopo.innerHTML;
                 }
 
                 const novasTabelas = doc.querySelectorAll(".tabela-tv");
                 const tabelasAntigas = document.querySelectorAll(".tabela-tv");
-
                 novasTabelas.forEach((nova, i) => {
                     if (tabelasAntigas[i]) {
                         tabelasAntigas[i].innerHTML = nova.innerHTML;
                     }
                 });
-
-                if (typeof aplicarFormatacaoBRL === "function") {
-                    aplicarFormatacaoBRL();
-                }
             })
             .catch(err => console.error("Erro ao atualizar painel TV:", err));
     }
 
-    setInterval(atualizarPainelTV, 30000);
+    setInterval(atualizarPainelTV, 15000);
     atualizarPainelTV();
 </script>
+
 
 
 {% endblock %}
