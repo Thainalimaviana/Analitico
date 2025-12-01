@@ -397,8 +397,7 @@ def relatorios():
 
     if user and user.strip() and user != "-":
         condicoes.append(f"LOWER(consultor) = LOWER({ph})")
-        arams.append(user)
-
+        params.append(user)
 
     if data_ini and data_fim:
         condicoes.append(f"data BETWEEN {ph} AND {ph}")
