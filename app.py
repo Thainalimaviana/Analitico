@@ -352,6 +352,9 @@ def relatorios():
     banco = (request.form.get("banco") or request.args.get("banco") or "").strip()
     acao = request.form.get("acao")
 
+    if acao == "limpar":
+        return redirect(url_for("relatorios"))
+
     if acao == "filtrar":
         return redirect(url_for("relatorios",
             usuario=None if not user else user,

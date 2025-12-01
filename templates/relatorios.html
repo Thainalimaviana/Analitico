@@ -320,10 +320,10 @@
     </select>
 
     <label>Data Início:</label>
-    <input type="datetime-local"name="data_ini"value="{{ data_ini.replace(' ', 'T') if data_ini else '' }}">
+    <input type="datetime-local" name="data_ini" value="{{ data_ini.replace(' ', 'T') if data_ini else '' }}">
 
     <label>Data Fim:</label>
-    <input type="datetime-local"name="data_fim"value="{{ data_fim.replace(' ', 'T') if data_fim else '' }}">
+    <input type="datetime-local" name="data_fim" value="{{ data_fim.replace(' ', 'T') if data_fim else '' }}">
 
     <label>Observação:</label>
     <select name="observacao" class="input-pequeno">
@@ -379,6 +379,11 @@
 
     <button type="submit" name="acao" value="filtrar" class="btn-filtrar">Filtrar</button>
     <button type="submit" name="acao" value="baixar" class="btn-baixar">Baixar Excel</button>
+
+    <button type="submit" name="acao" value="limpar" class="btn-limpar"
+      style="background:#555; color:white; padding:8px 18px; border-radius:8px; border:none; cursor:pointer; font-weight:600;">
+      Limpar Filtros
+    </button>
   </form>
 </div>
 {% if mes_atual %}
