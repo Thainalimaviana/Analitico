@@ -354,7 +354,7 @@ def relatorios():
 
     if acao == "filtrar":
         return redirect(url_for("relatorios",
-            usuario=user or "",
+            usuario=user or "-",
             data_ini=data_ini or "",
             data_fim=data_fim or "",
             observacao=observacao or "",
