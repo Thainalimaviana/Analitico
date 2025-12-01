@@ -354,7 +354,7 @@ def relatorios():
 
     if acao == "filtrar":
         return redirect(url_for("relatorios",
-            usuario=user or "-",
+            usuario=user or "",
             data_ini=data_ini or "",
             data_fim=data_fim or "",
             observacao=observacao or "",
@@ -395,9 +395,10 @@ def relatorios():
         else:
             return f"LOWER({campo}) LIKE LOWER({ph})", f"%{valor}%"
 
-    if user and user.strip():
+    if user and user.strip() and user != "-":
         condicoes.append(f"LOWER(consultor) = LOWER({ph})")
-        params.append(user)
+        arams.append(user)
+
 
     if data_ini and data_fim:
         condicoes.append(f"data BETWEEN {ph} AND {ph}")
