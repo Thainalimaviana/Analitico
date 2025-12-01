@@ -468,7 +468,7 @@
   {% set query = "" %}
   {% for key, value in request.args.items() %}
   {% if key != 'pagina' %}
-  {% set query = query + key + "=" + value + "&" %}
+  {% set query = query ~ key ~ "=" ~ value ~ "&" %}
   {% endif %}
   {% endfor %}
 

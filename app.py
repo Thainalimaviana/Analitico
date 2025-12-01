@@ -377,6 +377,22 @@ def relatorios():
         except ValueError:
             return data_str
 
+    data_ini_post = data_ini
+    data_fim_post = data_fim
+
+    if acao == "filtrar":
+        return redirect(url_for("relatorios",
+            usuario=user or "",
+            data_ini=data_ini_post or "",
+            data_fim=data_fim_post or "",
+            observacao=observacao or "",
+            senha_digitada=senha_digitada or "",
+            fonte=fonte or "",
+            tabela=tabela or "",
+            banco=banco or "",
+            pagina=1
+        ))
+
     data_ini = normalizar_data(data_ini)
     data_fim = normalizar_data(data_fim)
 
