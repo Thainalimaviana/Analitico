@@ -352,6 +352,23 @@ def relatorios():
     banco = (request.form.get("banco") or request.args.get("banco") or "").strip()
     acao = request.form.get("acao")
 
+    if acao == "filtrar":
+        params = {
+            "usuario": user or "",
+            "data_ini": data_ini or "",
+            "data_fim": data_fim or "",
+            "observacao": observacao or "",
+            "senha_digitada": senha_digitada or "",
+            "fonte": fonte or "",
+            "tabela": tabela or "",
+            "banco": banco or "",
+            "pagina": 1
+        }
+
+        params = {k: v for k, v in params.items() if v}
+
+        return redirect(url_for("relatorios", **params))
+
     def normalizar_data(data_str):
         if not data_str:
             return None
