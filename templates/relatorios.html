@@ -465,12 +465,40 @@
 {% if total_paginas > 1 %}
 <div class="paginacao-relatorios">
 
+  {# CONSTRUIR QUERY STRING A PARTIR DAS VARIÁVEIS DO BACKEND #}
   {% set query = "" %}
-  {% for key, value in request.args.items() %}
-  {% if key != 'pagina' %}
-  {% set query = query ~ key ~ "=" ~ value ~ "&" %}
+
+  {% if user %}
+  {% set query = query ~ "usuario=" ~ user ~ "&" %}
   {% endif %}
-  {% endfor %}
+
+  {% if data_ini %}
+  {% set query = query ~ "data_ini=" ~ data_ini ~ "&" %}
+  {% endif %}
+
+  {% if data_fim %}
+  {% set query = query ~ "data_fim=" ~ data_fim ~ "&" %}
+  {% endif %}
+
+  {% if observacao %}
+  {% set query = query ~ "observacao=" ~ observacao ~ "&" %}
+  {% endif %}
+
+  {% if senha_digitada %}
+  {% set query = query ~ "senha_digitada=" ~ senha_digitada ~ "&" %}
+  {% endif %}
+
+  {% if fonte %}
+  {% set query = query ~ "fonte=" ~ fonte ~ "&" %}
+  {% endif %}
+
+  {% if tabela %}
+  {% set query = query ~ "tabela=" ~ tabela ~ "&" %}
+  {% endif %}
+
+  {% if banco %}
+  {% set query = query ~ "banco=" ~ banco ~ "&" %}
+  {% endif %}
 
   {% if pagina > 1 %}
   <a class="btn-page" href="?{{ query }}pagina=1">« Primeira</a>
