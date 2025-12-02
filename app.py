@@ -350,6 +350,8 @@ def relatorios():
     fonte = (request.form.get("fonte") or request.args.get("fonte") or "").strip()
     tabela = (request.form.get("tabela") or request.args.get("tabela") or "").strip()
     banco = (request.form.get("banco") or request.args.get("banco") or "").strip()
+    cpf = (request.form.get("cpf") or request.args.get("cpf") or "").strip()
+
     acao = request.form.get("acao")
 
     if acao == "limpar":
@@ -365,6 +367,7 @@ def relatorios():
             fonte=fonte or "",
             tabela=tabela or "",
             banco=banco or "",
+            cpf=cpf or "",
             pagina=1
         ))
 
@@ -383,6 +386,7 @@ def relatorios():
     data_fim = normalizar_data(data_fim)
 
     ph = "?" if isinstance(conn, sqlite3.Connection) else "%s"
+
     query_base = f"""
         SELECT id, data, consultor, fonte, banco, senha_digitada, tabela, nome_cliente, cpf,
                valor_equivalente, valor_original, observacao, telefone
@@ -390,6 +394,7 @@ def relatorios():
     """
 
     condicoes, params = [], []
+
     condicoes.append("consultor NOT IN (SELECT nome FROM users WHERE role = 'admin')")
 
     def filtro_lower(campo, valor):
@@ -402,44 +407,57 @@ def relatorios():
         condicoes.append(f"LOWER(consultor) = LOWER({ph})")
         params.append(user)
 
-    if data_ini and data_fim:
-        condicoes.append(f"data BETWEEN {ph} AND {ph}")
-        params += [data_ini, data_fim]
-        mes_atual = "Filtro personalizado"
+    if cpf:
+        filtro, valor = filtro_lower("cpf", cpf)
+        condicoes.append(filtro)
+        params.append(valor)
+        mes_atual = "Filtro por CPF"
     else:
-        agora = datetime.now()
-        inicio_mes = agora.replace(day=1, hour=0, minute=0, second=0)
-        proximo_mes = inicio_mes + relativedelta(months=1)
-        fim_mes = proximo_mes - timedelta(seconds=1)
+        if data_ini and data_fim:
+            condicoes.append(f"data BETWEEN {ph} AND {ph}")
+            params += [data_ini, data_fim]
+            mes_atual = "Filtro personalizado"
+        else:
+            agora = datetime.now()
+            inicio_mes = agora.replace(day=1, hour=0, minute=0, second=0)
+            proximo_mes = inicio_mes + relativedelta(months=1)
+            fim_mes = proximo_mes - timedelta(seconds=1)
 
-        condicoes.append(f"data BETWEEN {ph} AND {ph}")
-        params += [inicio_mes.strftime("%Y-%m-%d %H:%M:%S"), fim_mes.strftime("%Y-%m-%d %H:%M:%S")]
+            condicoes.append(f"data BETWEEN {ph} AND {ph}")
+            params += [
+                inicio_mes.strftime("%Y-%m-%d %H:%M:%S"),
+                fim_mes.strftime("%Y-%m-%d %H:%M:%S")
+            ]
 
-        meses_pt = {
-            "January": "Janeiro", "February": "Fevereiro", "March": "Março",
-            "April": "Abril", "May": "Maio", "June": "Junho", "July": "Julho",
-            "August": "Agosto", "September": "Setembro", "October": "Outubro",
-            "November": "Novembro", "December": "Dezembro"
-        }
-        mes_nome = inicio_mes.strftime("%B")
-        mes_atual = f"{meses_pt[mes_nome]}/{inicio_mes.year}"
+            meses_pt = {
+                "January": "Janeiro", "February": "Fevereiro", "March": "Março",
+                "April": "Abril", "May": "Maio", "June": "Junho", "July": "Julho",
+                "August": "Agosto", "September": "Setembro", "October": "Outubro",
+                "November": "Novembro", "December": "Dezembro"
+            }
+            mes_nome = inicio_mes.strftime("%B")
+            mes_atual = f"{meses_pt[mes_nome]}/{inicio_mes.year}"
 
     if observacao:
         filtro, valor = filtro_lower("observacao", observacao)
         condicoes.append(filtro)
         params.append(valor)
+
     if senha_digitada:
         filtro, valor = filtro_lower("senha_digitada", senha_digitada)
         condicoes.append(filtro)
         params.append(valor)
+
     if fonte:
         filtro, valor = filtro_lower("fonte", fonte)
         condicoes.append(filtro)
         params.append(valor)
+
     if banco:
         filtro, valor = filtro_lower("banco", banco)
         condicoes.append(filtro)
         params.append(valor)
+
     if tabela:
         filtro, valor = filtro_lower("tabela", tabela)
         condicoes.append(filtro)
@@ -513,6 +531,7 @@ def relatorios():
         fonte=fonte,
         tabela=tabela,
         banco=banco,
+        cpf=cpf,
         total_equivalente=total_equivalente,
         total_original=total_original,
         total_propostas=total_propostas,
