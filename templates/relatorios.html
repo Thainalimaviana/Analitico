@@ -42,6 +42,33 @@
     transition: all 0.3s ease;
   }
 
+  .form-relatorios input[type="number"] {
+    padding: 7px 10px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    background: linear-gradient(40deg, var(--gradiente-inicio), var(--gradiente-fim));
+    color: var(--cor-texto);
+    font-size: 14px;
+    outline: none;
+    transition: all 0.3s ease;
+    width: 80px;
+  }
+
+  .form-relatorios input[type="number"]:focus {
+    border-color: #00ff66;
+    box-shadow: 0 0 6px rgba(0, 255, 128, 0.4);
+  }
+
+  .form-relatorios input[type="number"]::-webkit-outer-spin-button,
+  .form-relatorios input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  .form-relatorios input[type="number"] {
+    -moz-appearance: textfield;
+  }
+
   .btn-filtrar {
     background: linear-gradient(90deg, #00b848, #009634);
     color: #fff;
@@ -321,6 +348,26 @@
 
     <label>Data Início:</label>
     <input type="datetime-local" name="data_ini" value="{{ data_ini.replace(' ', 'T') if data_ini else '' }}">
+
+    <label>Mês:</label>
+    <select name="mes" class="input-pequeno">
+      <option value="">Todos</option>
+      <option value="01" {% if mes=='01' %}selected{% endif %}>Janeiro</option>
+      <option value="02" {% if mes=='02' %}selected{% endif %}>Fevereiro</option>
+      <option value="03" {% if mes=='03' %}selected{% endif %}>Março</option>
+      <option value="04" {% if mes=='04' %}selected{% endif %}>Abril</option>
+      <option value="05" {% if mes=='05' %}selected{% endif %}>Maio</option>
+      <option value="06" {% if mes=='06' %}selected{% endif %}>Junho</option>
+      <option value="07" {% if mes=='07' %}selected{% endif %}>Julho</option>
+      <option value="08" {% if mes=='08' %}selected{% endif %}>Agosto</option>
+      <option value="09" {% if mes=='09' %}selected{% endif %}>Setembro</option>
+      <option value="10" {% if mes=='10' %}selected{% endif %}>Outubro</option>
+      <option value="11" {% if mes=='11' %}selected{% endif %}>Novembro</option>
+      <option value="12" {% if mes=='12' %}selected{% endif %}>Dezembro</option>
+    </select>
+
+    <label>Ano:</label>
+    <input type="number" name="ano" class="input-pequeno" min="1900" max="2100" value="{{ ano or '' }}">
 
     <label>Data Fim:</label>
     <input type="datetime-local" name="data_fim" value="{{ data_fim.replace(' ', 'T') if data_fim else '' }}">

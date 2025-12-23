@@ -358,4 +358,54 @@
     window.location.href = url.toString();
   }
 </script>
+
+<script>
+  function selecionarPeriodo(periodo) {
+    const form = document.getElementById("form-filtros");
+    const inputPeriodo = form.querySelector('input[name="periodo"]');
+    const dataIni = form.querySelector('input[name="data_ini"]');
+    const dataFim = form.querySelector('input[name="data_fim"]');
+
+    const hoje = new Date();
+    let inicio, fim;
+
+    if (periodo === "hoje") {
+      inicio = fim = hoje;
+    }
+
+    if (periodo === "mes_atual") {
+      inicio = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+      fim = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0);
+    }
+
+    if (periodo === "ultimo_mes") {
+      inicio = new Date(hoje.getFullYear(), hoje.getMonth() - 1, 1);
+      fim = new Date(hoje.getFullYear(), hoje.getMonth(), 0);
+    }
+
+    if (periodo === "ultima_semana") {
+      fim = hoje;
+      inicio = new Date();
+      inicio.setDate(hoje.getDate() - 7);
+    }
+
+    if (periodo === "tudo") {
+      dataIni.value = "";
+      dataFim.value = "";
+      inputPeriodo.value = periodo;
+      form.submit();
+      return;
+    }
+
+    const formatar = (d) => d.toISOString().split("T")[0];
+
+    dataIni.value = formatar(inicio);
+    dataFim.value = formatar(fim);
+    inputPeriodo.value = periodo;
+
+    form.submit();
+  }
+</script>
+
+
 {% endblock %}

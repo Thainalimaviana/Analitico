@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session, send_file, flash
+from flask import Flask, render_template, request, redirect, url_for, session, send_file, flash, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta
 import pandas as pd
@@ -351,6 +351,9 @@ def relatorios():
     tabela = (request.form.get("tabela") or request.args.get("tabela") or "").strip()
     banco = (request.form.get("banco") or request.args.get("banco") or "").strip()
     cpf = (request.form.get("cpf") or request.args.get("cpf") or "").strip()
+    mes = request.form.get("mes") or request.args.get("mes")
+    ano = request.form.get("ano") or request.args.get("ano")
+
 
     acao = request.form.get("acao")
 
@@ -358,10 +361,13 @@ def relatorios():
         return redirect(url_for("relatorios"))
 
     if acao == "filtrar":
-        return redirect(url_for("relatorios",
+        return redirect(url_for(
+            "relatorios",
             usuario=None if not user else user,
             data_ini=data_ini or "",
             data_fim=data_fim or "",
+            mes=mes or "",
+            ano=ano or "",
             observacao=observacao or "",
             senha_digitada=senha_digitada or "",
             fonte=fonte or "",
@@ -412,11 +418,26 @@ def relatorios():
         condicoes.append(filtro)
         params.append(valor)
         mes_atual = "Filtro por CPF"
+        
     else:
-        if data_ini and data_fim:
+        if mes or ano:
+            if not ano:
+                ano = datetime.now().year
+
+            if not mes:
+                inicio = f"{ano}-01-01 00:00:00"
+                fim = f"{ano}-12-31 23:59:59"
+                mes_atual = f"Ano {ano}"
+            else:
+                inicio = f"{ano}-{mes}-01 00:00:00"
+                inicio_dt = datetime.strptime(inicio, "%Y-%m-%d %H:%M:%S")
+                fim_dt = inicio_dt + relativedelta(months=1) - timedelta(seconds=1)
+                fim = fim_dt.strftime("%Y-%m-%d %H:%M:%S")
+                mes_atual = f"{mes}/{ano}"
+
             condicoes.append(f"data BETWEEN {ph} AND {ph}")
-            params += [data_ini, data_fim]
-            mes_atual = "Filtro personalizado"
+            params += [inicio, fim]
+
         else:
             agora = datetime.now()
             inicio_mes = agora.replace(day=1, hour=0, minute=0, second=0)
@@ -1305,6 +1326,47 @@ def editar_meta_dia():
     conn.commit()
     conn.close()
     return redirect(url_for("painel_admin"))
+
+import random
+import string
+
+@app.route("/recuperar_senha", methods=["POST"])
+def recuperar_senha():
+    data = request.get_json()
+    nome = data.get("nome", "").strip()
+
+    if not nome:
+        return jsonify({"erro": "Usuário inválido"}), 400
+
+    conn = get_conn()
+    cur = conn.cursor()
+
+    ph = "?" if isinstance(conn, sqlite3.Connection) else "%s"
+
+    cur.execute(
+        f"SELECT id FROM users WHERE nome = {ph}",
+        (nome,)
+    )
+    user = cur.fetchone()
+
+    if not user:
+        conn.close()
+        return jsonify({"erro": "Usuário não encontrado"}), 404
+
+    chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789"
+    senha_temp = "".join(random.choice(chars) for _ in range(8))
+
+    senha_hash = generate_password_hash(senha_temp)
+
+    cur.execute(
+        f"UPDATE users SET senha = {ph} WHERE nome = {ph}",
+        (senha_hash, nome)
+    )
+
+    conn.commit()
+    conn.close()
+
+    return jsonify({"senha": senha_temp})
 
 if __name__ == "__main__":
     app.run(debug=True)
