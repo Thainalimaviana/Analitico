@@ -328,7 +328,7 @@ def nova_proposta():
 @app.route("/relatorios", methods=["GET", "POST"])
 def relatorios():
     if "user" not in session or session["role"] != "admin":
-        return redirect(url_for("login"))
+        return redirect(url_for("login"))   
 
     conn = get_conn()
     cur = conn.cursor()
@@ -353,7 +353,6 @@ def relatorios():
     cpf = (request.form.get("cpf") or request.args.get("cpf") or "").strip()
     mes = request.form.get("mes") or request.args.get("mes")
     ano = request.form.get("ano") or request.args.get("ano")
-
 
     acao = request.form.get("acao")
 
@@ -385,9 +384,6 @@ def relatorios():
         except ValueError:
             return data_str
 
-    data_ini_post = data_ini
-    data_fim_post = data_fim
-
     data_ini = normalizar_data(data_ini)
     data_fim = normalizar_data(data_fim)
 
@@ -413,51 +409,55 @@ def relatorios():
         condicoes.append(f"LOWER(consultor) = LOWER({ph})")
         params.append(user)
 
-    if cpf:
+    if data_ini and data_fim:
+        condicoes.append(f"data BETWEEN {ph} AND {ph}")
+        params += [data_ini, data_fim]
+        mes_atual = "Filtro por período"
+
+    elif cpf:
         filtro, valor = filtro_lower("cpf", cpf)
         condicoes.append(filtro)
         params.append(valor)
         mes_atual = "Filtro por CPF"
-        
-    else:
-        if mes or ano:
-            if not ano:
-                ano = datetime.now().year
 
-            if not mes:
-                inicio = f"{ano}-01-01 00:00:00"
-                fim = f"{ano}-12-31 23:59:59"
-                mes_atual = f"Ano {ano}"
-            else:
-                inicio = f"{ano}-{mes}-01 00:00:00"
-                inicio_dt = datetime.strptime(inicio, "%Y-%m-%d %H:%M:%S")
-                fim_dt = inicio_dt + relativedelta(months=1) - timedelta(seconds=1)
-                fim = fim_dt.strftime("%Y-%m-%d %H:%M:%S")
-                mes_atual = f"{mes}/{ano}"
+    elif mes or ano:
+        if not ano:
+            ano = datetime.now().year
 
-            condicoes.append(f"data BETWEEN {ph} AND {ph}")
-            params += [inicio, fim]
-
+        if not mes:
+            inicio = f"{ano}-01-01 00:00:00"
+            fim = f"{ano}-12-31 23:59:59"
+            mes_atual = f"Ano {ano}"
         else:
-            agora = datetime.now()
-            inicio_mes = agora.replace(day=1, hour=0, minute=0, second=0)
-            proximo_mes = inicio_mes + relativedelta(months=1)
-            fim_mes = proximo_mes - timedelta(seconds=1)
+            inicio = f"{ano}-{mes}-01 00:00:00"
+            inicio_dt = datetime.strptime(inicio, "%Y-%m-%d %H:%M:%S")
+            fim_dt = inicio_dt + relativedelta(months=1) - timedelta(seconds=1)
+            fim = fim_dt.strftime("%Y-%m-%d %H:%M:%S")
+            mes_atual = f"{mes}/{ano}"
 
-            condicoes.append(f"data BETWEEN {ph} AND {ph}")
-            params += [
-                inicio_mes.strftime("%Y-%m-%d %H:%M:%S"),
-                fim_mes.strftime("%Y-%m-%d %H:%M:%S")
-            ]
+        condicoes.append(f"data BETWEEN {ph} AND {ph}")
+        params += [inicio, fim]
 
-            meses_pt = {
-                "January": "Janeiro", "February": "Fevereiro", "March": "Março",
-                "April": "Abril", "May": "Maio", "June": "Junho", "July": "Julho",
-                "August": "Agosto", "September": "Setembro", "October": "Outubro",
-                "November": "Novembro", "December": "Dezembro"
-            }
-            mes_nome = inicio_mes.strftime("%B")
-            mes_atual = f"{meses_pt[mes_nome]}/{inicio_mes.year}"
+    else:
+        agora = datetime.now()
+        inicio_mes = agora.replace(day=1, hour=0, minute=0, second=0)
+        proximo_mes = inicio_mes + relativedelta(months=1)
+        fim_mes = proximo_mes - timedelta(seconds=1)
+
+        condicoes.append(f"data BETWEEN {ph} AND {ph}")
+        params += [
+            inicio_mes.strftime("%Y-%m-%d %H:%M:%S"),
+            fim_mes.strftime("%Y-%m-%d %H:%M:%S")
+        ]
+
+        meses_pt = {
+            "January": "Janeiro", "February": "Fevereiro", "March": "Março",
+            "April": "Abril", "May": "Maio", "June": "Junho", "July": "Julho",
+            "August": "Agosto", "September": "Setembro", "October": "Outubro",
+            "November": "Novembro", "December": "Dezembro"
+        }
+        mes_nome = inicio_mes.strftime("%B")
+        mes_atual = f"{meses_pt[mes_nome]}/{inicio_mes.year}"
 
     if observacao:
         filtro, valor = filtro_lower("observacao", observacao)
@@ -506,7 +506,10 @@ def relatorios():
     )
     dados = cur.fetchall()
 
-    cur.execute(f"SELECT COALESCE(SUM(valor_equivalente),0), COALESCE(SUM(valor_original),0) FROM ({query_base})", tuple(params))
+    cur.execute(
+        f"SELECT COALESCE(SUM(valor_equivalente),0), COALESCE(SUM(valor_original),0) FROM ({query_base})",
+        tuple(params)
+    )
     total_equivalente, total_original = cur.fetchone()
     total_propostas = total_registros
 
