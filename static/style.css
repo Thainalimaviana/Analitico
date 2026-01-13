@@ -1760,3 +1760,8 @@ tbody tr:nth-child(3) .col-posicao { color: #be762e; }
         gap: 10px;
     }
 }
+
+.ranking-top3 .card-meta .nome {
+    color: #000000;
+    text-shadow: 0 2px 6px rgba(0,0,0,0.35);
+}
