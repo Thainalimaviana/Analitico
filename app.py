@@ -1371,5 +1371,68 @@ def recuperar_senha():
 
     return jsonify({"senha": senha_temp})
 
+@app.route("/ranking", methods=["GET"])
+def ranking():
+    if "user" not in session:
+        return redirect(url_for("login"))
+
+    data_ini = request.args.get("data_ini")
+    data_fim = request.args.get("data_fim")
+
+    agora = datetime.now()
+    if not data_ini or not data_fim:
+        data_ini = agora.replace(day=1).strftime("%Y-%m-%d")
+        data_fim = (agora.replace(day=1) + relativedelta(months=1) - timedelta(days=1)).strftime("%Y-%m-%d")
+
+    conn = get_conn()
+    cur = conn.cursor()
+    ph = "?" if isinstance(conn, sqlite3.Connection) else "%s"
+
+    if isinstance(conn, sqlite3.Connection):
+        query = f"""
+            SELECT u.nome AS consultor,
+                   COALESCE(SUM(p.valor_equivalente), 0) AS total_eq,
+                   COALESCE(SUM(p.valor_original), 0) AS total_or,
+                   COALESCE(m.meta, 0) AS meta,
+                   (COALESCE(m.meta, 0) - COALESCE(SUM(p.valor_equivalente), 0)) AS falta
+            FROM users u
+            LEFT JOIN propostas p
+                ON u.nome = p.consultor
+               AND DATE(p.data) BETWEEN {ph} AND {ph}
+            LEFT JOIN metas_individuais m
+                ON u.nome = m.consultor
+            WHERE u.role != 'admin'
+            GROUP BY u.nome, m.meta
+            ORDER BY total_eq DESC;
+        """
+    else:
+        query = f"""
+            SELECT u.nome AS consultor,
+                   COALESCE(SUM(p.valor_equivalente), 0) AS total_eq,
+                   COALESCE(SUM(p.valor_original), 0) AS total_or,
+                   COALESCE(m.meta, 0) AS meta,
+                   (COALESCE(m.meta, 0) - COALESCE(SUM(p.valor_equivalente), 0)) AS falta
+            FROM users u
+            LEFT JOIN propostas p
+                ON u.nome = p.consultor
+               AND DATE(p.data AT TIME ZONE 'America/Sao_Paulo') BETWEEN {ph} AND {ph}
+            LEFT JOIN metas_individuais m
+                ON u.nome = m.consultor
+            WHERE u.role != 'admin'
+            GROUP BY u.nome, m.meta
+            ORDER BY total_eq DESC;
+        """
+
+    cur.execute(query, (data_ini, data_fim))
+    ranking = cur.fetchall()
+    conn.close()
+
+    return render_template(
+        "ranking.html",
+        ranking=ranking,
+        data_ini=data_ini,
+        data_fim=data_fim
+    )
+
 if __name__ == "__main__":
     app.run(debug=True)

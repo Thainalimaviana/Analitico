@@ -95,7 +95,10 @@
                 <li><a href="{{ url_for('painel_usuario') }}">▸ Meu Painel</a></li>
                 {% endif %}
 
+                <li><a href="{{ url_for('ranking') }}">▸ Ranking</a></li>
+
                 <li><a href="{{ url_for('indice_dia') }}">▸ Índice do Dia</a></li>
+
                 {% if session.get('role') != 'admin' %}
                 <li><a href="{{ url_for('nova_proposta') }}">▸ Enviar Proposta</a></li>
                 {% endif %}
