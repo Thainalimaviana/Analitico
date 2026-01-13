@@ -62,13 +62,11 @@
                     <th>Consultor</th>
                     <th>Valor Equivalente</th>
                     <th>Valor Original</th>
-                    <th>Meta</th>
-                    <th>Falta</th>
                 </tr>
             </thead>
 
             <tbody>
-                {% for linha in ranking %}
+                {% for linha in ranking[:5] %}
                 <tr>
                     <td class="col-posicao">
                         {{ loop.index }}º
@@ -81,12 +79,6 @@
                     </td>
                     <td class="{% if linha[1] >= linha[3] %}texto-brilhante{% endif %}">
                         R$ {{ "{:,.2f}".format(linha[2] or 0) }}
-                    </td>
-                    <td>
-                        R$ {{ "{:,.2f}".format(linha[3] or 0) }}
-                    </td>
-                    <td>
-                        R$ {{ "{:,.2f}".format(linha[4] or 0) }}
                     </td>
                 </tr>
                 {% endfor %}
