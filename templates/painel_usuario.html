@@ -255,17 +255,23 @@
       <button type="button" class="btn-filtro" onclick="selecionarPeriodo('hoje')">Hoje</button>
       <button type="button" class="btn-filtro" onclick="selecionarPeriodo('tudo')">Tudo</button>
     </div>
+
+    <input type="text" name="busca" placeholder="Buscar CPF ou Nome..." value="{{ request.args.get('busca', '') }}"
+      class="input-data">
+
+    <button type="submit" class="btn-filtrar">Buscar</button>
+
   </form>
 
   <div class="cards-container">
     <div class="card verde">
       <h3>Valor Equivalente</h3>
-      <p class="valor">R$ {{ "{:,.2f}".format(total_eq or 0) }}</p>
+      <p class="valor">{{ total_eq|brl }}</p>
     </div>
 
     <div class="card azul">
       <h3>Valor Original</h3>
-      <p class="valor">R$ {{ "{:,.2f}".format(total_or or 0) }}</p>
+      <p class="valor">{{ total_or|brl }}</p>
     </div>
 
     <div class="card amarelo">
@@ -276,11 +282,8 @@
     <div class="card cinza">
       <h3>Falta para Meta</h3>
       <p class="valor">
-        R$ {{
-        "{:,.2f}".format((meta_individual or 0) - (total_eq or 0))
-        if (meta_individual and meta_individual > total_eq)
-        else "0,00"
-        }}
+        {{ ((meta_individual or 0) - (total_eq or 0))|brl if meta_individual and meta_individual > total_eq else "R$
+        0,00" }}
       </p>
     </div>
   </div>
@@ -313,8 +316,8 @@
           <td>{{ p[5] or "" }}</td>
           <td>{{ p[6] or "" }}</td>
           <td>{{ p[7] or "" }}</td>
-          <td>R$ {{ "{:,.2f}".format(p[8] | float or 0) }}</td>
-          <td>R$ {{ "{:,.2f}".format(p[9] | float or 0) }}</td>
+          <td>{{ p[8]|brl }}</td>
+          <td>{{ p[9]|brl }}</td>
           <td>{{ p[10] or "" }}</td>
           <td>{{ p[11] or "" }}</td>
           <td class="acoes">

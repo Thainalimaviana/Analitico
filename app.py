@@ -333,13 +333,6 @@ def relatorios():
     conn = get_conn()
     cur = conn.cursor()
 
-    cur.execute("""
-        SELECT DISTINCT consultor
-        FROM propostas
-        WHERE consultor IS NOT NULL
-        AND consultor NOT IN (SELECT nome FROM users WHERE role = 'admin')
-        ORDER BY consultor;
-    """)
     usuarios = [u[0] for u in cur.fetchall()]
 
     user = request.form.get("usuario") or request.args.get("usuario")
@@ -406,8 +399,8 @@ def relatorios():
             return f"LOWER({campo}) LIKE LOWER({ph})", f"%{valor}%"
 
     if user and user.strip() and user != "-":
-        condicoes.append(f"LOWER(consultor) = LOWER({ph})")
-        params.append(user)
+        condicoes.append(f"LOWER(consultor) LIKE LOWER({ph})")
+        params.append(f"{user}%")
 
     if data_ini and data_fim:
         condicoes.append(f"data BETWEEN {ph} AND {ph}")
@@ -903,6 +896,7 @@ def painel_usuario():
     data_fim = request.args.get("data_fim")
     periodo = request.args.get("periodo")
     mes = request.args.get("mes")
+    busca = request.args.get("busca", "").strip()
 
     agora = datetime.now()
     hoje = agora.strftime("%Y-%m-%d")
@@ -932,10 +926,10 @@ def painel_usuario():
     if isinstance(conn, sqlite3.Connection):
         query = f"""
             SELECT id, data, fonte, banco, senha_digitada, tabela, nome_cliente, cpf,
-                   valor_equivalente, valor_original, observacao, telefone
+                    valor_equivalente, valor_original, observacao, telefone
             FROM propostas
-            WHERE consultor = {ph} AND date(data) BETWEEN {ph} AND {ph}
-            ORDER BY datetime(data) DESC;
+            WHERE consultor = {ph}
+            AND date(data) BETWEEN {ph} AND {ph}
         """
     else:
         query = f"""
@@ -944,10 +938,25 @@ def painel_usuario():
             FROM propostas
             WHERE consultor = {ph}
               AND DATE(data AT TIME ZONE 'America/Sao_Paulo') BETWEEN {ph} AND {ph}
-            ORDER BY data DESC;
         """
 
-    cur.execute(query, (consultor_filtro, inicio, fim))
+    params = [consultor_filtro, inicio, fim]
+
+    if busca:
+        query += f"""
+            AND (
+                LOWER(nome_cliente) LIKE LOWER({ph})
+                OR REPLACE(REPLACE(cpf, '.', ''), '-', '') LIKE {ph}
+            )
+        """
+        params.extend([f"%{busca}%", busca.replace(".", "").replace("-", "")])
+
+    if isinstance(conn, sqlite3.Connection):
+        query += " ORDER BY datetime(data) DESC;"
+    else:
+        query += " ORDER BY data DESC;"
+
+    cur.execute(query, tuple(params))
     propostas_raw = cur.fetchall()
     propostas = []
 
