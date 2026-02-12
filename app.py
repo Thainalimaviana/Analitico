@@ -333,7 +333,12 @@ def relatorios():
     conn = get_conn()
     cur = conn.cursor()
 
-    usuarios = [u[0] for u in cur.fetchall()]
+    cur.execute("SELECT nome FROM users WHERE role != 'admin' ORDER BY nome;")
+    usuarios = cur.fetchall()
+    if usuarios:
+        usuarios = [u[0] for u in usuarios]
+    else:
+        usuarios = []
 
     user = request.form.get("usuario") or request.args.get("usuario")
     data_ini = request.form.get("data_ini") or request.args.get("data_ini")
@@ -949,7 +954,8 @@ def painel_usuario():
                 OR REPLACE(REPLACE(cpf, '.', ''), '-', '') LIKE {ph}
             )
         """
-        params.extend([f"%{busca}%", busca.replace(".", "").replace("-", "")])
+    params.extend([f"%{busca}%", busca.replace(".", "").replace("-", "")])
+
 
     if isinstance(conn, sqlite3.Connection):
         query += " ORDER BY datetime(data) DESC;"
