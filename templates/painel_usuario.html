@@ -55,6 +55,11 @@
     font-weight: 700;
   }
 
+  .input-data.input-busca {
+    width: 220px !important;
+    flex: 0 0 220px !important;
+  }
+
   .tabela-usuario {
     width: 96%;
     max-width: 1600px;
@@ -228,6 +233,18 @@
       font-size: 15px;
     }
   }
+
+  .form-filtro {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .input-data.input-busca {
+    flex: 0 0 200px !important;
+    width: 200px !important;
+  }
 </style>
 
 <div class="painel-usuario">
@@ -254,12 +271,12 @@
       <button type="button" class="btn-filtro" onclick="selecionarPeriodo('ultima_semana')">Última Semana</button>
       <button type="button" class="btn-filtro" onclick="selecionarPeriodo('hoje')">Hoje</button>
       <button type="button" class="btn-filtro" onclick="selecionarPeriodo('tudo')">Tudo</button>
+
+      <input type="text" name="busca" placeholder="Buscar CPF ou Nome..." value="{{ request.args.get('busca', '') }}"
+        class="input-data input-busca">
+
+      <button type="submit" class="btn-filtrar">Buscar</button>
     </div>
-
-    <input type="text" name="busca" placeholder="Buscar CPF ou Nome..." value="{{ request.args.get('busca', '') }}"
-      class="input-data">
-
-    <button type="submit" class="btn-filtrar">Buscar</button>
 
   </form>
 
