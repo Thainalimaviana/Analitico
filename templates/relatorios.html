@@ -337,7 +337,7 @@
 <h1 class="titulo-tomorrow">Relatórios de Propostas</h1>
 
 <div class="relatorios-container">
-  <form method="POST" class="form-relatorios">
+  <form method="GET" class="form-relatorios">
     <label>Selecionar Usuário:</label>
     <input type="text" name="usuario" placeholder="Buscar Consultor..." value="{{ user or '' }}" class="input-pequeno">
 
@@ -518,66 +518,31 @@
 {% if total_paginas > 1 %}
 <div class="paginacao-relatorios">
 
-  {# CONSTRUIR QUERY STRING A PARTIR DAS VARIÁVEIS DO BACKEND #}
-  {% set query = "" %}
-
-  {% if user %}
-  {% set query = query ~ "usuario=" ~ user ~ "&" %}
-  {% endif %}
-
-  {% if mes %}
-  {% set query = query ~ "mes=" ~ mes ~ "&" %}
-  {% endif %}
-
-  {% if ano %}
-  {% set query = query ~ "ano=" ~ ano ~ "&" %}
-  {% endif %}
-
-  {% if cpf %}
-  {% set query = query ~ "cpf=" ~ cpf ~ "&" %}
-  {% endif %}
-
-  {% if data_ini %}
-  {% set query = query ~ "data_ini=" ~ data_ini ~ "&" %}
-  {% endif %}
-
-  {% if data_fim %}
-  {% set query = query ~ "data_fim=" ~ data_fim ~ "&" %}
-  {% endif %}
-
-  {% if observacao %}
-  {% set query = query ~ "observacao=" ~ observacao ~ "&" %}
-  {% endif %}
-
-  {% if senha_digitada %}
-  {% set query = query ~ "senha_digitada=" ~ senha_digitada ~ "&" %}
-  {% endif %}
-
-  {% if fonte %}
-  {% set query = query ~ "fonte=" ~ fonte ~ "&" %}
-  {% endif %}
-
-  {% if tabela %}
-  {% set query = query ~ "tabela=" ~ tabela ~ "&" %}
-  {% endif %}
-
-  {% if banco %}
-  {% set query = query ~ "banco=" ~ banco ~ "&" %}
-  {% endif %}
-
   {% if pagina > 1 %}
-  <a class="btn-page" href="?{{ query }}pagina=1">« Primeira</a>
-  <a class="btn-page" href="?{{ query }}pagina={{ pagina - 1 }}"><- Anterior</a>
-      {% endif %}
+  <a class="btn-page" href="{{ url_for('relatorios', pagina=1, **request.args.to_dict()) }}">
+    « Primeira
+  </a>
 
-      <span>Página {{ pagina }} de {{ total_paginas }}</span>
-
-      {% if pagina < total_paginas %} <a class="btn-page" href="?{{ query }}pagina={{ pagina + 1 }}">Próxima -></a>
-  <a class="btn-page" href="?{{ query }}pagina={{ total_paginas }}">Última »</a>
+  <a class="btn-page" href="{{ url_for('relatorios', pagina=pagina-1, **request.args.to_dict()) }}">
+    ← Anterior
+  </a>
   {% endif %}
+
+  <span>Página {{ pagina }} de {{ total_paginas }}</span>
+
+  {% if pagina < total_paginas %} <a class="btn-page"
+    href="{{ url_for('relatorios', pagina=pagina+1, **request.args.to_dict()) }}">
+    Próxima →
+    </a>
+
+    <a class="btn-page" href="{{ url_for('relatorios', pagina=total_paginas, **request.args.to_dict()) }}">
+      Última »
+    </a>
+    {% endif %}
 
 </div>
 {% endif %}
+
 
 {% elif not erro %}
 <div class="msg-vazia">
