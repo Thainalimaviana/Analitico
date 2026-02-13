@@ -340,11 +340,6 @@
     <form method="POST" class="form-relatorios">
       <label>Selecionar Usuário:</label>
       <input type="text" name="usuario" placeholder="Buscar Consultor..." value="{{ user or '' }}" class="input-pequeno">
-        <option value="" {% if not user %}selected{% endif %}>Todos</option>
-        {% for u in usuarios %}
-        <option value="{{ u }}" {% if user==u %}selected{% endif %}>{{ u }}</option>
-        {% endfor %}
-      </select>
 
       <label>Data Início:</label>
       <input type="datetime-local" name="data_ini" value="{{ data_ini.replace(' ', 'T') if data_ini else '' }}">

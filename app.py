@@ -954,8 +954,8 @@ def painel_usuario():
                 OR REPLACE(REPLACE(cpf, '.', ''), '-', '') LIKE {ph}
             )
         """
-    params.extend([f"%{busca}%", busca.replace(".", "").replace("-", "")])
-
+        params.append(f"%{busca}%")
+        params.append(busca.replace(".", "").replace("-", ""))
 
     if isinstance(conn, sqlite3.Connection):
         query += " ORDER BY datetime(data) DESC;"
