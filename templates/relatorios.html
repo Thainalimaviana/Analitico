@@ -518,24 +518,26 @@
 {% if total_paginas > 1 %}
 <div class="paginacao-relatorios">
 
+  {% set args = request.args.to_dict() %}
+  {% set _ = args.pop('pagina', None) %}
+
   {% if pagina > 1 %}
-  <a class="btn-page" href="{{ url_for('relatorios', pagina=1, **request.args.to_dict()) }}">
+  <a class="btn-page" href="{{ url_for('relatorios', pagina=1, **args) }}">
     « Primeira
   </a>
 
-  <a class="btn-page" href="{{ url_for('relatorios', pagina=pagina-1, **request.args.to_dict()) }}">
+  <a class="btn-page" href="{{ url_for('relatorios', pagina=pagina-1, **args) }}">
     ← Anterior
   </a>
   {% endif %}
 
   <span>Página {{ pagina }} de {{ total_paginas }}</span>
 
-  {% if pagina < total_paginas %} <a class="btn-page"
-    href="{{ url_for('relatorios', pagina=pagina+1, **request.args.to_dict()) }}">
+  {% if pagina < total_paginas %} <a class="btn-page" href="{{ url_for('relatorios', pagina=pagina+1, **args) }}">
     Próxima →
     </a>
 
-    <a class="btn-page" href="{{ url_for('relatorios', pagina=total_paginas, **request.args.to_dict()) }}">
+    <a class="btn-page" href="{{ url_for('relatorios', pagina=total_paginas, **args) }}">
       Última »
     </a>
     {% endif %}
