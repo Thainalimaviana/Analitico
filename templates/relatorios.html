@@ -32,7 +32,6 @@
   .form-relatorios select,
   .form-relatorios input[type="datetime-local"],
   .form-relatorios input[type="date"],
-  /* 👈 adiciona isso */
   .form-relatorios input[type="text"] {
     padding: 7px 10px;
     border-radius: 8px;
@@ -403,6 +402,12 @@
         Cliente de analítico/carteira</option>
       <option value="Indicação" {% if fonte=='Indicação' %}selected{% endif %}>Indicação</option>
       <option value="Tráfego" {% if fonte=='Tráfego' %}selected{% endif %}>Tráfego</option>
+      <option value="Consultados Mercantil" {% if proposta[2]=='Consultados Mercantil' %}selected{% endif %}>Consultados
+        Mercantil</option>
+      <option value="Consultados V8" {% if proposta[2]=='Consultados V8' %}selected{% endif %}>Consultados V8</option>
+      <option value="SMS" {% if proposta[2]=='SMS' %}selected{% endif %}>SMS</option>
+      <option value="Consultados Facta" {% if proposta[2]=='Consultados Facta' %}selected{% endif %}>Consultados Facta
+      </option>
     </select>
 
     <label>Tabela:</label>
