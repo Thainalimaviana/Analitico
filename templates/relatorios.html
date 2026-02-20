@@ -31,6 +31,8 @@
 
   .form-relatorios select,
   .form-relatorios input[type="datetime-local"],
+  .form-relatorios input[type="date"],
+  /* 👈 adiciona isso */
   .form-relatorios input[type="text"] {
     padding: 7px 10px;
     border-radius: 8px;
@@ -342,7 +344,7 @@
     <input type="text" name="usuario" placeholder="Buscar Consultor..." value="{{ user or '' }}" class="input-pequeno">
 
     <label>Data Início:</label>
-    <input type="datetime-local" name="data_ini" value="{{ data_ini.replace(' ', 'T') if data_ini else '' }}">
+    <input type="date" name="data_ini" value="{{ data_ini[:10] if data_ini else '' }}">
 
     <label>Mês:</label>
     <select name="mes" class="input-pequeno">
@@ -365,7 +367,7 @@
     <input type="number" name="ano" class="input-pequeno" min="1900" max="2100" value="{{ ano or '' }}">
 
     <label>Data Fim:</label>
-    <input type="datetime-local" name="data_fim" value="{{ data_fim.replace(' ', 'T') if data_fim else '' }}">
+    <input type="date" name="data_fim" value="{{ data_fim[:10] if data_fim else '' }}">
 
     <label>Observação:</label>
     <select name="observacao" class="input-pequeno">

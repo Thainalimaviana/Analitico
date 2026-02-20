@@ -385,6 +385,12 @@ def relatorios():
     data_ini = normalizar_data(data_ini)
     data_fim = normalizar_data(data_fim)
 
+    if data_ini and len(data_ini) == 10:
+        data_ini = data_ini + " 00:00:00"
+
+    if data_fim and len(data_fim) == 10:
+        data_fim = data_fim + " 23:59:59"
+
     ph = "?" if isinstance(conn, sqlite3.Connection) else "%s"
 
     query_base = f"""
