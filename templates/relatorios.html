@@ -402,11 +402,11 @@
         Cliente de analítico/carteira</option>
       <option value="Indicação" {% if fonte=='Indicação' %}selected{% endif %}>Indicação</option>
       <option value="Tráfego" {% if fonte=='Tráfego' %}selected{% endif %}>Tráfego</option>
-      <option value="Consultados Mercantil" {% if proposta[2]=='Consultados Mercantil' %}selected{% endif %}>Consultados
+      <option value="Consultados Mercantil" {% if fonte=='Consultados Mercantil' %}selected{% endif %}>Consultados
         Mercantil</option>
-      <option value="Consultados V8" {% if proposta[2]=='Consultados V8' %}selected{% endif %}>Consultados V8</option>
-      <option value="SMS" {% if proposta[2]=='SMS' %}selected{% endif %}>SMS</option>
-      <option value="Consultados Facta" {% if proposta[2]=='Consultados Facta' %}selected{% endif %}>Consultados Facta
+      <option value="Consultados V8" {% if fonte=='Consultados V8' %}selected{% endif %}>Consultados V8</option>
+      <option value="SMS" {% if fonte=='SMS' %}selected{% endif %}>SMS</option>
+      <option value="Consultados Facta" {% if fonte=='Consultados Facta' %}selected{% endif %}>Consultados Facta
       </option>
     </select>
 
