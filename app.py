@@ -1389,47 +1389,6 @@ def editar_meta_dia():
     conn.close()
     return redirect(url_for("painel_admin"))
 
-import random
-import string
-
-@app.route("/recuperar_senha", methods=["POST"])
-def recuperar_senha():
-    data = request.get_json()
-    nome = data.get("nome", "").strip()
-
-    if not nome:
-        return jsonify({"erro": "Usuário inválido"}), 400
-
-    conn = get_conn()
-    cur = conn.cursor()
-
-    ph = "?" if isinstance(conn, sqlite3.Connection) else "%s"
-
-    cur.execute(
-        f"SELECT id FROM users WHERE nome = {ph}",
-        (nome,)
-    )
-    user = cur.fetchone()
-
-    if not user:
-        conn.close()
-        return jsonify({"erro": "Usuário não encontrado"}), 404
-
-    chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789"
-    senha_temp = "".join(random.choice(chars) for _ in range(8))
-
-    senha_hash = generate_password_hash(senha_temp)
-
-    cur.execute(
-        f"UPDATE users SET senha = {ph} WHERE nome = {ph}",
-        (senha_hash, nome)
-    )
-
-    conn.commit()
-    conn.close()
-
-    return jsonify({"senha": senha_temp})
-
 @app.route("/ranking", methods=["GET"])
 def ranking():
     if "user" not in session:
