@@ -908,6 +908,9 @@ def painel_usuario():
     periodo = request.args.get("periodo")
     mes = request.args.get("mes")
     busca = request.args.get("busca", "").strip()
+    fonte_filtro = (request.args.get("fonte") or "").strip()
+    banco_filtro = (request.args.get("banco") or "").strip()
+    observacao_filtro = (request.args.get("observacao") or "").strip()
 
     agora = datetime.now()
     hoje = agora.strftime("%Y-%m-%d")
@@ -963,6 +966,18 @@ def painel_usuario():
         params.append(f"%{busca}%")
         params.append(busca.replace(".", "").replace("-", ""))
 
+    if fonte_filtro:
+        query += f" AND LOWER(fonte) = LOWER({ph})"
+        params.append(fonte_filtro)
+
+    if banco_filtro:
+        query += f" AND LOWER(banco) = LOWER({ph})"
+        params.append(banco_filtro)
+
+    if observacao_filtro:
+        query += f" AND LOWER(observacao) = LOWER({ph})"
+        params.append(observacao_filtro)
+
     if isinstance(conn, sqlite3.Connection):
         query += " ORDER BY datetime(data) DESC;"
     else:
@@ -1013,21 +1028,44 @@ def painel_usuario():
         mes_titulo = datetime.now().strftime("%B/%Y")
 
     return render_template(
-        "painel_usuario.html",
-        usuario_logado=usuario_logado,
-        propostas=propostas,
-        total_eq=total_eq,
-        total_or=total_or,
-        consultores=consultores,
-        consultor_filtro=consultor_filtro,
-        role=role,
-        inicio=inicio,
-        fim=fim,
-        mes=mes,
-        mes_titulo=mes_titulo,
-        hoje=hoje,
-        meta_individual=meta_individual,
-        falta_meta=falta_meta
+         "painel_usuario.html",
+         usuario_logado=usuario_logado,
+         propostas=propostas,
+         total_eq=total_eq,
+         total_or=total_or,
+         consultores=consultores,
+         consultor_filtro=consultor_filtro,
+         role=role,
+         inicio=inicio,
+         fim=fim,
+         mes=mes,
+         mes_titulo=mes_titulo,
+         hoje=hoje,
+         meta_individual=meta_individual,
+         falta_meta=falta_meta,    
+
+         fonte_filtro=fonte_filtro,
+         banco_filtro=banco_filtro,
+         observacao_filtro=observacao_filtro,       
+
+         fontes_lista=[
+             "URA", "Consultados antigos", "Consultados de hoje",
+             "Indicação", "Cliente de analítico/carteira",
+             "Tráfego", "Consultados Mercantil",
+             "Consultados V8", "SMS", "Consultados Facta"
+         ],     
+
+         bancos_lista=[
+             "C6", "Amigoz", "Presença", "Prata", "V8",
+             "PAN", "Facta-CLT", "Facta-FGTS",
+             "Tá Quitado", "Mercantil", "BMG", "HUB"
+         ],     
+
+         observacoes_lista=[
+             "PAGO", "AGUARDANDO PAGAMENTO",
+             "ANALISE MESA", "REPRESENTAÇÃO",
+             "INTEGRADA", "ANDAMENTO"
+         ],
     )
 
 @app.route("/editar_meta_individual", methods=["POST"])
