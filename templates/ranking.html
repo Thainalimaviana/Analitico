@@ -3,6 +3,180 @@
 {% block title %}Ranking{% endblock %}
 
 {% block content %}
+<style>
+    .ranking-top3 {
+        display: flex;
+        justify-content: center;
+        gap: 25px;
+        margin: 30px 0 40px 0;
+        flex-wrap: wrap;
+    }
+
+    .ranking-top3 .card-meta {
+        width: 230px;
+        padding: 22px;
+        border-radius: 14px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
+        text-align: center;
+        transition: .25s;
+    }
+
+    .ranking-top3 .card-meta:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+    }
+
+    .medalha {
+        font-size: 26px;
+        margin-right: 6px;
+    }
+
+    .ranking-top3 .nome {
+        font-weight: 700;
+        font-size: 18px;
+        margin-top: 8px;
+    }
+
+    .ranking-top3 .valor {
+        font-size: 20px;
+        font-weight: 700;
+        margin-top: 4px;
+    }
+
+    .ouro {
+        background: linear-gradient(135deg, #FFD700, #FFB300);
+        color: #3a2a00;
+    }
+
+    .prata {
+        background: linear-gradient(135deg, #e0e0e0, #bdbdbd);
+        color: #263238;
+    }
+
+    .bronze {
+        background: linear-gradient(135deg, #cd7f32, #a65e2e);
+        color: white;
+    }
+
+    .tabela-admin table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+    }
+
+    .tabela-admin th {
+        background: #16a34a;
+        color: white;
+        padding: 12px;
+        font-weight: 600;
+    }
+
+    .tabela-admin td {
+        padding: 10px;
+        text-align: center;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .tabela-admin tr:hover {
+        background: #f5f5f51e;
+    }
+
+    .col-posicao {
+        font-weight: 700;
+        font-size: 16px;
+    }
+
+    .texto-brilhante {
+        background: linear-gradient(90deg, #00ff99, #00c853, #00ff99, #00c853);
+        background-size: 400%;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: brilho-texto 3s linear infinite;
+        font-weight: 700;
+    }
+
+    @keyframes brilho-texto {
+        0% {
+            background-position: 0%
+        }
+
+        50% {
+            background-position: 100%
+        }
+
+        100% {
+            background-position: 0%
+        }
+    }
+
+    .topo-admin h1 {
+        text-align: center;
+        font-size: 34px;
+        font-weight: 800;
+        margin: 10px 0 18px;
+        color: var(--cor-texto);
+        letter-spacing: -0.3px;
+    }
+
+    .filtro-data {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+
+        width: fit-content;
+        margin: 0 auto 22px;
+        padding: 12px 14px;
+
+        background: rgba(255, 255, 255, 0.85);
+        border: 1px solid rgba(15, 23, 42, 0.10);
+        border-radius: 14px;
+        box-shadow: 0 6px 18px rgba(2, 6, 23, 0.08);
+    }
+
+    .filtro-data label {
+        font-size: 13px;
+        font-weight: 700;
+        color: #334155;
+    }
+
+    .filtro-data input[type="date"] {
+        height: 36px;
+        padding: 6px 10px;
+        border-radius: 10px;
+        border: 1px solid rgba(15, 23, 42, 0.14);
+        background: #fff;
+        color: #0f172a;
+        font-size: 13px;
+        outline: none;
+    }
+
+    .filtro-data input[type="date"]:focus {
+        border-color: rgba(22, 163, 74, 0.55);
+        box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.18);
+    }
+
+    .filtro-data .btn-filtrar {
+        height: 36px;
+        padding: 0 14px;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        font-weight: 800;
+        font-size: 13px;
+        color: #fff;
+        background: linear-gradient(90deg, #16a34a, #22c55e);
+        box-shadow: 0 6px 14px rgba(22, 163, 74, 0.22);
+        transition: .2s;
+    }
+
+    .filtro-data .btn-filtrar:hover {
+        transform: translateY(-1px);
+        filter: brightness(1.03);
+    }
+</style>
+
 <div class="painel-admin">
     <div class="topo-admin">
         <h1>Ranking de Consultores</h1>

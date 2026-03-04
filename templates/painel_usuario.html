@@ -1,4 +1,5 @@
 <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/logo.png') }}">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 {% extends "base.html" %}
 {% block title %}Painel do Usuário{% endblock %}
 
@@ -278,6 +279,89 @@
   body.dark-mode .filtros-painel select.select-filtro option {
     background: #0f2b18;
     color: #ffffff;
+  }
+
+  .form-filtro {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 25px;
+  }
+
+  .filtros-painel {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .input-data {
+    padding: 8px 10px;
+    border-radius: 6px;
+    border: 1px solid #d1d5db;
+    background: white;
+    font-size: 13px;
+    height: 36px;
+  }
+
+  .input-busca {
+    width: 200px;
+  }
+
+  .select-filtro {
+    padding: 8px 10px;
+    border-radius: 6px;
+    border: 1px solid #d1d5db;
+    background: white;
+    font-size: 13px;
+    height: 36px;
+  }
+
+  .btn-filtrar {
+    background: #16a34a;
+    color: white;
+    border: none;
+    padding: 7px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+  }
+
+  .btn-filtrar:hover {
+    background: #15803d;
+  }
+
+  .btn-filtro {
+    background: transparent;
+    padding: 7px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+  }
+
+  .btn-filtro:hover {
+    background: transparent;
+  }
+
+  .topo-painel {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 15px;
+  }
+
+  .topo-painel h1 {
+    text-align: center;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--cor-texto);
+  }
+
+  .cards-container .card h3 {
+    color: white;
+  }
+
+  .cards-container .card .valor {
+    color: white;
   }
 </style>
 

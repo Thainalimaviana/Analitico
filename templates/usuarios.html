@@ -7,147 +7,184 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <style>
+  .usuarios-container {
+    width: 100%;
+    max-width: 680px;
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(12px);
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    overflow: hidden;
+    color: var(--cor-texto);
+    margin-top: 80px;
+    margin: 60px auto;
+  }
 
-.container {
-  width: 100%;
-  max-width: 680px;
-  background: rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(12px);
-  padding: 30px;
-  border-radius: 20px;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-  text-align: center;
-  overflow: hidden;
-  color: var(--cor-texto);
-  margin-top: 80px;
-}
+  h1.titulo-tomorrow {
+    margin-bottom: 30px;
+    font-family: 'Tomorrow', sans-serif;
+    font-size: 32px;
+    margin-bottom: 20px;
+    font-weight: bold;
+    color: var(--cor-texto);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+  }
 
-h1.titulo-tomorrow {
-  margin-bottom: 30px;
-  font-family: 'Tomorrow', sans-serif;
-  font-size: 32px;
-  margin-bottom: 20px;
-  font-weight: bold;
-  color: var(--cor-texto);
-  text-shadow: 0 2px 4px rgba(0,0,0,0.25);
-}
+  table.dataTable {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 12px;
+    overflow: hidden;
+    color: var(--cor-texto);
+    font-size: 15px;
+  }
 
-table.dataTable {
-  width: 100%;
-  border-collapse: collapse;
-  border-radius: 12px;
-  overflow: hidden;
-  color: var(--cor-texto);
-  font-size: 15px;
-}
+  table.dataTable thead {
+    background: rgba(0, 150, 0, 0.4);
+    color: #fff;
+  }
 
-table.dataTable thead {
-  background: rgba(0, 150, 0, 0.4);
-  color: #fff;
-}
+  table.dataTable th,
+  table.dataTable td {
+    padding: 10px;
+    text-align: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  }
 
-table.dataTable th,
-table.dataTable td {
-  padding: 10px;
-  text-align: center;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-}
+  .acoes-btns {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+  }
 
-.acoes-btns {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 8px;
-}
+  .btn {
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    transition: 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
 
-.btn {
-  padding: 5px 10px;
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: bold;
-  border: none;
-  cursor: pointer;
-  transition: 0.3s;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
+  .btn-editar {
+    background: #4cafef;
+    color: white;
+  }
 
-.btn-editar {
-  background: #4cafef;
-  color: white;
-}
+  .btn-editar:hover {
+    background: #1565c0;
+  }
 
-.btn-editar:hover {
-  background: #1565c0;
-}
+  .btn-excluir {
+    background: #d00000;
+    color: white;
+  }
 
-.btn-excluir {
-  background: #d00000;
-  color: white;
-}
+  .btn-excluir:hover {
+    background: #a00000;
+  }
 
-.btn-excluir:hover {
-  background: #a00000;
-}
+  .dataTables_filter {
+    float: right !important;
+    margin-top: 10px !important;
+    margin-bottom: 10px !important;
+  }
 
-.dataTables_filter {
-  float: right !important;
-  margin-top: 10px !important;
-  margin-bottom: 10px !important;
-}
+  .dataTables_filter label {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 10px !important;
+  }
 
-.dataTables_filter label {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: flex-end !important;
-  gap: 10px !important;
-}
+  .dataTables_filter input[type="search"] {
+    background: rgba(255, 255, 255, 0.15) !important;
+    color: var(--cor-texto) !important;
+    border: 1px solid rgba(46, 46, 46, 0.3) !important;
+    border-radius: 8px !important;
+    padding: 6px 12px !important;
+    min-width: 180px;
+  }
 
-.dataTables_filter input[type="search"] {
-  background: rgba(255, 255, 255, 0.15) !important;
-  color: var(--cor-texto) !important;
-  border: 1px solid rgba(46, 46, 46, 0.3) !important;
-  border-radius: 8px !important;
-  padding: 6px 12px !important;
-  min-width: 180px;
-}
+  .dataTables_wrapper .dataTables_paginate {
+    margin-top: 20px;
+    text-align: center;
+  }
 
-.dataTables_wrapper .dataTables_paginate {
-  margin-top: 20px;
-  text-align: center;
-}
+  .dataTables_wrapper .dataTables_paginate .paginate_button {
+    display: inline-block;
+    min-width: 30px;
+    padding: 5px 12px;
+    margin: 0 5px;
+    border-radius: 20px;
+    background: rgba(138, 255, 138, 0.226);
+    border: 1px solid rgba(51, 51, 51, 0.25);
+    color: var(--cor-texto) !important;
+    font-weight: 500;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
 
-.dataTables_wrapper .dataTables_paginate .paginate_button {
-  display: inline-block;
-  min-width: 30px;
-  padding: 5px 12px;
-  margin: 0 5px;
-  border-radius: 20px;
-  background: rgba(138, 255, 138, 0.226);
-  border: 1px solid rgba(51, 51, 51, 0.25);
-  color: var(--cor-texto) !important;
-  font-weight: 500;
-  font-size: 13px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
+  .dataTables_wrapper .dataTables_paginate .paginate_button:not(.current):not(.disabled):hover {
+    background: rgba(155, 255, 225, 0.25);
+    border-color: rgba(107, 107, 107, 0.4);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
 
-.dataTables_wrapper .dataTables_paginate .paginate_button:not(.current):not(.disabled):hover {
-  background: rgba(155, 255, 225, 0.25);
-  border-color: rgba(107, 107, 107, 0.4);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-}
+  .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+    background: rgba(56, 255, 146, 0.9);
+    border-color: rgb(76, 231, 135);
+    color: #fff !important;
+    font-weight: bold;
+  }
 
-.dataTables_wrapper .dataTables_paginate .paginate_button.current {
-  background: rgba(56, 255, 146, 0.9);
-  border-color: rgb(76, 231, 135);
-  color: #fff !important;
-  font-weight: bold;
-}
+  .acoes-btns {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .form-excluir {
+    margin: 0;
+  }
+
+  .btn-icon {
+    width: 25px;
+    height: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    color: white;
+    font-size: 14px;
+    transition: 0.2s;
+  }
+
+  .btn-icon.editar {
+    background: #3b82f6;
+  }
+
+  .btn-icon.excluir {
+    background: #dc2626;
+  }
+
+  .btn-icon:hover {
+    transform: scale(1.1);
+  }
 </style>
 
-<div class="container">
+<div class="usuarios-container">
   <h1 class="titulo-tomorrow">Gerenciar Usuários</h1>
 
   <table id="usuarios" class="display">
@@ -167,14 +204,17 @@ table.dataTable td {
         <td>{{ u[2] }}</td>
         <td>
           <div class="acoes-btns">
-            <a href="{{ url_for('editar_usuario', id=u[0]) }}" class="btn btn-editar">
-              <i class="fa fa-pen"></i> Editar
+
+            <a href="{{ url_for('editar_usuario', id=u[0]) }}" class="btn-icon editar">
+              <i class="fa fa-pen"></i>
             </a>
-            <form method="POST" action="{{ url_for('excluir_usuario', id=u[0]) }}" style="display:inline;">
-              <button type="submit" class="btn btn-excluir" onclick="return confirm('Deseja excluir este usuário?')">
-                <i class="fa fa-trash"></i> Excluir
+
+            <form method="POST" action="{{ url_for('excluir_usuario', id=u[0]) }}" class="form-excluir">
+              <button type="submit" class="btn-icon excluir" onclick="return confirm('Deseja excluir este usuário?')">
+                <i class="fa fa-trash"></i>
               </button>
             </form>
+
           </div>
         </td>
       </tr>

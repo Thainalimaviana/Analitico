@@ -3,6 +3,168 @@
 {% block title %}Painel Administrativo{% endblock %}
 
 {% block content %}
+<style>
+  .painel-admin {
+    max-width: 1100px;
+    margin: 40px auto;
+    padding: 10px 20px;
+  }
+
+  .topo-admin h1 {
+    text-align: center;
+    font-size: 32px;
+    margin-bottom: 25px;
+  }
+
+  .filtro-data {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 35px;
+    flex-wrap: wrap;
+  }
+
+  .filtro-data input {
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    font-size: 14px;
+  }
+
+  .box-metas {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 35px;
+  }
+
+  .card-meta {
+    background: var(--bg-card);
+    padding: 20px 25px;
+    border-radius: 12px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12);
+    min-width: 220px;
+    text-align: center;
+  }
+
+  .card-meta h3 {
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+
+  .card-meta .valor {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+
+  .tabela-admin {
+    background: var(--bg-card);
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.12);
+  }
+
+  .tabela-admin h2 {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .tabela-admin table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .tabela-admin th {
+    background: #16a34a;
+    color: white;
+    padding: 10px;
+  }
+
+  .tabela-admin td {
+    padding: 10px;
+    text-align: center;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  }
+
+  .modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+  }
+
+  .modal-content {
+    background: var(--bg-card);
+    padding: 30px;
+    border-radius: 12px;
+    min-width: 300px;
+    text-align: center;
+  }
+
+  .modal-content input {
+    width: 100%;
+    padding: 8px;
+    margin: 15px 0;
+    border-radius: 6px;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+  }
+
+  .close {
+    float: right;
+    cursor: pointer;
+    font-size: 20px;
+  }
+
+  .btn-icon {
+    width: 32px;
+    height: 32px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: transparent;
+    border: none;
+
+    color: #6b7280;
+
+    font-size: 14px;
+    cursor: pointer;
+
+    transition: .2s;
+  }
+
+  .btn-icon:hover {
+    color: #111827;
+    transform: scale(1.1);
+  }
+
+  .editar-meta {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+  }
+
+  .tabela-admin td:last-child {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .card-meta .btn-icon {
+    display: block;
+    margin: 10px auto 0 auto;
+  }
+</style>
+
 <div class="painel-admin">
   <div class="topo-admin">
     <h1>Painel Administrativo</h1>
@@ -20,7 +182,12 @@
     <div class="card-meta">
       <h3>Meta Global</h3>
       <p class="valor">R$ {{ "{:,.2f}".format(meta_global or 0) }}</p>
-      <button class="btn-editar" onclick="abrirMetaGlobal()">Editar Meta</button>
+
+      <div class="editar-meta">
+        <button class="btn-icon" onclick="abrirMetaGlobal()">
+          <i class="fa fa-pen"></i>
+        </button>
+      </div>
     </div>
 
     <div class="card-meta">
@@ -31,7 +198,9 @@
     <div class="card-meta">
       <h3>Meta Diária</h3>
       <p class="valor">R$ {{ "{:,.2f}".format(meta_dia or 0) }}</p>
-      <button class="btn-editar" onclick="abrirMetaDia()">Editar Meta</button>
+      <button class="btn-icon" onclick="abrirMetaDia()">
+        <i class="fa-solid fa-pen"></i>
+      </button>
     </div>
   </div>
 
@@ -61,7 +230,9 @@
           <td class="{% if linha[1] >= linha[3] %}texto-brilhante{% endif %}">R$ {{ "{:,.2f}".format(linha[4] or 0) }}
           </td>
           <td>
-            <button class="btn-editar" onclick="abrirMeta('{{ linha[0] }}', '{{ linha[3] or 0 }}')">Editar</button>
+            <button class="btn-icon" onclick="abrirMeta('{{ linha[0] }}', '{{ linha[3] or 0 }}')">
+              <i class="fa fa-pen"></i>
+            </button>
           </td>
         </tr>
         {% endfor %}
@@ -113,20 +284,19 @@
 </script>
 
 <script>
+  function abrirMetaDia() {
+    document.getElementById("modalDia").style.display = "flex";
+  }
+
   function abrirMeta(consultor, metaAtual) {
     document.getElementById("consultor_meta").value = consultor;
     document.getElementById("valor_meta").value = metaAtual;
-    document.getElementById("modalIndividual").style.display = "block";
+    document.getElementById("modalIndividual").style.display = "flex";
   }
-  function fecharMeta() {
-    document.getElementById("modalIndividual").style.display = "none";
-  }
+
   function abrirMetaGlobal() {
-    document.getElementById("modalGlobal").style.display = "block";
-  }
-  function fecharMetaGlobal() {
-    document.getElementById("modalGlobal").style.display = "none";
-  }
+    document.getElementById("modalGlobal").style.display = "flex";
+  } 
 </script>
 
 <style>

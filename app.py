@@ -150,7 +150,7 @@ ensure_banco_column()
 def home():
     if "user" in session:
         return redirect(url_for("dashboard"))
-    return redirect(url_for("login"))
+    return redirect(url_for("login"))   
 
 @app.route("/indice_dia")
 def indice_dia():
@@ -632,20 +632,37 @@ def dashboard():
         WHERE {filtro_data}
         GROUP BY consultor
         ORDER BY total DESC
-        LIMIT 3;
+        LIMIT 5;
     """, (inicio, fim))
     ranking = cur.fetchall()
 
     cur.execute(f"""
-        SELECT banco, COUNT(*) AS total_propostas, COALESCE(SUM(valor_equivalente), 0) AS total_valor
+        SELECT banco,
+               COUNT(*) AS total_propostas,
+               COALESCE(SUM(valor_equivalente),0) AS total_valor
         FROM propostas
         WHERE {filtro_data}
+        AND banco IS NOT NULL
+        AND banco <> ''
         GROUP BY banco
-        HAVING banco IS NOT NULL AND banco <> ''
-        ORDER BY total_propostas ASC;
+        ORDER BY total_valor DESC;
     """, (inicio, fim))
     bancos_dados = cur.fetchall()
     
+    cur.execute(f"""
+        SELECT banco,
+               COUNT(*) AS total_propostas,
+               COALESCE(SUM(valor_original),0) AS total_valor
+        FROM propostas
+        WHERE {filtro_data}
+        AND banco IS NOT NULL
+        AND banco <> ''
+        GROUP BY banco
+        ORDER BY total_valor DESC;
+    """, (inicio, fim))
+    
+    bancos_bruto = cur.fetchall()
+
     cur.execute(f"""
         SELECT 
             fonte,
@@ -723,6 +740,7 @@ def dashboard():
         fim=fim,
         periodo=periodo,
         bancos_dados=bancos_dados,
+        bancos_bruto=bancos_bruto,
         fontes=fontes,
         ticket_meta_diaria=float(ticket_meta_diaria or 0),
         media_diaria_contratos=float(media_diaria_contratos or 0)

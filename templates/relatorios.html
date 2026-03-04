@@ -35,12 +35,12 @@
   .form-relatorios input[type="text"] {
     padding: 7px 10px;
     border-radius: 8px;
-    border: 1px solid rgba(255, 255, 255, 0.25);
-    background: linear-gradient(40deg, var(--gradiente-inicio), var(--gradiente-fim));
-    color: var(--cor-texto);
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    background: white;
+    color: #1e293b;
     font-size: 14px;
     outline: none;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
   }
 
   .form-relatorios input[type="number"] {
@@ -103,7 +103,8 @@
   }
 
   .tabela-relatorio {
-    width: 95%;
+    width: 100%;
+    max-width: 1400px;
     margin: auto;
     background: var(--bg-container);
     border-radius: 10px;
@@ -117,6 +118,7 @@
 
   .tabela-relatorio table {
     width: 100%;
+    overflow-x: auto;
     border-collapse: collapse;
     background: transparent;
     color: var(--cor-texto);
@@ -333,6 +335,32 @@
     background: rgba(255, 255, 255, 0.1);
     font-size: 15px;
   }
+
+  .titulo-tomorrow {
+    text-align: center;
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 25px;
+  }
+
+  .info-periodo {
+    text-align: center;
+    font-size: 16px;
+    color: var(--cor-texto);
+    margin: 10px 0 20px 0;
+    font-weight: 500;
+  }
+
+  .tabela-relatorio h3 {
+    text-align: center;
+    margin: 15px 0;
+    font-weight: 600;
+    color: var(--cor-texto);
+  }
+
+  .cards-resumo .card h4 {
+    color: #ffffff !important;
+  }
 </style>
 
 <h1 class="titulo-tomorrow">Relatórios de Propostas</h1>
@@ -440,7 +468,7 @@
   </form>
 </div>
 {% if mes_atual %}
-<p style="font-size:16px; color: var(--cor-texto); margin-top:-10px;">
+<p class="info-periodo">
   📅 Exibindo dados de {{ mes_atual }}
 </p>
 {% endif %}

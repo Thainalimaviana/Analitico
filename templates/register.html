@@ -4,187 +4,172 @@
 
 {% block content %}
 <style>
-  body {
-    background: linear-gradient(40deg, var(--gradiente-inicio), var(--gradiente-fim));
-    font-family: 'Poppins', sans-serif;
-    color: var(--cor-texto);
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    min-height: 100vh;
-    margin: 0;
-    padding-top: 60px;
+  .register-wrapper {
+    max-width: 520px;
+    margin: 60px auto;
   }
 
-  .container {
-    width: 90%;
-    max-width: 600px;
-    background: rgba(255, 255, 255, 0.12);
-    backdrop-filter: blur(10px);
-    border-radius: 20px;
+  .register-card {
+    background: var(--bg-card);
+    border-radius: 18px;
     padding: 35px;
-    text-align: center;
-    box-shadow: 0 8px 35px rgba(0, 0, 0, 0.25);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    color: var(--cor-texto);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
   }
 
-  h1.titulo-tomorrow {
-    font-family: 'Tomorrow', sans-serif;
-    font-size: 34px;
-    font-weight: 700;
+  .register-title {
     text-align: center;
+    font-size: 28px;
     margin-bottom: 25px;
-    color: var(--cor-texto);
-    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    font-weight: 600;
   }
 
   .barra-cpf,
   select.barra-cpf {
     width: 100%;
-    box-sizing: border-box;
-    background: rgba(255, 255, 255, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    padding: 12px 16px;
+    padding: 12px 14px;
     margin-bottom: 15px;
-    border-radius: 10px;
-    color: #000000;
-    font-size: 15px;
-    outline: none;
-    transition: all 0.3s ease;
-    display: block;
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    font-size: 14px;
+    background: rgba(255, 255, 255, 0.9);
   }
 
-  select.barra-cpf {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    background-image: linear-gradient(45deg, transparent 50%, #00ff66 50%),
-      linear-gradient(135deg, #00ff66 50%, transparent 50%);
-    background-position: calc(100% - 20px) center, calc(100% - 15px) center;
-    background-size: 5px 5px, 5px 5px;
-    background-repeat: no-repeat;
-    padding-right: 40px;
-  }
-
-  select.barra-cpf option {
-    background-color: #0e1d10;
-    color: #ffffff;
-  }
-
-  select.barra-cpf {
-    background: linear-gradient(40deg, var(--gradiente-inicio), var(--gradiente-fim));
-    color: var(--cor-texto);
-  }
-
-
-  .barra-cpf:focus {
-    border-color: #00ff66;
-    background: rgba(0, 255, 128, 0.12);
-    box-shadow: 0 0 6px rgba(0, 255, 128, 0.4);
+  .dark-mode .barra-cpf,
+  .dark-mode select.barra-cpf {
+    background: #0f172a;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: white;
   }
 
   .button-group {
     display: flex;
     justify-content: center;
-    align-items: center;
-    gap: 15px;
+    gap: 12px;
     margin-top: 15px;
   }
 
-  .azul {
-    background: linear-gradient(90deg, #009b2d, #00c447);
-    color: #fff;
-    font-weight: 600;
+  .btn-criar {
+    background: #16a34a;
+    color: white;
     border: none;
-    padding: 12px 28px;
-    border-radius: 10px;
+    padding: 10px 22px;
+    border-radius: 8px;
     cursor: pointer;
-    box-shadow: 0 4px 12px rgba(0, 128, 0, 0.25);
-    transition: all 0.3s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 15px;
+    font-weight: 500;
   }
 
-  .azul:hover {
-    background: linear-gradient(90deg, #00c447, #009b2d);
-    transform: scale(1.05);
+  .btn-criar:hover {
+    background: #15803d;
   }
 
-  .vermelho {
-    background: rgba(255, 0, 0, 0.2);
-    color: var(--cor-texto);
-    border: 1px solid rgba(255, 0, 0, 0.3);
-    padding: 12px 26px;
-    border-radius: 10px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: all 0.3s ease;
+  .btn-cancelar {
+    background: #f1f5f9;
+    border: 1px solid #ef4444;
+    color: #ef4444;
+    padding: 10px 22px;
+    border-radius: 8px;
     text-decoration: none;
   }
 
-  .vermelho:hover {
-    background: rgba(255, 0, 0, 0.35);
-    color: #fff;
-    transform: scale(1.05);
+  .dark-mode .btn-cancelar {
+    background: transparent;
   }
 
   .erro {
-    background: rgba(255, 0, 0, 0.2);
-    color: var(--cor-texto);
+    background: rgba(255, 0, 0, 0.15);
     padding: 10px;
-    border-radius: 10px;
+    border-radius: 8px;
     margin-bottom: 12px;
   }
 
   .msg-sucesso {
-    background: rgba(0, 255, 0, 0.2);
-    color: var(--cor-texto);
+    background: rgba(0, 255, 0, 0.15);
     padding: 10px;
-    border-radius: 10px;
+    border-radius: 8px;
     margin-bottom: 12px;
   }
 
-  @media (max-width: 600px) {
-    .container {
-      width: 90%;
-      padding: 25px;
-    }
+  .button-group {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 20px;
+  }
 
-    .azul,
-    .vermelho {
-      font-size: 13px;
-      padding: 10px 20px;
-    }
+  .btn-criar {
+    background: linear-gradient(135deg, #16a34a, #22c55e);
+    color: white;
+    border: none;
+    padding: 10px 22px;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: .35s;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  .btn-criar:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.2);
+  }
+
+  .btn-cancelar {
+    background: transparent;
+    border: 1px solid #ef4444;
+    color: #ef4444;
+    padding: 10px 22px;
+    border-radius: 8px;
+    font-weight: 500;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: .25s;
+  }
+
+  .btn-cancelar:hover {
+    background: #ef4444;
+    color: white;
   }
 </style>
 
-<h1 class="titulo-tomorrow">Criar Novo Usuário</h1>
+<div class="register-wrapper">
 
-<div class="container">
-  {% if erro %}
-  <div class="erro"><i class="fa fa-exclamation-triangle"></i> {{ erro }}</div>
-  {% endif %}
-  {% if sucesso %}
-  <div class="msg-sucesso"><i class="fa fa-check-circle"></i> {{ sucesso }}</div>
-  {% endif %}
+  <h2 class="register-title">Criar Novo Usuário</h2>
 
-  <form method="POST">
-    <input class="barra-cpf" type="text" name="nome" placeholder="Nome do Usuário" required>
-    <input class="barra-cpf" type="password" name="senha" placeholder="Senha" required>
+  <div class="register-card">
+    {% if erro %}
+    <div class="erro"><i class="fa fa-exclamation-triangle"></i> {{ erro }}</div>
+    {% endif %}
+    {% if sucesso %}
+    <div class="msg-sucesso"><i class="fa fa-check-circle"></i> {{ sucesso }}</div>
+    {% endif %}
 
-    <select name="role" class="barra-cpf" required>
-      <option value="">Selecione o tipo de acesso</option>
-      <option value="user">Usuário Comum</option>
-      <option value="admin">Administrador</option>
-    </select>
+    <form method="POST">
+      <input class="barra-cpf" type="text" name="nome" placeholder="Nome do Usuário" required>
+      <input class="barra-cpf" type="password" name="senha" placeholder="Senha" required>
 
-    <div class="button-group">
-      <button type="submit" class="azul"><i class="fa fa-user-plus"></i> Criar Usuário</button>
-      <a href="{{ url_for('usuarios') }}" class="vermelho">Cancelar</a>
-    </div>
-  </form>
+      <select name="role" class="barra-cpf" required>
+        <option value="">Selecione o tipo de acesso</option>
+        <option value="user">Usuário Comum</option>
+        <option value="admin">Administrador</option>
+      </select>
+
+      <div class="button-group">
+
+        <button type="submit" class="btn-criar">
+          <i class="fa fa-user-plus"></i> Criar Usuário
+        </button>
+
+        <a href="{{ url_for('usuarios') }}" class="btn-cancelar">
+          Cancelar
+        </a>
+
+      </div>
+    </form>
+  </div>
 </div>
 {% endblock %}

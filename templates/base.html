@@ -2,178 +2,303 @@
 <html lang="pt-BR">
 
 <head>
+
     <meta charset="UTF-8">
-    <title>{% block title %}Consig Tech{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Tomorrow:wght@600&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <title>{% block title %}ConsigTech{% endblock %}</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
-    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
-
-    <script>
-        (function () {
-            if (localStorage.getItem("theme") === "dark") {
-                document.documentElement.classList.add("dark-mode");
-            }
-        })();
-    </script>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/logo.png') }}">
 
     <style>
-        .sidebar-header {
-            text-align: center;
-            padding: 10px 5px 0;
+        :root {
+            --gradiente-inicio: #e4e4e4;
+            --gradiente-fim: #ffffff;
+            --cor-texto: #1e293b;
+            --bg-container: rgba(255, 255, 255, 0.85);
+            --bg-card: #ffffff;
         }
 
-        .sidebar-title {
-            font-family: 'Tomorrow', sans-serif;
-            font-size: 20px;
-            font-weight: 700;
+        .dark-mode {
+
+            --gradiente-inicio: #143113;
+            --gradiente-fim: #020617;
+
+            --cor-texto: #e2e8f0;
+
+            --bg-container: rgba(15, 23, 42, 0.9);
+            --bg-card: #1e293b;
+
+        }
+
+        .dark-mode .card,
+        .dark-mode .card-meta,
+        .dark-mode .tabela-admin table,
+        .dark-mode .grafico-ranking,
+        .dark-mode .grafico-rosquinha {
+
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+
+            color: #ffffff;
+        }
+
+        .dark-mode .card h3,
+        .dark-mode .card-meta h3,
+        .dark-mode .valor,
+        .dark-mode td,
+        .dark-mode th {
+
+            color: #ffffff;
+
+        }
+
+        .dark-mode .grafico-ranking,
+        .dark-mode .grafico-rosquinha,
+        .dark-mode .ranking-consultores {
+
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+
+            color: white;
+        }
+
+        .dark-mode .ranking-consultores td,
+        .dark-mode .ranking-consultores th,
+        .dark-mode .ranking-consultores h3 {
+            color: white;
+        }
+
+        .card,
+        .card-meta,
+        .tabela-admin table,
+        .grafico-ranking,
+        .grafico-rosquinha {
+
+            background: var(--bg-card);
             color: var(--cor-texto);
-            text-transform: uppercase;
-            margin-bottom: 4px;
+
         }
 
-        .sidebar-user {
-            font-size: 16px;
-            font-weight: 600;
+        h1,
+        h2,
+        h3,
+        h4 {
             color: var(--cor-texto);
         }
 
-        .sidebar-role {
-            font-size: 13px;
+        .dark-mode .btn-filtrar,
+        .dark-mode .btn-filtro {
+
+            background: #16a34a;
+            color: white;
+
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(40deg, var(--gradiente-inicio), var(--gradiente-fim));
+            margin: 0;
             color: var(--cor-texto);
+            transition: 0.4s ease;
         }
 
-        .sidebar-divider {
-            height: 1px;
-            width: 90%;
-            background: linear-gradient(90deg, transparent, rgba(0,255,128,.6), transparent);
-            margin: 8px auto;
-        }
-
-        .analitico-btn {
-            display: block;
-            margin: 10px;
-            padding: 10px;
-            text-align: center;
-            background: linear-gradient(135deg, #0f9d58, #1db954);
-            color: #fff;
-            font-weight: 500;
-            border-radius: 12px;
-            text-decoration: none;
-        }
-
-        .sidebar-icons {
-            display: flex;
-            justify-content: center;
-            gap: 12px;
-            margin-bottom: 48px;
-        }
-
-        .icon-btn {
-            width: 40px;
-            height: 36px;
+        .navbar {
+            height: 65px;
+            background: var(--bg-container);
+            backdrop-filter: blur(10px);
             display: flex;
             align-items: center;
-            justify-content: center;
-            background: rgba(255,255,255,0.08);
-            border-radius: 10px;
-            border: none;
-            cursor: pointer;
-            color: var(--cor-texto);
+            justify-content: space-between;
+            padding: 0 25px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            font-size: 18px;
+        }
+
+        .logo i {
+            background: #16a34a;
+            color: white;
+            padding: 8px;
+            border-radius: 8px;
+        }
+
+        .menu {
+            display: flex;
+            gap: 18px;
+            margin-left: 30px;
+        }
+
+        .menu a {
             text-decoration: none;
+            color: var(--cor-texto);
+            font-size: 14px;
+            padding: 6px 12px;
+            border-radius: 6px;
         }
 
-        .icon-btn:hover {
-            background: rgba(255,255,255,0.18);
+        .menu a:hover {
+            color: #16a34a;
         }
 
-        .material-icons {
-            font-size: 22px;
+        .menu .active {
+            background: #16a34a;
+            color: white;
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .btn-sair {
+            background: #ef4444;
+            border: none;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: auto;
+            padding: 30px;
+        }
+
+        .btn-theme {
+            background: transparent;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            margin-right: 15px;
+            color: var(--cor-texto);
+            transition: .2s;
+        }
+
+        .btn-theme:hover {
+            transform: scale(1.15);
+        }
+
+        .logout-icon {
+            color: #ef4444;
+            font-size: 18px;
+            margin-left: 10px;
+            transition: 0.2s;
+        }
+
+        .logout-icon:hover {
+            transform: scale(1.15);
+            color: #dc2626;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 6px;
         }
     </style>
 </head>
 
-<body class="pagina">
+<body>
+    <div class="navbar">
+        <div class="nav-left">
+            <div class="logo">
+                <img src="{{ url_for('static', filename='img/icone.png') }}" class="logo-icon">
+                ConsigTech
+            </div>
 
-<button class="menu-toggle" id="menuToggle">
-    <i class="fa-solid fa-bars"></i>
-</button>
+            <div class="menu">
 
-<div class="sidebar" id="sidebar">
-
-    <div class="sidebar-header">
-        <img src="{{ url_for('static', filename='img/logo.png') }}" class="sidebar-logo">
-
-        <div class="sidebar-title">
-            {{ titulo if titulo else request.endpoint.replace('_', ' ').title() }}
-            <p style="font-size:14px">CLT</p>
+                <a href="/dashboard">Dashboard</a>
+                {% if session.get('role') == 'user' %}
+                <a href="/nova_proposta">Nova Proposta</a>
+                <a href="/painel_usuario">Meu Painel</a>
+                {% endif %}
+                <a href="/indice_dia">Índice do Dia</a>
+                <a href="/ranking">Ranking</a>
+                {% if session.get('role') == 'admin' %}
+                <a href="/relatorios">Relatórios</a>
+                <a href="/painel_admin">Painel Admin</a>
+                <a href="/usuarios">Usuários</a>
+                <a href="/register">Adicionar Usuário</a>
+                {% endif %}
+            </div>
         </div>
-
-        <div class="sidebar-user">{{ session.get('user') }}</div>
-        <div class="sidebar-role">{{ session.get('role') }}</div>
-
-        <div class="sidebar-divider"></div>
+        <div class="nav-right">
+            <button id="toggleTheme" class="btn-theme">
+                <i id="iconTema" class="fa-solid fa-moon"></i>
+            </button>
+            <span>{{ session.get('user') }}</span>
+            <a href="/logout" class="logout-icon">
+                <i class="fa-solid fa-right-from-bracket"></i>
+            </a>
+        </div>
     </div>
-
-    <div class="menu-container">
-        <ul class="menu">
-            <li><a href="{{ url_for('dashboard') }}">▸ Dashboard</a></li>
-
-            {% if session.get('role') == 'admin' %}
-                <li><a href="{{ url_for('painel_admin') }}">▸ Painel Administrativo</a></li>
-            {% else %}
-                <li><a href="{{ url_for('painel_usuario') }}">▸ Meu Painel</a></li>
-            {% endif %}
-
-            <li><a href="{{ url_for('ranking') }}">▸ Ranking</a></li>
-            <li><a href="{{ url_for('indice_dia') }}">▸ Índice do Dia</a></li>
-
-            {% if session.get('role') != 'admin' %}
-                <li><a href="{{ url_for('nova_proposta') }}">▸ Enviar Proposta</a></li>
-            {% endif %}
-
-            {% if session.get('role') == 'admin' %}
-                <li><a href="{{ url_for('relatorios') }}">▸ Relatórios</a></li>
-                <li><a href="{{ url_for('usuarios') }}">▸ Gerenciar Usuários</a></li>
-                <li><a href="{{ url_for('register') }}">▸ Adicionar Usuário</a></li>
-            {% endif %}
-        </ul>
+    <div class="container">
+        {% block content %}{% endblock %}
     </div>
+    <script>
+        const btnTema = document.getElementById("toggleTheme");
+        const iconTema = document.getElementById("iconTema");
 
-    {% if session.get('role') == 'admin' %}
-        <a href="https://analitico-inss.onrender.com/indice_dia" class="analitico-btn">
-            Analítico INSS
-        </a>
-    {% endif %}
+        function aplicarTemaSalvo() {
+            const tema = localStorage.getItem("tema");
 
-    <div class="sidebar-icons">
-        <button class="icon-btn" onclick="toggleTheme()" title="Tema">
-            <span class="material-icons">dark_mode</span>
-        </button>
+            if (tema === "dark") {
+                document.body.classList.add("dark-mode");
+                iconTema.classList.remove("fa-moon");
+                iconTema.classList.add("fa-sun");
+            }
 
-        <a href="{{ url_for('logout') }}" class="icon-btn" title="Sair">
-            <span class="material-icons">logout</span>
-        </a>
-    </div>
+            setTimeout(() => {
+                if (typeof criarGrafico === "function") criarGrafico();
+                if (typeof criarGraficoBruto === "function") criarGraficoBruto();
+            }, 50);
+        }
 
-</div>
+        btnTema.onclick = () => {
 
-<div class="content">
-    {% block content %}{% endblock %}
-</div>
+            document.body.classList.toggle("dark-mode");
 
-<script>
-    const menuToggle = document.getElementById("menuToggle");
-    const sidebar = document.getElementById("sidebar");
+            if (document.body.classList.contains("dark-mode")) {
+                localStorage.setItem("tema", "dark");
+            } else {
+                localStorage.setItem("tema", "light");
+            }
 
-    menuToggle.addEventListener("click", () => {
-        sidebar.classList.toggle("active");
-    });
-</script>
+            setTimeout(() => {
+                if (typeof criarGrafico === "function") criarGrafico();
+                if (typeof criarGraficoBruto === "function") criarGraficoBruto();
+            }, 200);
 
+        };
+
+        aplicarTemaSalvo();         
+    </script>
 </body>
+
 </html>

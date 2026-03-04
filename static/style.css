@@ -1,6 +1,6 @@
   :root {
-    --gradiente-inicio: #e4e4e4;
-    --gradiente-fim: #ffffff;
+    --gradiente-inicio: #e4e4e4e0;
+    --gradiente-fim: #e0e0e0dc;
     --cor-texto: #007006;
     --bg-container: rgba(255, 255, 255, 0.12);
     --bg-input: rgba(255, 255, 255, 0.15);
@@ -25,7 +25,6 @@
   body:not(.dark-mode) .btn-filtrar:hover {
     background: #c8e6c9 !important;
   }
-
 
   body.pagina {
     background: linear-gradient(40deg, var(--gradiente-inicio), var(--gradiente-fim));
