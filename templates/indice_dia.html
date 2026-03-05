@@ -247,7 +247,7 @@
 
 <script>
     function atualizarPainelTV() {
-        fetch(window.location.href)
+        fetch(window.location.href + "?t=" + new Date().getTime())
             .then(res => res.text())
             .then(html => {
                 const parser = new DOMParser();
@@ -271,7 +271,7 @@
             .catch(err => console.error("Erro ao atualizar painel TV:", err));
     }
 
-    setInterval(atualizarPainelTV, 15000);
+    setInterval(atualizarPainelTV, 10000);
     atualizarPainelTV();
 </script>
 <script>
