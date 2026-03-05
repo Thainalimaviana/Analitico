@@ -1,6 +1,6 @@
   :root {
-    --gradiente-inicio: #a7a7a7e0;
-    --gradiente-fim: #c4c4c4dc;
+    --gradiente-inicio: #ffffff;
+    --gradiente-fim: #ffffff;
     --cor-texto: #007006;
     --bg-container: rgba(255, 255, 255, 0.12);
     --bg-input: rgba(255, 255, 255, 0.15);
@@ -16,7 +16,7 @@
 
   body:not(.dark-mode) .btn-filtro,
   body:not(.dark-mode) .btn-filtrar {
-    background: #e8f5e9 !important;
+    background: #f5faf5 !important;
     color: #006622 !important;
     border: 1px solid #009b3a !important;
   }
