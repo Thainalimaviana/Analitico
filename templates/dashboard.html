@@ -137,6 +137,10 @@
 
 <script>
 
+    setInterval(() => {
+        location.reload();
+    }, 30000);
+
     const bancos = {{ bancos_dados | map(attribute = 0) | list | tojson }};
     const qtdPropostas = {{ bancos_dados | map(attribute = 1) | list | tojson }};
     const valores = {{ bancos_dados | map(attribute = 2) | list | tojson }};
@@ -277,7 +281,7 @@
                                 style: 'currency',
                                 currency: 'BRL'
                             });
-                            
+
                             return "💸 Bruto: " + valor;
                         }
                     }
