@@ -218,6 +218,10 @@
             height: 40px;
             border-radius: 6px;
         }
+
+        .btn-theme i {
+            transition: 0.3s;
+        }
     </style>
 </head>
 
@@ -283,9 +287,19 @@
             document.body.classList.toggle("dark-mode");
 
             if (document.body.classList.contains("dark-mode")) {
+
                 localStorage.setItem("tema", "dark");
+
+                iconTema.classList.remove("fa-moon");
+                iconTema.classList.add("fa-sun");
+
             } else {
+
                 localStorage.setItem("tema", "light");
+
+                iconTema.classList.remove("fa-sun");
+                iconTema.classList.add("fa-moon");
+
             }
 
             setTimeout(() => {
