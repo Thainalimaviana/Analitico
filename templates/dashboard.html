@@ -186,7 +186,7 @@
 
                                 const i = context.dataIndex;
 
-                                const valor = valores[i].toLocaleString('pt-BR', {
+                                const valor = Number(valores[i]).toLocaleString('pt-BR', {
                                     style: 'currency',
                                     currency: 'BRL'
                                 });
