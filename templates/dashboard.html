@@ -139,7 +139,7 @@
 
     setInterval(() => {
         location.reload();
-    }, 30000);
+    }, 180000);
 
     const bancos = {{ bancos_dados | map(attribute = 0) | list | tojson }};
     const qtdPropostas = {{ bancos_dados | map(attribute = 1) | list | tojson }};
