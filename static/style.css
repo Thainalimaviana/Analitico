@@ -1,6 +1,6 @@
   :root {
-    --gradiente-inicio: #e4e4e4e0;
-    --gradiente-fim: #e0e0e0dc;
+    --gradiente-inicio: #a7a7a7e0;
+    --gradiente-fim: #c4c4c4dc;
     --cor-texto: #007006;
     --bg-container: rgba(255, 255, 255, 0.12);
     --bg-input: rgba(255, 255, 255, 0.15);
@@ -8,7 +8,7 @@
 
   .dark-mode {
     --gradiente-inicio: #000000;
-    --gradiente-fim: #006622;
+    --gradiente-fim: #006655;
     --cor-texto: #ffffff;
     --bg-container: rgba(0, 0, 0, 0.4);
     --bg-input: rgba(255, 255, 255, 0.08);
