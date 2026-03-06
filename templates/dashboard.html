@@ -71,7 +71,106 @@
         <h3>Propostas Brutas</h3>
         <canvas id="graficoBruto"></canvas>
     </div>
+    <div class="box tabela-bonus">
 
+        <h3>Tabela de Bonificação</h3>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Produção (R$)</th>
+                    <th>Bonificação (R$)</th>
+                    <th>Percentual</th>
+
+                    {% if session.get('role') == 'admin' %}
+                    <th>Ações</th>
+                    {% endif %}
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for b in bonus %}
+
+                <tr>
+                    <td>{{ b[1] | brl }}</td>
+                    <td>{{ b[2] | brl }}</td>
+                    <td>{{ b[3] }}%</td>
+
+                    {% if session.get('role') == 'admin' %}
+                    <td>
+
+                        <a onclick="abrirModalEditar({{b[0]}},{{b[1]}},{{b[2]}},{{b[3]}})">
+                            <i class="fa fa-pen"></i>
+                        </a>
+
+                        <a href="/excluir_bonus/{{ b[0] }}">
+                            <i class="fa fa-trash"></i>
+                        </a>
+
+                    </td>
+                    {% endif %}
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+        </table>
+
+        {% if session.get('role') == 'admin' %}
+        <div style="margin-top:15px;text-align:center;">
+            <button onclick="abrirModalNovo()" class="btn-add-bonus">
+                + Adicionar Nova Faixa
+            </button>
+        </div>
+        {% endif %}
+    </div>
+</div>
+<div id="modalBonus" class="modalBonus">
+
+    <div class="modalContent">
+
+        <h3 id="tituloModal" class="modalTitulo">Nova Bonificação</h3>
+
+        <form method="POST" action="/salvar_bonus">
+
+            <input type="hidden" name="id" id="bonus_id">
+
+            <div class="formGrid">
+
+                <div class="campo">
+                    <label>Produção</label>
+                    <input type="number" step="0.01" name="producao" id="bonus_producao">
+                </div>
+
+                <div class="campo">
+                    <label>Valor bônus</label>
+                    <input type="number" step="0.01" name="bonus" id="bonus_valor">
+                </div>
+
+                <div class="campo">
+                    <label>Percentual</label>
+                    <input type="number" step="0.01" name="percentual" id="bonus_percentual">
+                </div>
+
+            </div>
+
+            <div class="modalActions">
+
+                <button type="submit" class="btnSalvar">
+                    Salvar
+                </button>
+
+                <button type="button" onclick="fecharModal()" class="btnCancelar">
+                    Cancelar
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
 </div>
 
 <style>
@@ -130,6 +229,207 @@
 
     body.dark-mode .rankingItem {
         border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .modalBonus {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.55);
+        align-items: center;
+        justify-content: center;
+        z-index: 999;
+        backdrop-filter: blur(3px);
+    }
+
+    .modalContent {
+        background: var(--bg-card);
+        padding: 30px 35px;
+        border-radius: 14px;
+        width: 420px;
+        box-shadow: 0 10px 35px rgba(0, 0, 0, 0.25);
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        animation: modalFade .25s ease;
+    }
+
+    @keyframes modalFade {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .modalTitulo {
+
+        font-size: 20px;
+        font-weight: 600;
+        color: var(--cor-texto);
+        margin-bottom: 5px;
+
+    }
+
+    .formGrid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+
+    }
+
+    .campo {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+
+    }
+
+    .campo label {
+        font-size: 12px;
+        font-weight: 600;
+        opacity: .8;
+
+    }
+
+    .campo input {
+
+        padding: 8px 10px;
+        border-radius: 6px;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        background: var(--bg-input);
+        color: var(--cor-texto);
+        font-size: 13px;
+
+    }
+
+    body.dark-mode .campo input {
+        border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .modalActions {
+
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 10px;
+
+    }
+
+    .btnSalvar {
+
+        background: #16a34a;
+        color: white;
+        border: none;
+        padding: 8px 18px;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: .2s;
+
+    }
+
+    .btnSalvar:hover {
+
+        background: #15803d;
+
+    }
+
+    .btnCancelar {
+
+        background: #e5e7eb;
+        border: none;
+        padding: 8px 18px;
+        border-radius: 6px;
+        font-size: 13px;
+        cursor: pointer;
+
+    }
+
+    body.dark-mode .btnCancelar {
+
+        background: #374151;
+        color: white;
+
+    }
+
+    body.dark-mode .tabela-bonus {
+        background: linear-gradient(135deg,
+                rgba(255, 255, 255, 0.05),
+                rgba(255, 255, 255, 0.02));
+
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .tabela-bonus {
+        background: var(--bg-card);
+        border-radius: 12px;
+        padding: 20px;
+        transition: all .25s ease;
+    }
+
+    .tabela-bonus table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .tabela-bonus th {
+
+        color: var(--cor-texto);
+        font-weight: 600;
+        font-size: 13px;
+        padding: 10px;
+
+    }
+
+    .tabela-bonus td {
+
+        color: var(--cor-texto);
+        font-size: 13px;
+        padding: 10px;
+
+    }
+
+    .tabela-bonus th,
+    .tabela-bonus td {
+        padding: 10px;
+        text-align: center;
+    }
+
+    .btn-add-bonus {
+        background: #16a34a;
+        color: white;
+        padding: 8px 16px;
+        border-radius: 6px;
+        text-decoration: none;
+    }
+
+    .tabela-bonus a i {
+        color: var(--cor-texto);
+        transition: 0.2s;
+        padding: 2px;
+    }
+
+    .tabela-bonus a:hover i {
+        color: #16a34a;
+    }
+
+    .tabela-bonus tr {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    }
+
+    body.dark-mode .tabela-bonus tr {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+
     }
 </style>
 
@@ -318,6 +618,39 @@
 }
     criarGrafico();
     criarGraficoBruto();
+
+
+    function abrirModalNovo() {
+
+        document.getElementById("tituloModal").innerText = "Nova Bonificação"
+
+        document.getElementById("bonus_id").value = ""
+        document.getElementById("bonus_producao").value = ""
+        document.getElementById("bonus_valor").value = ""
+        document.getElementById("bonus_percentual").value = ""
+
+        document.getElementById("modalBonus").style.display = "flex"
+
+    }
+
+    function abrirModalEditar(id, producao, bonus, percentual) {
+
+        document.getElementById("tituloModal").innerText = "Editar Bonificação"
+
+        document.getElementById("bonus_id").value = id
+        document.getElementById("bonus_producao").value = producao
+        document.getElementById("bonus_valor").value = bonus
+        document.getElementById("bonus_percentual").value = percentual
+
+        document.getElementById("modalBonus").style.display = "flex"
+
+    }
+
+    function fecharModal() {
+
+        document.getElementById("modalBonus").style.display = "none"
+
+    }    
 </script>
 
 {% endblock %}

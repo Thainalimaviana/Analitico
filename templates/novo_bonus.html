@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>Nova Faixa de Bonificação</h2>
+
+<form method="POST">
+
+<label>Produção</label>
+<input type="number" step="0.01" name="producao">
+
+<label>Valor do bônus</label>
+<input type="number" step="0.01" name="bonus">
+
+<label>Percentual</label>
+<input type="number" step="0.01" name="percentual">
+
+<button type="submit">Salvar</button>
+
+</form>
+
+{% endblock %}

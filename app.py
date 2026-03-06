@@ -680,6 +680,25 @@ def dashboard():
 
     dados_fontes = cur.fetchall()
 
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS bonus (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            producao REAL,
+            bonus REAL,
+            percentual REAL
+        )
+    """ if isinstance(conn, sqlite3.Connection) else """
+        CREATE TABLE IF NOT EXISTS bonus (
+            id SERIAL PRIMARY KEY,
+            producao NUMERIC(12,2),
+            bonus NUMERIC(12,2),
+            percentual NUMERIC(5,2)
+        )
+    """)
+
+    cur.execute("SELECT * FROM bonus ORDER BY producao ASC")
+    bonus = cur.fetchall()
+
     fontes_lista = [
         "URA",
         "Consultados antigos",
@@ -743,7 +762,8 @@ def dashboard():
         bancos_bruto=bancos_bruto,
         fontes=fontes,
         ticket_meta_diaria=float(ticket_meta_diaria or 0),
-        media_diaria_contratos=float(media_diaria_contratos or 0)
+        media_diaria_contratos=float(media_diaria_contratos or 0),
+        bonus=bonus
     )
 
 from datetime import timedelta
@@ -1469,6 +1489,60 @@ def ranking():
         data_ini=data_ini,
         data_fim=data_fim
     )
+
+@app.route("/salvar_bonus", methods=["POST"])
+def salvar_bonus():
+
+    if "user" not in session or session["role"] != "admin":
+        return redirect(url_for("login"))
+
+    id_bonus = request.form.get("id")
+    producao = float(request.form.get("producao", 0))
+    bonus = float(request.form.get("bonus", 0))
+    percentual = float(request.form.get("percentual", 0))
+
+    conn = get_conn()
+    cur = conn.cursor()
+
+    ph = "?" if isinstance(conn, sqlite3.Connection) else "%s"
+
+    if id_bonus:
+        cur.execute(f"""
+            UPDATE bonus
+            SET producao = {ph},
+                bonus = {ph},
+                percentual = {ph}
+            WHERE id = {ph}
+        """,(producao, bonus, percentual, id_bonus))
+
+    else:
+        cur.execute(f"""
+            INSERT INTO bonus (producao, bonus, percentual)
+            VALUES ({ph},{ph},{ph})
+        """,(producao, bonus, percentual))
+
+    conn.commit()
+    conn.close()
+
+    return redirect(url_for("dashboard"))
+
+@app.route("/excluir_bonus/<int:id>")
+def excluir_bonus(id):
+
+    if "user" not in session or session["role"] != "admin":
+        return redirect(url_for("login"))
+
+    conn = get_conn()
+    cur = conn.cursor()
+
+    ph = "?" if isinstance(conn, sqlite3.Connection) else "%s"
+
+    cur.execute(f"DELETE FROM bonus WHERE id={ph}",(id,))
+    conn.commit()
+    conn.close()
+
+    return redirect(url_for("dashboard"))
+
 
 if __name__ == "__main__":
     app.run(debug=True)
