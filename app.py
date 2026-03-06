@@ -41,6 +41,7 @@ def init_db():
             senha TEXT NOT NULL,
             role TEXT DEFAULT 'user'
         )""")
+
         cur.execute("""CREATE TABLE IF NOT EXISTS propostas (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             data TEXT,
@@ -56,6 +57,7 @@ def init_db():
             observacao TEXT,
             telefone TEXT
         )""")
+
     else:
         cur.execute("""CREATE TABLE IF NOT EXISTS users (
             id SERIAL PRIMARY KEY,
@@ -63,6 +65,7 @@ def init_db():
             senha TEXT NOT NULL,
             role TEXT DEFAULT 'user'
         )""")
+
         cur.execute("""CREATE TABLE IF NOT EXISTS propostas (
             id SERIAL PRIMARY KEY,
             data TIMESTAMP,
@@ -78,6 +81,26 @@ def init_db():
             observacao TEXT,
             telefone TEXT
         )""")
+
+    if isinstance(conn, sqlite3.Connection):
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS bonus (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                producao REAL,
+                bonus REAL,
+                percentual REAL
+            )
+        """)
+
+    else:
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS bonus (
+                id SERIAL PRIMARY KEY,
+                producao NUMERIC(12,2),
+                bonus NUMERIC(12,2),
+                percentual NUMERIC(5,2)
+            )
+        """)    
 
     cur.execute("SELECT * FROM users WHERE nome = ?" if isinstance(conn, sqlite3.Connection)
                 else "SELECT * FROM users WHERE nome = %s", ("admin",))
@@ -1496,10 +1519,11 @@ def salvar_bonus():
     if "user" not in session or session["role"] != "admin":
         return redirect(url_for("login"))
 
+    producao = float(request.form.get("producao") or 0)
+    bonus = float(request.form.get("bonus") or 0)
+    percentual = float(request.form.get("percentual") or 0)
+
     id_bonus = request.form.get("id")
-    producao = float(request.form.get("producao", 0))
-    bonus = float(request.form.get("bonus", 0))
-    percentual = float(request.form.get("percentual", 0))
 
     conn = get_conn()
     cur = conn.cursor()
@@ -1507,19 +1531,19 @@ def salvar_bonus():
     ph = "?" if isinstance(conn, sqlite3.Connection) else "%s"
 
     if id_bonus:
+
         cur.execute(f"""
             UPDATE bonus
-            SET producao = {ph},
-                bonus = {ph},
-                percentual = {ph}
-            WHERE id = {ph}
-        """,(producao, bonus, percentual, id_bonus))
+            SET producao={ph}, bonus={ph}, percentual={ph}
+            WHERE id={ph}
+        """, (producao, bonus, percentual, id_bonus))
 
     else:
+
         cur.execute(f"""
             INSERT INTO bonus (producao, bonus, percentual)
             VALUES ({ph},{ph},{ph})
-        """,(producao, bonus, percentual))
+        """, (producao, bonus, percentual))
 
     conn.commit()
     conn.close()
@@ -1542,7 +1566,6 @@ def excluir_bonus(id):
     conn.close()
 
     return redirect(url_for("dashboard"))
-
 
 if __name__ == "__main__":
     app.run(debug=True)
