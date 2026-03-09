@@ -477,23 +477,24 @@
 
         font-weight: 700;
 
-        color: white;
-
         background: linear-gradient(120deg,
-                white 0%,
-                white 45%,
-                #90ff85 48%,
-                #fff6b0 50%,
-                #65ff3f 52%,
-                white 55%,
-                white 100%);
+                var(--cor-texto) 0%,
+                var(--cor-texto) 45%,
+                #68fd2d 48%,
+                #85ffc6 50%,
+                #01df5d 52%,
+                var(--cor-texto) 55%,
+                var(--cor-texto) 100%);
+
         background-size: 250%;
 
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
+
         animation: brilhoMetal 6s linear infinite;
 
     }
+
     @keyframes brilhoMetal {
 
         0% {
