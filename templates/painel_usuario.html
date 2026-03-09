@@ -14,14 +14,22 @@
   }
 
   .cards-container .card {
-    flex: 0 1 230px;
-    padding: 12px 15px;
-    border-radius: 18px;
+    flex: 0 1 210px;
+
+    padding: 8px 10px;
+    /* reduz espaço interno */
+    height: 150px;
+    /* altura fixa menor */
+
+    border-radius: 16px;
     color: white;
     font-weight: 700;
     text-align: center;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-    transition: transform 0.2s ease;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    /* centraliza vertical */
   }
 
   .cards-container .card:hover {
@@ -45,10 +53,44 @@
     background: linear-gradient(135deg, #4d4d4d, #8a8a8a);
   }
 
+  .agua {
+    background: linear-gradient(135deg, #008a73, #00b4cc);
+    color: white;
+  }
+
+  .valor-brilho {
+    font-weight: 700;
+    background: linear-gradient(120deg,
+        white 0%,
+        white 45%,
+        #68fd2d 48%,
+        #85ffc6 50%,
+        #01df5d 52%,
+        white 55%,
+        white 100%);
+    background-size: 250%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: brilhoMetal 6s linear infinite;
+  }
+
+  @keyframes brilhoMetal {
+    0% {
+      background-position: -250%;
+    }
+
+    100% {
+      background-position: 250%;
+    }
+
+  }
+
   .cards-container .card h3 {
-    font-size: 18px;
-    font-weight: 300;
-    margin-bottom: 8px;
+    font-size: 15px;
+    font-weight: 700;
+    font-style: italic;
+    color: white;
+    margin-bottom: 0px;
   }
 
   .cards-container .card .valor {
@@ -356,12 +398,21 @@
     color: var(--cor-texto);
   }
 
-  .cards-container .card h3 {
+  .cards-container .card .valor {
     color: white;
   }
 
-  .cards-container .card .valor {
-    color: white;
+  .card-bonus h3 {
+    margin: 2px 0;
+  }
+
+  .card-bonus .valor {
+    margin: 2px 0;
+  }
+
+  .card-bonus h3:nth-of-type(2) {
+    margin-top: 4px;
+    font-size: 13px;
   }
 </style>
 
@@ -440,6 +491,17 @@
         0,00" }}
       </p>
     </div>
+
+    <div class="card agua card-bonus">
+      <h3 class="valor-brilho">Falta para Bonificação</h3>
+      <p class="valor valor-brilho">
+        {{ ((producao_meta or 0) - (total_eq or 0))|brl if producao_meta and producao_meta > total_eq else "R$ 0,00" }}
+      </p>
+      <h3>Bonificação</h3>
+      <p class="valor valor-brilho">
+        {{ bonificacao_meta|brl }}
+      </p>
+    </div>
   </div>
 
   <div class="tabela-usuario">
@@ -514,9 +576,7 @@
     url.searchParams.set("page", "1");
     window.location.href = url.toString();
   }
-</script>
 
-<script>
   function selecionarPeriodo(periodo) {
     const form = document.getElementById("form-filtros");
     const inputPeriodo = form.querySelector('input[name="periodo"]');

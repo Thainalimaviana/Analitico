@@ -1,8 +1,10 @@
-<link rel="icon" type="image/png" href="{{ url_for('static', filename='img/logo.png') }}">
 {% extends "base.html" %}
 {% block title %}Painel Administrativo{% endblock %}
 
 {% block content %}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
 <style>
   .painel-admin {
     max-width: 1100px;
@@ -103,16 +105,18 @@
 
   .modal-content {
     background: var(--bg-card);
-    padding: 30px;
+    padding: 25px;
     border-radius: 12px;
-    min-width: 300px;
+    width: 420px;
+    max-width: 90%;
     text-align: center;
   }
 
   .modal-content input {
-    width: 100%;
+    width: 92%;
     padding: 8px;
-    margin: 15px 0;
+    margin: 10px auto;
+    display: block;
     border-radius: 6px;
     border: 1px solid rgba(0, 0, 0, 0.2);
   }
@@ -185,7 +189,7 @@
 
       <div class="editar-meta">
         <button class="btn-icon" onclick="abrirMetaGlobal()">
-          <i class="fa fa-pen"></i>
+          <i class="fa-solid fa-pen"></i>
         </button>
       </div>
     </div>
@@ -213,6 +217,9 @@
           <th>Valor Equivalente</th>
           <th>Valor Original</th>
           <th>Meta</th>
+          <th>Produção</th>
+          <th>Bonificação</th>
+          <th>%</th>
           <th>Falta</th>
           <th>Ações</th>
         </tr>
@@ -220,18 +227,23 @@
       <tbody>
         {% for linha in ranking %}
         <tr>
-          <td class="{% if linha[1] >= linha[3] %}texto-brilhante{% endif %}">{{ linha[0] }}</td>
-          <td class="{% if linha[1] >= linha[3] %}texto-brilhante{% endif %}">R$ {{ "{:,.2f}".format(linha[1] or 0) }}
-          </td>
-          <td class="{% if linha[1] >= linha[3] %}texto-brilhante{% endif %}">R$ {{ "{:,.2f}".format(linha[2] or 0) }}
-          </td>
-          <td class="{% if linha[1] >= linha[3] %}texto-brilhante{% endif %}">R$ {{ "{:,.2f}".format(linha[3] or 0) }}
-          </td>
-          <td class="{% if linha[1] >= linha[3] %}texto-brilhante{% endif %}">R$ {{ "{:,.2f}".format(linha[4] or 0) }}
-          </td>
+          <td>{{ linha[0] }}</td>
+          <td>R$ {{ "{:,.2f}".format(linha[1] or 0) }}</td>
+          <td>R$ {{ "{:,.2f}".format(linha[2] or 0) }}</td>
+          <td>R$ {{ "{:,.2f}".format(linha[3] or 0) }}</td>
+          <td>R$ {{ "{:,.2f}".format(linha[4] or 0) }}</td>
+          <td>R$ {{ "{:,.2f}".format(linha[5] or 0) }}</td>
+          <td>{{ linha[6] or 0 }}%</td>
+          <td>R$ {{ "{:,.2f}".format(linha[7] or 0) }}</td>
           <td>
-            <button class="btn-icon" onclick="abrirMeta('{{ linha[0] }}', '{{ linha[3] or 0 }}')">
-              <i class="fa fa-pen"></i>
+            <button class="btn-icon" onclick="abrirMeta(
+              '{{ linha[0] }}',
+              '{{ linha[3] or 0 }}',
+              '{{ linha[4] or 0 }}',
+              '{{ linha[5] or 0 }}',
+              '{{ linha[6] or 0 }}'
+              )">
+              <i class="fa-solid fa-pen"></i>
             </button>
           </td>
         </tr>
@@ -255,14 +267,22 @@
 <div id="modalIndividual" class="modal">
   <div class="modal-content">
     <span class="close" onclick="fecharMeta()">&times;</span>
-    <h3>Editar Meta Individual</h3>
+    <h3>Editar Dados do Consultor</h3>
     <form method="POST" action="{{ url_for('editar_meta_individual') }}">
       <input type="hidden" name="consultor" id="consultor_meta">
-      <input type="number" step="0.01" name="nova_meta" id="valor_meta" placeholder="Nova meta" required>
+      <label>Meta</label>
+      <input type="number" step="0.01" name="nova_meta" id="valor_meta">
+      <label>Produção</label>
+      <input type="number" step="0.01" name="producao" id="valor_producao">
+      <label>Bonificação</label>
+      <input type="number" step="0.01" name="bonificacao" id="valor_bonificacao">
+      <label>Percentual</label>
+      <input type="number" step="0.01" name="percentual" id="valor_percentual" placeholder="Ex: 3.5">
       <button type="submit" class="btn-filtrar">Salvar</button>
     </form>
   </div>
 </div>
+
 <div id="modalDia" class="modal">
   <div class="modal-content">
     <span class="close" onclick="fecharMetaDia()">&times;</span>
@@ -281,17 +301,24 @@
   function fecharMetaDia() {
     document.getElementById("modalDia").style.display = "none";
   }
-</script>
 
-<script>
   function abrirMetaDia() {
     document.getElementById("modalDia").style.display = "flex";
   }
 
-  function abrirMeta(consultor, metaAtual) {
-    document.getElementById("consultor_meta").value = consultor;
-    document.getElementById("valor_meta").value = metaAtual;
-    document.getElementById("modalIndividual").style.display = "flex";
+  function abrirMeta(consultor, meta, producao, bonificacao, percentual) {
+    document.getElementById("consultor_meta").value = consultor
+    document.getElementById("valor_meta").value = meta
+    document.getElementById("valor_producao").value = producao
+    document.getElementById("valor_bonificacao").value = bonificacao
+    document.getElementById("valor_percentual").value = percentual
+    document.getElementById("modalIndividual").style.display = "flex"
+
+  }
+
+  function fecharMeta() {
+    document.getElementById("modalIndividual").style.display = "none"
+
   }
 
   function abrirMetaGlobal() {

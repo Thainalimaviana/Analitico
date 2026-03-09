@@ -169,6 +169,55 @@ def ensure_meta_table():
 ensure_meta_table()
 ensure_banco_column()
 
+def ensure_metas_columns():
+    conn = get_conn()
+    cur = conn.cursor()
+
+    try:
+
+        if isinstance(conn, sqlite3.Connection):
+
+            cur.execute("PRAGMA table_info(metas_individuais)")
+            colunas = [c[1] for c in cur.fetchall()]
+
+            if "producao" not in colunas:
+                cur.execute("ALTER TABLE metas_individuais ADD COLUMN producao REAL")
+
+            if "bonificacao" not in colunas:
+                cur.execute("ALTER TABLE metas_individuais ADD COLUMN bonificacao REAL")
+
+            if "percentual" not in colunas:
+                cur.execute("ALTER TABLE metas_individuais ADD COLUMN percentual REAL")
+
+        else:
+
+            cur.execute("""
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name='metas_individuais'
+            """)
+
+            colunas = [c[0] for c in cur.fetchall()]
+
+            if "producao" not in colunas:
+                cur.execute("ALTER TABLE metas_individuais ADD COLUMN producao NUMERIC(12,2)")
+
+            if "bonificacao" not in colunas:
+                cur.execute("ALTER TABLE metas_individuais ADD COLUMN bonificacao NUMERIC(12,2)")
+
+            if "percentual" not in colunas:
+                cur.execute("ALTER TABLE metas_individuais ADD COLUMN percentual NUMERIC(5,2)")
+
+        conn.commit()
+
+    except Exception as e:
+        print("Erro ao garantir colunas metas:", e)
+
+    finally:
+        conn.close()
+
+ensure_metas_columns()
+
 @app.route("/")
 def home():
     if "user" in session:
@@ -825,23 +874,32 @@ def painel_admin():
         CREATE TABLE IF NOT EXISTS metas_individuais (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             consultor TEXT UNIQUE,
-            meta REAL
+            meta REAL,
+            producao REAL,
+            bonificacao REAL,
+            percentual REAL
         )
     """ if isinstance(conn, sqlite3.Connection) else """
         CREATE TABLE IF NOT EXISTS metas_individuais (
             id SERIAL PRIMARY KEY,
             consultor TEXT UNIQUE,
-            meta NUMERIC(12,2)
+            meta NUMERIC(12,2),
+            producao NUMERIC(12,2),
+            bonificacao NUMERIC(12,2),
+            percentual NUMERIC(5,2)
         )
     """)
 
     if isinstance(conn, sqlite3.Connection):
         query = f"""
             SELECT u.nome AS consultor,
-                   COALESCE(SUM(p.valor_equivalente), 0) AS total_eq,
-                   COALESCE(SUM(p.valor_original), 0) AS total_or,
-                   COALESCE(m.meta, 0) AS meta,
-                   (COALESCE(m.meta, 0) - COALESCE(SUM(p.valor_equivalente), 0)) AS falta
+                COALESCE(SUM(p.valor_equivalente), 0) AS total_eq,
+                COALESCE(SUM(p.valor_original), 0) AS total_or,
+                COALESCE(m.meta, 0) AS meta,
+                COALESCE(m.producao, 0) AS producao,
+                COALESCE(m.bonificacao, 0) AS bonificacao,
+                COALESCE(m.percentual, 0) AS percentual,
+                (COALESCE(m.meta, 0) - COALESCE(SUM(p.valor_equivalente), 0)) AS falta
             FROM users u
             LEFT JOIN propostas p
                 ON u.nome = p.consultor
@@ -849,16 +907,19 @@ def painel_admin():
             LEFT JOIN metas_individuais m
                 ON u.nome = m.consultor
             WHERE u.role != 'admin'
-            GROUP BY u.nome, m.meta
+            GROUP BY u.nome, m.meta, m.producao, m.bonificacao, m.percentual
             ORDER BY total_eq DESC;
         """
     else:
         query = f"""
             SELECT u.nome AS consultor,
-                   COALESCE(SUM(p.valor_equivalente), 0) AS total_eq,
-                   COALESCE(SUM(p.valor_original), 0) AS total_or,
-                   COALESCE(m.meta, 0) AS meta,
-                   (COALESCE(m.meta, 0) - COALESCE(SUM(p.valor_equivalente), 0)) AS falta
+                COALESCE(SUM(p.valor_equivalente), 0) AS total_eq,
+                COALESCE(SUM(p.valor_original), 0) AS total_or,
+                COALESCE(m.meta, 0) AS meta,
+                COALESCE(m.producao, 0) AS producao,
+                COALESCE(m.bonificacao, 0) AS bonificacao,
+                COALESCE(m.percentual, 0) AS percentual,
+                (COALESCE(m.meta, 0) - COALESCE(SUM(p.valor_equivalente), 0)) AS falta
             FROM users u
             LEFT JOIN propostas p
                 ON u.nome = p.consultor
@@ -866,7 +927,7 @@ def painel_admin():
             LEFT JOIN metas_individuais m
                 ON u.nome = m.consultor
             WHERE u.role != 'admin'
-            GROUP BY u.nome, m.meta
+            GROUP BY u.nome, m.meta, m.producao, m.bonificacao, m.percentual
             ORDER BY total_eq DESC;
         """
 
@@ -1072,6 +1133,24 @@ def painel_usuario():
         )
         meta_row = cur.fetchone()
         meta_individual = float(meta_row[0]) if meta_row else 0
+
+        try:
+            cur.execute(
+                "SELECT producao, bonificacao FROM metas_individuais WHERE consultor = ?"
+                if isinstance(conn, sqlite3.Connection)
+                else "SELECT producao, bonificacao FROM metas_individuais WHERE consultor = %s",
+                (consultor_filtro,)
+            )
+            dados_bonus = cur.fetchone()
+
+            producao_meta = float(dados_bonus[0]) if dados_bonus and dados_bonus[0] else 0
+            bonificacao_meta = float(dados_bonus[1]) if dados_bonus and dados_bonus[1] else 0
+
+        except Exception as e:
+            print("Erro ao buscar produção/bonificação:", e)
+            producao_meta = 0
+            bonificacao_meta = 0
+
     except Exception as e:
         print("⚠️ Erro ao buscar meta individual:", e)
         meta_individual = 0
@@ -1104,10 +1183,11 @@ def painel_usuario():
          hoje=hoje,
          meta_individual=meta_individual,
          falta_meta=falta_meta,    
-
          fonte_filtro=fonte_filtro,
          banco_filtro=banco_filtro,
-         observacao_filtro=observacao_filtro,       
+         observacao_filtro=observacao_filtro,
+         producao_meta=producao_meta,
+         bonificacao_meta=bonificacao_meta,       
 
          fontes_lista=[
              "URA", "Consultados antigos", "Consultados de hoje",
@@ -1131,27 +1211,46 @@ def painel_usuario():
 
 @app.route("/editar_meta_individual", methods=["POST"])
 def editar_meta_individual():
+
     if "user" not in session or session["role"] != "admin":
         return redirect(url_for("login"))
+
     consultor = request.form["consultor"]
-    nova_meta = float(request.form["nova_meta"])
+
+    meta = float(request.form.get("nova_meta") or 0)
+    producao = float(request.form.get("producao") or 0)
+    bonificacao = float(request.form.get("bonificacao") or 0)
+    percentual = float(request.form.get("percentual") or 0)
+
     conn = get_conn()
     cur = conn.cursor()
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS metas_individuais (
-            id SERIAL PRIMARY KEY,
-            consultor TEXT UNIQUE,
-            meta NUMERIC(12,2)
-        );
-    """)
-    cur.execute("INSERT INTO metas_individuais (consultor, meta) VALUES (%s, %s) "
-                "ON CONFLICT (consultor) DO UPDATE SET meta = EXCLUDED.meta;" if not isinstance(conn, sqlite3.Connection)
-                else "INSERT OR REPLACE INTO metas_individuais (consultor, meta) VALUES (?, ?);",
-                (consultor, nova_meta))
+
+    if isinstance(conn, sqlite3.Connection):
+
+        cur.execute("""
+        INSERT OR REPLACE INTO metas_individuais
+        (consultor, meta, producao, bonificacao, percentual)
+        VALUES (?, ?, ?, ?, ?)
+        """, (consultor, meta, producao, bonificacao, percentual))
+
+    else:
+
+        cur.execute("""
+        INSERT INTO metas_individuais
+        (consultor, meta, producao, bonificacao, percentual)
+        VALUES (%s, %s, %s, %s, %s)
+        ON CONFLICT (consultor)
+        DO UPDATE SET
+        meta = EXCLUDED.meta,
+        producao = EXCLUDED.producao,
+        bonificacao = EXCLUDED.bonificacao,
+        percentual = EXCLUDED.percentual
+        """, (consultor, meta, producao, bonificacao, percentual))
+
     conn.commit()
     conn.close()
-    return redirect(url_for("painel_admin"))
 
+    return redirect(url_for("painel_admin"))
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
