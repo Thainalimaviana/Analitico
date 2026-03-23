@@ -72,52 +72,38 @@
         <canvas id="graficoBruto"></canvas>
     </div>
     <div class="box tabela-bonus">
-
         <h3>Tabela de Bonificação</h3>
-
         <table>
             <thead>
                 <tr>
                     <th>Produção (R$)</th>
                     <th>Bonificação (R$)</th>
                     <th>Percentual</th>
-
                     {% if session.get('role') == 'admin' %}
                     <th>Ações</th>
                     {% endif %}
                 </tr>
             </thead>
-
             <tbody>
-
                 {% for b in bonus %}
-
                 <tr>
                     <td><span class="valor-brilho">{{ b[1] | brl }}</span></td>
                     <td><span class="valor-brilho">{{ b[2] | brl }}</span></td>
                     <td><span class="valor-brilho">{{ b[3] }}%</span></td>
-
                     {% if session.get('role') == 'admin' %}
                     <td>
-
                         <a onclick="abrirModalEditar({{b[0]}},{{b[1]}},{{b[2]}},{{b[3]}})">
                             <i class="fa fa-pen"></i>
                         </a>
-
                         <a href="/excluir_bonus/{{ b[0] }}">
                             <i class="fa fa-trash"></i>
                         </a>
-
                     </td>
                     {% endif %}
-
                 </tr>
-
                 {% endfor %}
-
             </tbody>
         </table>
-
         {% if session.get('role') == 'admin' %}
         <div style="margin-top:15px;text-align:center;">
             <button onclick="abrirModalNovo()" class="btn-add-bonus">
@@ -128,17 +114,11 @@
     </div>
 </div>
 <div id="modalBonus" class="modalBonus">
-
     <div class="modalContent">
-
         <h3 id="tituloModal" class="modalTitulo">Nova Bonificação</h3>
-
         <form method="POST" action="/salvar_bonus">
-
             <input type="hidden" name="id" id="bonus_id">
-
             <div class="formGrid">
-
                 <div class="campo">
                     <label>Produção</label>
                     <input type="number" step="0.01" name="producao" id="bonus_producao">
@@ -148,28 +128,20 @@
                     <label>Valor bônus</label>
                     <input type="number" step="0.01" name="bonus" id="bonus_valor">
                 </div>
-
                 <div class="campo">
                     <label>Percentual</label>
                     <input type="number" step="0.01" name="percentual" id="bonus_percentual">
                 </div>
-
             </div>
-
             <div class="modalActions">
-
                 <button type="submit" class="btnSalvar">
                     Salvar
                 </button>
-
                 <button type="button" onclick="fecharModal()" class="btnCancelar">
                     Cancelar
                 </button>
-
             </div>
-
         </form>
-
     </div>
 </div>
 
@@ -300,7 +272,6 @@
     }
 
     .campo input {
-
         padding: 8px 10px;
         border-radius: 6px;
         border: 1px solid rgba(0, 0, 0, 0.1);

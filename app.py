@@ -1197,7 +1197,7 @@ def painel_usuario():
          ],     
 
          bancos_lista=[
-             "C6", "Amigoz", "Presença", "Prata", "V8",
+             "C6", "Amigoz", "Presença", "Prata", "V8", "V8-FGTS",
              "PAN", "Facta-CLT", "Facta-FGTS",
              "Tá Quitado", "Mercantil", "BMG", "HUB"
          ],     
